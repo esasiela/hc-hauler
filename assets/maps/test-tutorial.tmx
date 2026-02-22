@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="24">
+ <tileset firstgid="1" source="[Base]BaseChip_pipo.tsx"/>
+ <layer id="1" name="Ground" width="30" height="20">
+  <data encoding="csv">
+1,1,1,1,1,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,8,8,8,8,8,2,2,2,
+1,1,1,1,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,8,8,8,8,8,2,2,
+1,1,1,1,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,1,3,3,3,3,3,8,8,8,8,2,
+1,1,1,1,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,8,8,8,
+1,1,1,1,1,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,8,8,
+1,1,1,1,1,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,8,
+1,1,1,1,1,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,8,
+2,1,1,1,1,1,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,8,8,
+2,1,1,1,1,1,2,2,2,3,3,3,3,7,7,7,7,3,3,3,3,3,3,3,8,8,8,8,8,8,
+2,2,1,1,1,1,1,2,2,3,3,3,7,5,5,5,5,7,3,3,3,3,3,3,8,8,8,8,8,8,
+2,2,2,2,1,1,1,2,2,3,3,3,7,5,5,5,5,7,7,7,3,3,3,3,3,8,8,8,8,8,
+2,2,2,1,1,1,1,2,8,2,3,7,7,5,5,6,5,5,7,7,7,1,3,3,3,3,3,3,8,8,
+2,2,2,1,1,1,1,1,2,2,7,7,5,5,6,6,6,5,7,7,7,1,1,4,3,3,3,3,3,8,
+2,1,1,1,1,1,1,1,7,7,7,5,5,6,6,6,5,5,7,7,7,7,4,4,4,4,4,3,3,8,
+1,1,1,1,1,1,1,7,7,5,5,6,6,6,6,5,5,5,5,7,7,7,7,4,4,4,4,4,3,3,
+1,1,1,1,1,1,1,7,7,5,6,6,6,6,5,5,5,5,7,7,7,7,7,7,4,4,4,4,4,3,
+1,1,1,1,1,1,7,7,7,5,5,6,6,6,5,7,7,7,7,7,4,4,4,4,4,4,4,4,4,4,
+1,1,1,1,1,1,2,2,7,7,7,5,6,5,5,7,7,7,7,4,4,4,4,4,4,4,4,4,4,6,
+1,1,1,1,1,2,2,2,2,2,7,5,5,5,7,7,7,4,4,4,4,4,4,4,4,4,4,6,6,6,
+1,1,1,1,2,2,2,2,2,2,2,7,7,7,7,4,4,4,4,4,4,4,4,4,4,4,6,6,6,6
+</data>
+ </layer>
+ <layer id="2" name="Decor" width="30" height="20">
+  <data encoding="csv">
+0,0,0,0,0,0,49,0,0,0,0,0,0,0,54,54,65,66,65,0,0,0,0,0,0,0,0,0,0,0,
+0,0,43,0,0,0,49,49,0,0,0,0,0,0,54,0,0,65,0,0,0,71,0,0,51,0,0,0,0,0,
+0,0,0,0,0,0,49,49,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,49,49,0,0,0,0,0,160,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,49,49,49,53,0,0,0,0,0,0,0,168,0,0,0,0,0,0,55,0,0,0,0,
+0,0,874,0,0,0,0,0,49,49,53,53,0,0,0,0,167,0,0,0,0,0,0,55,55,0,0,0,0,0,
+0,0,0,0,0,0,0,0,49,49,49,53,53,0,0,0,0,0,0,0,173,0,0,0,55,0,0,56,0,0,
+0,0,0,0,0,0,0,0,0,49,49,49,53,0,0,0,0,0,0,0,0,0,0,0,0,0,56,56,0,0,
+0,0,0,0,0,0,0,0,0,49,49,49,53,0,172,0,0,0,0,0,0,0,0,0,58,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,49,49,49,0,0,0,0,0,0,0,0,0,0,0,0,0,58,58,0,0,0,
+0,0,0,0,0,0,0,0,0,49,49,49,0,0,0,0,0,0,0,157,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,49,0,0,0,0,0,0,0,0,157,157,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,157,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,44,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="3" name="Entities">
+  <object id="1" name="West" type="City" gid="294" x="192" y="384" width="32" height="32">
+   <properties>
+    <property name="alliance" value="West"/>
+    <property name="buyPrice" type="float" value="10"/>
+    <property name="sellPrice" type="float" value="11"/>
+    <property name="storedAmount" type="float" value="100"/>
+   </properties>
+  </object>
+  <object id="6" name="slow300.1" type="Node" gid="301" x="576" y="128" width="32" height="32">
+   <properties>
+    <property name="regenDelay" type="float" value="12"/>
+    <property name="regenRate" type="float" value="4"/>
+    <property name="resourceAmount" type="float" value="100"/>
+    <property name="resourceAmountMax" type="float" value="200"/>
+   </properties>
+  </object>
+  <object id="7" name="Sally" type="Guy" gid="293" x="736" y="224" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="true"/>
+    <property name="carryCapacity" type="float" value="20"/>
+    <property name="idleDelay" type="float" value="0.1"/>
+    <property name="idleDelayJitter" type="float" value="0.3"/>
+    <property name="moveSpeed" type="float" value="28"/>
+    <property name="sprite" value="Female/Female 01-2.png"/>
+   </properties>
+  </object>
+  <object id="8" name="Simone" type="Guy" gid="293" x="672" y="224" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="true"/>
+    <property name="carryCapacity" type="float" value="20"/>
+    <property name="idleDelay" type="float" value="0.1"/>
+    <property name="idleDelayJitter" type="float" value="0.3"/>
+    <property name="moveSpeed" type="float" value="64"/>
+    <property name="sprite" value="Female/Female 01-1.png"/>
+   </properties>
+  </object>
+  <object id="17" name="Poink2" type="Guy" gid="293" x="288" y="64" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="false"/>
+    <property name="carryCapacity" type="float" value="20"/>
+    <property name="idleDelay" type="float" value="0.1"/>
+    <property name="idleDelayJitter" type="float" value="0.3"/>
+    <property name="moveSpeed" type="float" value="64"/>
+    <property name="sprite" value="poink-02.png"/>
+    <property name="spriteDir" value="characters/hcr/experimental/"/>
+   </properties>
+  </object>
+  <object id="19" name="Poink3" type="Guy" gid="293" x="352" y="64" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="false"/>
+    <property name="carryCapacity" type="float" value="20"/>
+    <property name="idleDelay" type="float" value="0.1"/>
+    <property name="idleDelayJitter" type="float" value="0.3"/>
+    <property name="moveSpeed" type="float" value="64"/>
+    <property name="sprite" value="poink-03.png"/>
+    <property name="spriteDir" value="characters/hcr/experimental/"/>
+   </properties>
+  </object>
+  <object id="18" name="Poink1" type="Guy" gid="293" x="224" y="64" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="false"/>
+    <property name="carryCapacity" type="float" value="20"/>
+    <property name="idleDelay" type="float" value="0.1"/>
+    <property name="idleDelayJitter" type="float" value="0.3"/>
+    <property name="moveSpeed" type="float" value="64"/>
+    <property name="sprite" value="poink-01.png"/>
+    <property name="spriteDir" value="characters/hcr/experimental/"/>
+   </properties>
+  </object>
+  <object id="9" name="Froggy" type="Guy" gid="293" x="64" y="384" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="true"/>
+    <property name="behaviorModel" value="NORMAL"/>
+    <property name="carryCapacity" type="float" value="25"/>
+    <property name="idleDelay" type="float" value="0.4"/>
+    <property name="idleDelayJitter" type="float" value="0.2"/>
+    <property name="moveSpeed" type="float" value="60"/>
+    <property name="sprite" value="Male/Male 01-1.png"/>
+   </properties>
+  </object>
+  <object id="13" name="Freddie" type="Guy" gid="293" x="0" y="384" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="true"/>
+    <property name="carryCapacity" type="float" value="25"/>
+    <property name="idleDelay" type="float" value="0.4"/>
+    <property name="idleDelayJitter" type="float" value="0.2"/>
+    <property name="moveSpeed" type="float" value="32"/>
+    <property name="sprite" value="Male/Male 01-2.png"/>
+   </properties>
+  </object>
+  <object id="11" name="f300.1" type="Node" gid="301" x="96" y="288" width="32" height="32">
+   <properties>
+    <property name="harvestRate" type="float" value="60"/>
+    <property name="regenDelay" type="float" value="12"/>
+    <property name="regenRate" type="float" value="2"/>
+    <property name="resourceAmount" type="float" value="100"/>
+    <property name="resourceAmountMax" type="float" value="200"/>
+   </properties>
+  </object>
+  <object id="15" name="f300.2" type="Node" gid="301" x="96" y="480" width="32" height="32">
+   <properties>
+    <property name="harvestRate" type="float" value="60"/>
+    <property name="regenDelay" type="float" value="12"/>
+    <property name="regenRate" type="float" value="2"/>
+    <property name="resourceAmount" type="float" value="100"/>
+    <property name="resourceAmountMax" type="float" value="200"/>
+   </properties>
+  </object>
+  <object id="12" name="East" type="City" gid="294" x="480" y="224" width="32" height="32">
+   <properties>
+    <property name="alliance" value="East"/>
+    <property name="buyPrice" type="float" value="20"/>
+    <property name="sellPrice" type="float" value="21"/>
+    <property name="storedAmount" type="float" value="0"/>
+   </properties>
+  </object>
+  <object id="14" name="slow300.2" type="Node" gid="301" x="576" y="320" width="32" height="32">
+   <properties>
+    <property name="regenDelay" type="float" value="12"/>
+    <property name="regenRate" type="float" value="4"/>
+    <property name="resourceAmount" type="float" value="100"/>
+    <property name="resourceAmountMax" type="float" value="200"/>
+   </properties>
+  </object>
+  <object id="16" name="slow300.2" type="Node" gid="301" x="928" y="640" width="32" height="32">
+   <properties>
+    <property name="regenDelay" type="float" value="12"/>
+    <property name="regenRate" type="float" value="0"/>
+    <property name="resourceAmount" type="float" value="0"/>
+    <property name="resourceAmountMax" type="float" value="200"/>
+   </properties>
+  </object>
+  <object id="20" name="Pinkeye1" type="Guy" gid="293" x="256" y="128" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="false"/>
+    <property name="carryCapacity" type="float" value="20"/>
+    <property name="idleDelay" type="float" value="0.1"/>
+    <property name="idleDelayJitter" type="float" value="0.3"/>
+    <property name="moveSpeed" type="float" value="64"/>
+    <property name="sprite" value="pinkeye-01.png"/>
+    <property name="spriteDir" value="characters/hcr/experimental/"/>
+   </properties>
+  </object>
+  <object id="21" name="Pinkeye2" type="Guy" gid="293" x="96" y="96" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="false"/>
+    <property name="carryCapacity" type="float" value="20"/>
+    <property name="idleDelay" type="float" value="0.1"/>
+    <property name="idleDelayJitter" type="float" value="0.3"/>
+    <property name="moveSpeed" type="float" value="64"/>
+    <property name="sprite" value="pinkeye-02.png"/>
+    <property name="spriteDir" value="characters/hcr/experimental/"/>
+   </properties>
+  </object>
+  <object id="22" name="Pinkeye2a" type="Guy" gid="293" x="160" y="96" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="true"/>
+    <property name="behaviorModel" value="NORMAL"/>
+    <property name="carryCapacity" type="float" value="20"/>
+    <property name="idleDelay" type="float" value="0.1"/>
+    <property name="idleDelayJitter" type="float" value="0.3"/>
+    <property name="moveSpeed" type="float" value="48"/>
+    <property name="sprite" value="pinkeye-02.png"/>
+    <property name="spriteDir" value="characters/hcr/"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>

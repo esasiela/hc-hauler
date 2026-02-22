@@ -1,0 +1,30 @@
+{
+    "activeFile": "test-tutorial.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "fileStates": {
+        "[Base]BaseChip_pipo.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "test-tutorial.tmx": {
+            "scale": 0.8002,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 486.753311672082,
+                "y": 334.916270932267
+            }
+        }
+    },
+    "openFiles": [
+        "test-tutorial.tmx",
+        "[Base]BaseChip_pipo.tsx"
+    ],
+    "project": "test-tutorial.tmx.tiled-project",
+    "property.type": "string",
+    "recentFiles": [
+        "[Base]BaseChip_pipo.tsx",
+        "test-tutorial.tmx"
+    ]
+}

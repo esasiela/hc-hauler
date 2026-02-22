@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="8">
+ <tileset firstgid="1" source="[Base]BaseChip_pipo.tsx"/>
+ <layer id="1" name="Ground" width="30" height="20">
+  <data encoding="csv">
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
+2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2
+</data>
+ </layer>
+ <objectgroup id="2" name="Entities">
+  <object id="2" name="Saskatoon" type="city" gid="294" x="544" y="320" width="32" height="32">
+   <properties>
+    <property name="alliance" value="East"/>
+    <property name="buyPrice" type="float" value="12.5"/>
+    <property name="sellPrice" type="float" value="15"/>
+    <property name="storedAmount" type="float" value="1"/>
+   </properties>
+  </object>
+  <object id="3" name="New Gumbria" type="city" gid="294" x="192" y="320" width="32" height="32">
+   <properties>
+    <property name="alliance" value="West"/>
+    <property name="buyPrice" type="float" value="10"/>
+    <property name="sellPrice" type="float" value="15"/>
+    <property name="storedAmount" type="float" value="1"/>
+   </properties>
+  </object>
+  <object id="4" name="Lookie" type="guy" gid="293" x="64" y="320" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="true"/>
+    <property name="carryCapacity" type="float" value="20"/>
+    <property name="idleDelay" type="float" value="0.1"/>
+    <property name="idleDelayJitter" type="float" value="0.3"/>
+    <property name="moveSpeed" type="float" value="64"/>
+    <property name="sprite" value="pinkeye-02.png"/>
+    <property name="spriteDir" value="characters/hcr/"/>
+   </properties>
+  </object>
+  <object id="5" name="f300.1" type="node" gid="301" x="64" y="384" width="32" height="32">
+   <properties>
+    <property name="harvestRate" type="float" value="60"/>
+    <property name="regenDelay" type="float" value="12"/>
+    <property name="regenRate" type="float" value="2"/>
+    <property name="resourceAmount" type="float" value="30"/>
+    <property name="resourceAmountMax" type="float" value="50"/>
+   </properties>
+  </object>
+  <object id="6" name="Lou" type="guy" gid="293" x="672" y="320" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="true"/>
+    <property name="carryCapacity" type="float" value="20"/>
+    <property name="idleDelay" type="float" value="0.1"/>
+    <property name="idleDelayJitter" type="float" value="0.3"/>
+    <property name="moveSpeed" type="float" value="64"/>
+    <property name="sprite" value="Male/Male 01-1.png"/>
+    <property name="spriteDir" value=""/>
+   </properties>
+  </object>
+  <object id="7" name="f300.1" type="node" gid="301" x="672" y="384" width="32" height="32">
+   <properties>
+    <property name="harvestRate" type="float" value="60"/>
+    <property name="regenDelay" type="float" value="12"/>
+    <property name="regenRate" type="float" value="2"/>
+    <property name="resourceAmount" type="float" value="30"/>
+    <property name="resourceAmountMax" type="float" value="50"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>

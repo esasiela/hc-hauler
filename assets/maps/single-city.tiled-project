@@ -1,0 +1,141 @@
+{
+    "automappingRulesFile": "",
+    "commands": [
+    ],
+    "compatibilityVersion": 1100,
+    "extensionsPath": "extensions",
+    "folders": [
+        "."
+    ],
+    "properties": [
+    ],
+    "propertyTypes": [
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 1,
+            "members": [
+                {
+                    "name": "alliance",
+                    "type": "string",
+                    "value": ""
+                },
+                {
+                    "name": "buyPrice",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "sellPrice",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "storedAmount",
+                    "type": "float",
+                    "value": 0
+                }
+            ],
+            "name": "City",
+            "type": "class",
+            "useAs": [
+                "property",
+                "object",
+                "project"
+            ]
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 4,
+            "members": [
+                {
+                    "name": "autonomyEnabled",
+                    "type": "bool",
+                    "value": false
+                },
+                {
+                    "name": "behaviorModel",
+                    "type": "string",
+                    "value": ""
+                },
+                {
+                    "name": "carryCapacity",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "idleDelay",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "idleDelayJitter",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "moveSpeed",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "spriteDir",
+                    "type": "string",
+                    "value": ""
+                },
+                {
+                    "name": "spriteFilename",
+                    "type": "string",
+                    "value": ""
+                }
+            ],
+            "name": "Guy",
+            "type": "class",
+            "useAs": [
+                "property",
+                "object",
+                "project"
+            ]
+        },
+        {
+            "color": "#ffa0a0a4",
+            "drawFill": true,
+            "id": 2,
+            "members": [
+                {
+                    "name": "harvestRate",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "regenDelay",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "regenRate",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "resourceAmount",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "resourceAmountMax",
+                    "type": "float",
+                    "value": 0
+                }
+            ],
+            "name": "Node",
+            "type": "class",
+            "useAs": [
+                "property",
+                "object",
+                "project"
+            ]
+        }
+    ]
+}
