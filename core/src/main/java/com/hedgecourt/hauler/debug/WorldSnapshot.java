@@ -5,6 +5,11 @@ import java.util.List;
 public class WorldSnapshot {
   public double tau;
   public double harvestCost;
+  public double cityConsumptionRate;
+  public double cityTargetInventory;
+  public double cityPriceAdjustRate;
+  public double cityMinBuyPrice;
+
   public MapInfo map;
 
   public List<CitySnapshot> cities;

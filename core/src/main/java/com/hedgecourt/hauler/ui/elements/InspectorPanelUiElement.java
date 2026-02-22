@@ -18,21 +18,26 @@ public class InspectorPanelUiElement implements UiElement {
   private final BitmapFont font;
   private final Supplier<WorldEntity> selectedSupplier;
   private final Supplier<WorldEntity> hoveredSupplier;
+  private final Supplier<Boolean> visibleSupplier;
   private final Supplier<Float> alphaSupplier;
 
   public InspectorPanelUiElement(
       BitmapFont font,
       Supplier<WorldEntity> selectedSupplier,
       Supplier<WorldEntity> hoveredSupplier,
+      Supplier<Boolean> visibleSupplier,
       Supplier<Float> alphaSupplier) {
     this.font = font;
     this.selectedSupplier = selectedSupplier;
     this.hoveredSupplier = hoveredSupplier;
+    this.visibleSupplier = visibleSupplier;
     this.alphaSupplier = alphaSupplier;
   }
 
   @Override
   public void drawFilled(ShapeRenderer sr) {
+    if (!visibleSupplier.get()) return;
+
     Color base = C.UI_INSPECTOR_PANEL_BG_COLOR;
     sr.setColor(base.r, base.g, base.b, alphaSupplier.get());
 
@@ -45,6 +50,7 @@ public class InspectorPanelUiElement implements UiElement {
 
   @Override
   public void drawText(SpriteBatch batch) {
+    if (!visibleSupplier.get()) return;
 
     float lineX = Gdx.graphics.getWidth() - C.UI_INSPECTOR_PANEL_OFFSET_X + C.UI_SCREEN_PADDING;
     float lineY = Gdx.graphics.getHeight() - 2 * C.UI_SCREEN_PADDING;

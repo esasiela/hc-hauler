@@ -10,6 +10,10 @@ public class C {
    * ****/
   public static float cityDistancePenalty = 0.4f;
   public static float harvestCostPerUnit = 5.0f;
+  public static float cityConsumptionRate = 1.5f;
+  public static float cityTargetInventory = 100f;
+  public static float cityPriceAdjustRate = 0.03f;
+  public static float cityMinBuyPrice = 0.1f;
 
   public static InspectorTab inspectorTab = InspectorTab.TRADE;
 
@@ -105,6 +109,7 @@ public class C {
   public static final float UI_MARKET_HEIGHT = 310f;
   public static final float UI_MARKET_MARGIN_BOTTOM = 40f;
   public static final float UI_MARKET_X_LEFT_OFFSET = 50f;
+  public static final float UI_MARKET_PRICE_VELOCITY_EPSILON = 0.0001f;
 
   public static final int UI_HOVER_TOOLTIP_FONT_SIZE = 18;
   public static final float UI_HOVER_TOOLTIP_PAD_X = 6f;

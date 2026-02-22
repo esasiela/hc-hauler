@@ -1,6 +1,7 @@
 package com.hedgecourt.hauler.ui.elements;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -15,17 +16,22 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class MarketBoardUiElement implements UiElement {
+  private static final float NAME_WIDTH = 120f;
   private static final float COL_NAME_X = 0f;
-  private static final float COL_QTY_X = 100f;
-  private static final float COL_BUY_X = 180f;
-  private static final float COL_SELL_X = 250f;
+  private static final float COL_QTY_X = COL_NAME_X + NAME_WIDTH;
+  private static final float COL_BUY_X = COL_QTY_X + 130f;
+  private static final float COL_BUY_X_VEL = COL_BUY_X + 5f;
+  private static final float COL_SELL_X = COL_BUY_X_VEL + 110f;
+
+  private static final float VEL_ARROW_W = 10f;
+  private static final float VEL_ARROW_H = 7f;
 
   private static final float TABLE_PADDING_X = 20f;
   private static final float TABLE_PADDING_TOP = 40f;
   private static final float ROW_SPACING = 6f;
 
   private static final float MATRIX_PADDING_TOP = 20f;
-  private static final float MATRIX_COL_WIDTH = 70f;
+  private static final float MATRIX_COL_WIDTH = 110f;
 
   private final BitmapFont font;
   private final GlyphLayout glyphLayout;
@@ -87,22 +93,44 @@ public class MarketBoardUiElement implements UiElement {
     int fieldCounter = 0;
 
     for (City city : world.getCities()) {
+      float buyAnchorX = priceTableBounds.x + COL_BUY_X;
+      float sellAnchorX = priceTableBounds.x + COL_SELL_X;
+
+      float halfRowHeight = rowHeight / 2f;
+
       RowRenderData row = new RowRenderData();
       row.cityName = city.getName();
       row.qty = String.valueOf(Math.round(city.getStoredAmount()));
-      row.buy = String.format("%.1f", city.getBuyPrice());
-      row.sell = String.format("%.1f", city.getSellPrice());
+      row.buy = String.format("%.2f", city.getBuyPrice());
+      row.sell = String.format("%.2f", city.getSellPrice());
+
+      if (city.getBuyPriceVelocity() > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+        row.buyVelocityDirection = VelocityDirection.UP;
+        row.buyVelocityBounds =
+            new Rectangle(
+                priceTableBounds.x + COL_BUY_X_VEL,
+                currentRowY - (halfRowHeight / 2f),
+                VEL_ARROW_W,
+                VEL_ARROW_H);
+      } else if (city.getBuyPriceVelocity() < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+        row.buyVelocityDirection = VelocityDirection.DOWN;
+        row.buyVelocityBounds =
+            new Rectangle(
+                priceTableBounds.x + COL_BUY_X_VEL,
+                currentRowY - halfRowHeight,
+                VEL_ARROW_W,
+                VEL_ARROW_H);
+      }
 
       rows.add(row);
 
-      float buyX = priceTableBounds.x + COL_BUY_X;
-      float sellX = priceTableBounds.x + COL_SELL_X;
-
       if (highlightFieldIndex == fieldCounter) {
         glyphLayout.setText(font, row.buy);
+        float buyDrawX = buyAnchorX - glyphLayout.width;
+
         highlightBounds.set(
-            buyX - 4f,
-            currentRowY - glyphLayout.height,
+            buyDrawX - 4f,
+            currentRowY - glyphLayout.height - 3f,
             glyphLayout.width + 8f,
             glyphLayout.height + 6f);
       }
@@ -110,9 +138,11 @@ public class MarketBoardUiElement implements UiElement {
 
       if (highlightFieldIndex == fieldCounter) {
         glyphLayout.setText(font, row.sell);
+        float sellDrawX = sellAnchorX - glyphLayout.width;
+
         highlightBounds.set(
-            sellX - 4f,
-            currentRowY - glyphLayout.height,
+            sellDrawX - 4f,
+            currentRowY - glyphLayout.height - 3f,
             glyphLayout.width + 8f,
             glyphLayout.height + 6f);
       }
@@ -147,7 +177,7 @@ public class MarketBoardUiElement implements UiElement {
           row.values.add("---");
         } else {
           float arb = dest.getBuyPrice() - src.getSellPrice();
-          row.values.add(String.format("%.1f", arb));
+          row.values.add(String.format("%+.2f", arb));
         }
       }
 
@@ -164,6 +194,18 @@ public class MarketBoardUiElement implements UiElement {
 
     sr.setColor(0.2f, 0.6f, 1f, 0.35f);
     sr.rect(highlightBounds.x, highlightBounds.y, highlightBounds.width, highlightBounds.height);
+
+    for (RowRenderData row : rows) {
+      if (row.buyVelocityDirection == VelocityDirection.UP) {
+        Rectangle b = row.buyVelocityBounds;
+        sr.setColor(0.20f, 0.65f, 0.35f, 1f);
+        sr.triangle(b.x, b.y, b.x + b.width, b.y, b.x + b.width / 2f, b.y + b.height);
+      } else if (row.buyVelocityDirection == VelocityDirection.DOWN) {
+        Rectangle b = row.buyVelocityBounds;
+        sr.setColor(Color.RED);
+        sr.triangle(b.x, b.y + b.height, b.x + b.width, b.y + b.height, b.x + b.width / 2f, b.y);
+      }
+    }
   }
 
   @Override
@@ -175,18 +217,34 @@ public class MarketBoardUiElement implements UiElement {
      */
     float headerY = priceTableBounds.y + priceTableBounds.height;
 
+    glyphLayout.setText(font, "Buy");
+    float buyAnchorX = priceTableBounds.x + COL_BUY_X;
+    float buyHeaderX = buyAnchorX - glyphLayout.width;
+
+    glyphLayout.setText(font, "Sell");
+    float sellAnchorX = priceTableBounds.x + COL_SELL_X;
+    float sellHeaderX = sellAnchorX - glyphLayout.width;
+
     font.draw(batch, "City", priceTableBounds.x + COL_NAME_X, headerY);
     font.draw(batch, "Qty", priceTableBounds.x + COL_QTY_X, headerY);
-    font.draw(batch, "Buy", priceTableBounds.x + COL_BUY_X, headerY);
-    font.draw(batch, "Sell", priceTableBounds.x + COL_SELL_X, headerY);
+    font.draw(batch, "Buy", buyHeaderX, headerY);
+    font.draw(batch, "Sell", sellHeaderX, headerY);
 
     float currentRowY = headerY - (font.getLineHeight() + ROW_SPACING);
 
     for (RowRenderData row : rows) {
+      glyphLayout.setText(font, row.buy);
+      float buyRightAnchor = priceTableBounds.x + COL_BUY_X;
+      float buyDrawX = buyRightAnchor - glyphLayout.width;
+
+      glyphLayout.setText(font, row.sell);
+      float sellRightAnchor = priceTableBounds.x + COL_SELL_X;
+      float sellDrawX = sellRightAnchor - glyphLayout.width;
+
       font.draw(batch, row.cityName, priceTableBounds.x + COL_NAME_X, currentRowY);
       font.draw(batch, row.qty, priceTableBounds.x + COL_QTY_X, currentRowY);
-      font.draw(batch, row.buy, priceTableBounds.x + COL_BUY_X, currentRowY);
-      font.draw(batch, row.sell, priceTableBounds.x + COL_SELL_X, currentRowY);
+      font.draw(batch, row.buy, buyDrawX, currentRowY);
+      font.draw(batch, row.sell, sellDrawX, currentRowY);
 
       currentRowY -= font.getLineHeight() + ROW_SPACING;
     }
@@ -204,7 +262,8 @@ public class MarketBoardUiElement implements UiElement {
     // Column header row
     font.draw(batch, "From\\To", matrixBounds.x, currentY);
 
-    float colX = matrixBounds.x + COL_NAME_X + MATRIX_COL_WIDTH;
+    // float colX = matrixBounds.x + COL_NAME_X + MATRIX_COL_WIDTH;
+    float colX = matrixBounds.x + COL_NAME_X + NAME_WIDTH;
 
     for (City dest : world.getCities()) {
       font.draw(batch, dest.getName(), colX, currentY);
@@ -218,7 +277,7 @@ public class MarketBoardUiElement implements UiElement {
 
       font.draw(batch, row.sourceCityName, matrixBounds.x, currentY);
 
-      colX = matrixBounds.x + COL_NAME_X + MATRIX_COL_WIDTH;
+      colX = matrixBounds.x + COL_NAME_X + NAME_WIDTH;
 
       for (String value : row.values) {
         font.draw(batch, value, colX, currentY);
@@ -228,108 +287,6 @@ public class MarketBoardUiElement implements UiElement {
       currentY -= font.getLineHeight() + ROW_SPACING;
     }
   }
-
-  public void OLDdrawText(SpriteBatch batch) {
-    if (!visibleSupplier.get()) return;
-
-    float width = C.UI_MARKET_WIDTH;
-    float height = C.UI_MARKET_HEIGHT;
-
-    float x = ((Gdx.graphics.getWidth() - width) / 2f) - C.UI_MARKET_X_LEFT_OFFSET;
-    float y = C.UI_MARKET_MARGIN_BOTTOM;
-
-    float textX = x + 5f;
-    float textY = y + height - 10f;
-
-    font.setColor(0f, 0f, 0f, 1f); // ensure black text
-
-    // List<String> lines = buildLines();
-    List<String> lines = new ArrayList<>();
-
-    for (String line : lines) {
-      font.draw(batch, line, textX, textY);
-      textY -= font.getLineHeight() + 4f;
-
-      // optional: stop drawing if we run out of panel space
-      if (textY < y + 5f) break;
-    }
-  }
-
-  /*
-  private List<String> buildLines() {
-
-    List<String> lines = new ArrayList<>();
-
-    lines.add(" ================ MARKET BOARD ================");
-    // lines.add("");
-
-    // ---- City Table ----
-    // lines.add(" Cities");
-    lines.add(
-        String.format(
-            "   %-" + CITY_W + "s %" + NUM_W + "s %" + NUM_W + "s %" + NUM_W + "s %" + NUM_W + "s",
-            // "City",
-            "    ",
-            "Qty",
-            "Buy",
-            "Sell",
-            "Spread"));
-
-    List<City> cities = world.getCities();
-    for (int i = 0; i < cities.size(); i++) {
-      City city = cities.get(i);
-
-      float spread = city.getSellPrice() - city.getBuyPrice();
-
-      String marker = (i == selectedPriceFieldIndex) ? " >" : "  ";
-
-      lines.add(
-          String.format(
-              "%s %-8s %8d %8.1f %8.1f %+8.1f",
-              marker,
-              C.clip(city.getName(), 8),
-              Math.round(city.getStoredAmount()),
-              city.getBuyPrice(),
-              city.getSellPrice(),
-              spread));
-    }
-
-    lines.add("");
-    lines.add(" Arbitrage Matrix (DestBuy - SourceSell)");
-    // lines.add("");
-
-    // Header row
-    StringBuilder header = new StringBuilder();
-    header.append(String.format(" %-" + CITY_W + "s", "From\\To"));
-
-    for (City dest : world.getCities()) {
-      header.append(String.format(" %" + NUM_W + "s", C.clip(dest.getName(), NUM_W)));
-    }
-    lines.add(header.toString());
-
-    // Matrix rows
-    for (City src : cities) {
-      StringBuilder row = new StringBuilder();
-
-      row.append(String.format(" %-" + CITY_W + "s", C.clip(src.getName(), CITY_W)));
-
-      for (City dest : world.getCities()) {
-
-        if (src == dest) {
-          row.append(String.format(" %" + NUM_W + "s", "---"));
-        } else {
-          float arb = dest.getBuyPrice() - src.getSellPrice();
-          row.append(String.format(" %+" + NUM_W + ".1f", arb));
-        }
-      }
-
-      lines.add(row.toString());
-    }
-
-    return lines;
-  }
-
-   */
 
   public void selectNextField() {
     int total = getTotalFieldCount();
@@ -379,7 +336,15 @@ public class MarketBoardUiElement implements UiElement {
     String cityName;
     String qty;
     String buy;
+    Rectangle buyVelocityBounds = null;
+    VelocityDirection buyVelocityDirection = VelocityDirection.STABLE;
     String sell;
+  }
+
+  private enum VelocityDirection {
+    STABLE,
+    UP,
+    DOWN
   }
 
   private static class MatrixRowRenderData {

@@ -23,6 +23,7 @@ public class City extends WorldEntity implements Selectable {
   float storedAmount;
   String alliance;
   float buyPrice;
+  float buyPriceVelocity;
   float sellPrice;
 
   @Override
@@ -36,7 +37,43 @@ public class City extends WorldEntity implements Selectable {
   }
 
   @Override
-  public void update(float delta) {}
+  public void update(float delta) {
+    consume(delta);
+    adjustBuyPriceFromInventory(delta);
+  }
+
+  private void consume(float delta) {
+    adjustStoredAmount(-C.cityConsumptionRate * delta);
+  }
+
+  private void adjustBuyPriceFromInventory(float delta) {
+    float pressure = C.cityTargetInventory - storedAmount;
+    float priceDelta = C.cityPriceAdjustRate * pressure * delta;
+
+    // Prevent dropping below configured floor
+    float desiredNewPrice = buyPrice + priceDelta;
+    if (desiredNewPrice < C.cityMinBuyPrice) {
+      priceDelta = C.cityMinBuyPrice - buyPrice;
+    }
+
+    adjustBuyPrice(priceDelta);
+  }
+
+  public void adjustBuyPrice(float amount) {
+    float oldPrice = buyPrice;
+
+    float newPrice = buyPrice + amount;
+    if (newPrice < sellPrice && newPrice > 0f) {
+      buyPrice = newPrice;
+    }
+
+    buyPriceVelocity = buyPrice - oldPrice;
+  }
+
+  public void adjustSellPrice(float amount) {
+    float newPrice = sellPrice + amount;
+    if (newPrice > buyPrice && newPrice > 0f) sellPrice = newPrice;
+  }
 
   @Override
   public void draw(SpriteBatch batch) {
@@ -126,16 +163,6 @@ public class City extends WorldEntity implements Selectable {
 
   public String getStatusSummary() {
     return "City";
-  }
-
-  public void adjustBuyPrice(float amount) {
-    float newPrice = buyPrice + amount;
-    if (newPrice < sellPrice && newPrice > 0f) buyPrice = newPrice;
-  }
-
-  public void adjustSellPrice(float amount) {
-    float newPrice = sellPrice + amount;
-    if (newPrice > buyPrice && newPrice > 0f) sellPrice = newPrice;
   }
 
   /**

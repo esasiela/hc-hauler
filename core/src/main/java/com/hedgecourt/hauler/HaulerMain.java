@@ -104,6 +104,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
   private float stepCooldown = 0f;
 
   private float inspectorAlpha = C.UI_INSPECTOR_PANEL_ALPHA_TRANSPARENT;
+  private boolean inspectorVisible = true;
   private float inspectorAlphaLerp = inspectorAlpha;
 
   private boolean marketBoardVisible = true;
@@ -179,10 +180,6 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     worldWidthPx = mapWidthTiles * tileWidthPx;
     worldHeightPx = mapHeightTiles * tileHeightPx;
 
-    System.out.println("Map size: " + mapWidthTiles + "x" + mapHeightTiles);
-    System.out.println("Tile size: " + tileWidthPx + "x" + tileHeightPx);
-    System.out.println("World size: " + worldWidthPx + "x" + worldHeightPx);
-
     // camera.setToOrtho(false, C.WINDOW_WIDTH, C.WINDOW_HEIGHT);
 
     /*
@@ -211,7 +208,11 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     uiElements.add(new PauseIndicatorUiElement(pauseIndicatorFont, glyphLayout, () -> paused));
     uiElements.add(
         new InspectorPanelUiElement(
-            inspectorFont, () -> selectedEntity, () -> hoveredEntity, () -> inspectorAlpha));
+            inspectorFont,
+            () -> selectedEntity,
+            () -> hoveredEntity,
+            () -> inspectorVisible,
+            () -> inspectorAlpha));
     uiElements.add(
         new HeaderStatsUiElement(
             statusBarFont, glyphLayout, () -> cities, () -> nodes, () -> guys));
@@ -447,8 +448,9 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     }
 
     if (Gdx.input.isButtonJustPressed(Buttons.RIGHT)) {
-      Vector3 click = getMouseScreenPosition();
-      handleRightClick(click);
+      // Vector3 click = getMouseScreenPosition();
+      // handleRightClick(click);
+      handleRightClick();
     }
 
     // the 'isJustPressed' logic goes inside handleKeyboardInput()
@@ -503,10 +505,12 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     setSelectedEntity(stack.get(lastClickStackIndex));
   }
 
-  public void handleRightClick(Vector3 screenClick) {
-    if (handleUiRightClick(screenClick)) return;
-    camera.unproject(screenClick);
-    handleWorldRightClick(screenClick);
+  private void handleRightClick() {
+    Vector3 uiClick = getMouseUiPosition();
+    if (handleUiRightClick(uiClick)) return;
+
+    Vector3 worldClick = getMouseWorldPosition();
+    handleWorldRightClick(worldClick);
   }
 
   /**
@@ -586,6 +590,9 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
           (inspectorAlphaLerp == C.UI_INSPECTOR_PANEL_ALPHA_TRANSPARENT)
               ? C.UI_INSPECTOR_PANEL_ALPHA_SOLID
               : C.UI_INSPECTOR_PANEL_ALPHA_TRANSPARENT;
+    }
+    if (Gdx.input.isKeyJustPressed(Keys.I)) {
+      inspectorVisible = !inspectorVisible;
     }
 
     /* ****
@@ -773,12 +780,6 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         C.cityDistancePenalty);
   }
 
-  final int NAME_W = 12;
-  final int POS_W = 14;
-  final int SIZE_W = 12;
-  final int CENTER_W = 14;
-  final int NUM_W = 8;
-
   private void dumpWorld() {
     WorldSnapshot snapshot = buildSnapshot();
     try {
@@ -794,6 +795,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
       System.out.println(timestamp + " snapshot copied to clipboard");
 
     } catch (Exception e) {
+      System.err.println("Error building JSON world snapshot: " + e.getMessage());
       e.printStackTrace();
     }
   }
@@ -802,6 +804,10 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     WorldSnapshot s = new WorldSnapshot();
     s.tau = Math.round(C.cityDistancePenalty * 1_000_000d) / 1_000_000d;
     s.harvestCost = C.harvestCostPerUnit;
+    s.cityConsumptionRate = C.cityConsumptionRate;
+    s.cityTargetInventory = C.cityTargetInventory;
+    s.cityPriceAdjustRate = C.cityPriceAdjustRate;
+    s.cityMinBuyPrice = C.cityMinBuyPrice;
 
     WorldSnapshot.MapInfo m = new WorldSnapshot.MapInfo();
     m.tilesWide = mapWidthTiles;
@@ -949,83 +955,6 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     ps.score = opt.score;
 
     return ps;
-  }
-
-  private void OLDdumpWorld() {
-    System.out.println("===== WORLD SNAPSHOT =====");
-    System.out.printf("tau (p): %.4f%n", C.cityDistancePenalty);
-    System.out.printf("harvestCost (h): %.4f%n", C.harvestCostPerUnit);
-
-    /*
-    -- Map --
-    tiles:      40 x 20
-    tileSize:   32 x 32 px
-    worldSize:  1280 x 640 px
-
-     */
-    System.out.println("-- Map --");
-    System.out.println("tiles:     " + mapWidthTiles + " x " + mapHeightTiles);
-    System.out.println("tileSize:  " + tileWidthPx + " x " + tileHeightPx + " px");
-    System.out.println(
-        "worldSize: " + Math.round(worldWidthPx) + " x " + Math.round(worldHeightPx) + " px");
-    System.out.println();
-    dumpCities();
-  }
-
-  private void dumpCities() {
-    System.out.println("-- Cities --");
-
-    System.out.printf(
-        "%-" + NAME_W + "s %-" + POS_W + "s %-" + SIZE_W + "s %-" + CENTER_W + "s %" + NUM_W + "s %"
-            + NUM_W + "s %" + NUM_W + "s %" + NUM_W + "s%n",
-        "Name",
-        "pos(x,y)",
-        "size(w,h)",
-        "center(x,y)",
-        "qty",
-        "buy",
-        "sell",
-        "spread");
-    cities.stream()
-        .sorted(Comparator.comparing(City::getName))
-        .forEach(
-            city -> {
-              float spread = city.getSellPrice() - city.getBuyPrice();
-
-              int x = Math.round(city.getWorldX());
-              int y = Math.round(city.getWorldY());
-              int w = Math.round(city.getWidth());
-              int h = Math.round(city.getHeight());
-              int cx = Math.round(city.getCenterX());
-              int cy = Math.round(city.getCenterY());
-
-              System.out.printf(
-                  "%-"
-                      + NAME_W
-                      + "s (%4d,%4d)   (%3d,%3d)    (%4d,%4d) %"
-                      + NUM_W
-                      + "d %"
-                      + NUM_W
-                      + ".1f %"
-                      + NUM_W
-                      + ".1f %"
-                      + "+"
-                      + NUM_W
-                      + ".1f%n",
-                  city.getName(),
-                  x,
-                  y,
-                  w,
-                  h,
-                  cx,
-                  cy,
-                  Math.round(city.getStoredAmount()),
-                  city.getBuyPrice(),
-                  city.getSellPrice(),
-                  spread);
-            });
-
-    System.out.println();
   }
 
   @Override
