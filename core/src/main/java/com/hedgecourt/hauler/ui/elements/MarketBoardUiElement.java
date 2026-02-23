@@ -16,12 +16,17 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class MarketBoardUiElement implements UiElement {
+  private static final float PRICE_DECIMAL_PADDING = 2f;
+  private static final float PRICE_HIGHLIGHT_WIDTH = 70f; // tweak visually
+  private static final float PRICE_DECIMAL_WIDTH_ESTIMATE = 20f + 2 * PRICE_DECIMAL_PADDING;
+
   private static final float NAME_WIDTH = 120f;
   private static final float COL_NAME_X = 0f;
   private static final float COL_QTY_X = COL_NAME_X + NAME_WIDTH;
   private static final float COL_BUY_X = COL_QTY_X + 130f;
-  private static final float COL_BUY_X_VEL = COL_BUY_X + 5f;
+  private static final float COL_BUY_X_VEL = COL_BUY_X + PRICE_DECIMAL_WIDTH_ESTIMATE + 2f;
   private static final float COL_SELL_X = COL_BUY_X_VEL + 110f;
+  private static final float COL_SELL_X_VEL = COL_SELL_X + PRICE_DECIMAL_WIDTH_ESTIMATE + 2f;
 
   private static final float VEL_ARROW_W = 10f;
   private static final float VEL_ARROW_H = 7f;
@@ -93,9 +98,6 @@ public class MarketBoardUiElement implements UiElement {
     int fieldCounter = 0;
 
     for (City city : world.getCities()) {
-      float buyAnchorX = priceTableBounds.x + COL_BUY_X;
-      float sellAnchorX = priceTableBounds.x + COL_SELL_X;
-
       float halfRowHeight = rowHeight / 2f;
 
       RowRenderData row = new RowRenderData();
@@ -122,29 +124,41 @@ public class MarketBoardUiElement implements UiElement {
                 VEL_ARROW_H);
       }
 
+      if (city.getSellPriceVelocity() > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+        row.sellVelocityDirection = VelocityDirection.UP;
+        row.sellVelocityBounds =
+            new Rectangle(
+                priceTableBounds.x + COL_SELL_X_VEL,
+                currentRowY - (halfRowHeight / 2f),
+                VEL_ARROW_W,
+                VEL_ARROW_H);
+      } else if (city.getSellPriceVelocity() < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+        row.sellVelocityDirection = VelocityDirection.DOWN;
+        row.sellVelocityBounds =
+            new Rectangle(
+                priceTableBounds.x + COL_SELL_X_VEL,
+                currentRowY - halfRowHeight,
+                VEL_ARROW_W,
+                VEL_ARROW_H);
+      }
+
       rows.add(row);
 
       if (highlightFieldIndex == fieldCounter) {
-        glyphLayout.setText(font, row.buy);
-        float buyDrawX = buyAnchorX - glyphLayout.width;
-
         highlightBounds.set(
-            buyDrawX - 4f,
-            currentRowY - glyphLayout.height - 3f,
-            glyphLayout.width + 8f,
-            glyphLayout.height + 6f);
+            priceTableBounds.x + COL_BUY_X - PRICE_HIGHLIGHT_WIDTH + PRICE_DECIMAL_WIDTH_ESTIMATE,
+            currentRowY - font.getLineHeight() + 7f,
+            PRICE_HIGHLIGHT_WIDTH,
+            font.getLineHeight() - 3f);
       }
       fieldCounter++;
 
       if (highlightFieldIndex == fieldCounter) {
-        glyphLayout.setText(font, row.sell);
-        float sellDrawX = sellAnchorX - glyphLayout.width;
-
         highlightBounds.set(
-            sellDrawX - 4f,
-            currentRowY - glyphLayout.height - 3f,
-            glyphLayout.width + 8f,
-            glyphLayout.height + 6f);
+            priceTableBounds.x + COL_SELL_X - PRICE_HIGHLIGHT_WIDTH + PRICE_DECIMAL_WIDTH_ESTIMATE,
+            currentRowY - font.getLineHeight() + 7f,
+            PRICE_HIGHLIGHT_WIDTH,
+            font.getLineHeight() - 3f);
       }
       fieldCounter++;
 
@@ -205,6 +219,16 @@ public class MarketBoardUiElement implements UiElement {
         sr.setColor(Color.RED);
         sr.triangle(b.x, b.y + b.height, b.x + b.width, b.y + b.height, b.x + b.width / 2f, b.y);
       }
+
+      if (row.sellVelocityDirection == VelocityDirection.UP) {
+        Rectangle b = row.sellVelocityBounds;
+        sr.setColor(0.20f, 0.65f, 0.35f, 1f);
+        sr.triangle(b.x, b.y, b.x + b.width, b.y, b.x + b.width / 2f, b.y + b.height);
+      } else if (row.sellVelocityDirection == VelocityDirection.DOWN) {
+        Rectangle b = row.sellVelocityBounds;
+        sr.setColor(Color.RED);
+        sr.triangle(b.x, b.y + b.height, b.x + b.width, b.y + b.height, b.x + b.width / 2f, b.y);
+      }
     }
   }
 
@@ -234,17 +258,20 @@ public class MarketBoardUiElement implements UiElement {
 
     for (RowRenderData row : rows) {
       glyphLayout.setText(font, row.buy);
-      float buyRightAnchor = priceTableBounds.x + COL_BUY_X;
-      float buyDrawX = buyRightAnchor - glyphLayout.width;
+      float buyDecimalAnchorX = priceTableBounds.x + COL_BUY_X;
+      // float buyDrawX = buyRightAnchor - glyphLayout.width;
 
       glyphLayout.setText(font, row.sell);
-      float sellRightAnchor = priceTableBounds.x + COL_SELL_X;
-      float sellDrawX = sellRightAnchor - glyphLayout.width;
+      float sellDecimalAnchorX = priceTableBounds.x + COL_SELL_X;
+      // float sellDrawX = sellRightAnchor - glyphLayout.width;
 
       font.draw(batch, row.cityName, priceTableBounds.x + COL_NAME_X, currentRowY);
       font.draw(batch, row.qty, priceTableBounds.x + COL_QTY_X, currentRowY);
-      font.draw(batch, row.buy, buyDrawX, currentRowY);
-      font.draw(batch, row.sell, sellDrawX, currentRowY);
+
+      // font.draw(batch, row.buy, buyDrawX, currentRowY);
+      // font.draw(batch, row.sell, sellDrawX, currentRowY);
+      drawPriceAnchored(batch, row.buy, buyDecimalAnchorX, currentRowY);
+      drawPriceAnchored(batch, row.sell, sellDecimalAnchorX, currentRowY);
 
       currentRowY -= font.getLineHeight() + ROW_SPACING;
     }
@@ -286,6 +313,37 @@ public class MarketBoardUiElement implements UiElement {
 
       currentY -= font.getLineHeight() + ROW_SPACING;
     }
+  }
+
+  private void drawPriceAnchored(
+      SpriteBatch batch, String price, float decimalAnchorX, float baselineY) {
+    int dotIndex = price.indexOf('.');
+    if (dotIndex < 0) {
+      font.draw(batch, price, decimalAnchorX, baselineY);
+      return;
+    }
+
+    String intPart = price.substring(0, dotIndex);
+    String fracPart = price.substring(dotIndex + 1);
+
+    // measure pieces
+    glyphLayout.setText(font, intPart);
+    float intWidth = glyphLayout.width;
+
+    glyphLayout.setText(font, ".");
+    float dotWidth = glyphLayout.width;
+
+    glyphLayout.setText(font, fracPart);
+    float fracWidth = glyphLayout.width;
+
+    // positions
+    float dotX = decimalAnchorX - dotWidth;
+    float fracX = decimalAnchorX + PRICE_DECIMAL_PADDING;
+    float intX = dotX - PRICE_DECIMAL_PADDING - intWidth;
+
+    font.draw(batch, intPart, intX, baselineY);
+    font.draw(batch, ".", dotX, baselineY);
+    font.draw(batch, fracPart, fracX, baselineY);
   }
 
   public void selectNextField() {
@@ -339,6 +397,8 @@ public class MarketBoardUiElement implements UiElement {
     Rectangle buyVelocityBounds = null;
     VelocityDirection buyVelocityDirection = VelocityDirection.STABLE;
     String sell;
+    Rectangle sellVelocityBounds = null;
+    VelocityDirection sellVelocityDirection = VelocityDirection.STABLE;
   }
 
   private enum VelocityDirection {

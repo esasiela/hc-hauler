@@ -23,8 +23,9 @@ public class City extends WorldEntity implements Selectable {
   float storedAmount;
   String alliance;
   float buyPrice;
-  float buyPriceVelocity;
   float sellPrice;
+  float buyPriceVelocity;
+  float sellPriceVelocity;
 
   @Override
   public float getWidth() {
@@ -91,8 +92,12 @@ public class City extends WorldEntity implements Selectable {
   }
 
   public void adjustSellPrice(float amount) {
+    float oldPrice = sellPrice;
+
     float newPrice = sellPrice + amount;
     if (newPrice > buyPrice && newPrice > 0f) sellPrice = newPrice;
+
+    sellPriceVelocity = sellPrice - oldPrice;
   }
 
   @Override
