@@ -30,7 +30,7 @@
    <properties>
     <property name="alliance" value="West"/>
     <property name="buyPrice" type="float" value="10"/>
-    <property name="sellPrice" type="float" value="50"/>
+    <property name="sellPrice" type="float" value="12"/>
     <property name="storedAmount" type="float" value="100"/>
    </properties>
   </object>
@@ -38,7 +38,7 @@
    <properties>
     <property name="alliance" value="East"/>
     <property name="buyPrice" type="float" value="10"/>
-    <property name="sellPrice" type="float" value="50"/>
+    <property name="sellPrice" type="float" value="12"/>
     <property name="storedAmount" type="float" value="100"/>
    </properties>
   </object>
@@ -64,7 +64,7 @@
    <properties>
     <property name="harvestRate" type="float" value="20"/>
     <property name="regenDelay" type="float" value="10"/>
-    <property name="regenRate" type="float" value="0.5"/>
+    <property name="regenRate" type="float" value="0.55"/>
     <property name="resourceAmount" type="float" value="50"/>
     <property name="resourceAmountMax" type="float" value="50"/>
    </properties>
@@ -73,7 +73,7 @@
    <properties>
     <property name="harvestRate" type="float" value="20"/>
     <property name="regenDelay" type="float" value="10"/>
-    <property name="regenRate" type="float" value="0.5"/>
+    <property name="regenRate" type="float" value="0.75"/>
     <property name="resourceAmount" type="float" value="50"/>
     <property name="resourceAmountMax" type="float" value="50"/>
    </properties>
@@ -81,7 +81,7 @@
   <object id="7" name="gW2" type="Guy" gid="1028" x="128" y="352" width="32" height="32">
    <properties>
     <property name="autonomyEnabled" type="bool" value="true"/>
-    <property name="carryCapacity" type="float" value="15"/>
+    <property name="carryCapacity" type="float" value="20"/>
     <property name="idleDelay" type="float" value="0.5"/>
     <property name="idleDelayJitter" type="float" value="0.1"/>
     <property name="moveSpeed" type="float" value="48"/>
@@ -92,7 +92,7 @@
   <object id="8" name="gW1" type="Guy" gid="1028" x="64" y="352" width="32" height="32">
    <properties>
     <property name="autonomyEnabled" type="bool" value="true"/>
-    <property name="carryCapacity" type="float" value="15"/>
+    <property name="carryCapacity" type="float" value="20"/>
     <property name="idleDelay" type="float" value="0.5"/>
     <property name="idleDelayJitter" type="float" value="0.1"/>
     <property name="moveSpeed" type="float" value="64"/>
@@ -103,7 +103,7 @@
   <object id="9" name="gE1" type="Guy" gid="1028" x="1152" y="352" width="32" height="32">
    <properties>
     <property name="autonomyEnabled" type="bool" value="true"/>
-    <property name="carryCapacity" type="float" value="15"/>
+    <property name="carryCapacity" type="float" value="20"/>
     <property name="idleDelay" type="float" value="0.5"/>
     <property name="idleDelayJitter" type="float" value="0.1"/>
     <property name="moveSpeed" type="float" value="96"/>

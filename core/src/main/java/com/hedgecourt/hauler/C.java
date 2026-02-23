@@ -12,8 +12,10 @@ public class C {
   public static float harvestCostPerUnit = 5.0f;
   public static float cityConsumptionRate = 1.5f;
   public static float cityTargetInventory = 100f;
-  public static float cityPriceAdjustRate = 0.03f;
+  public static float cityPriceAdjustRate = 0.02f;
   public static float cityMinBuyPrice = 0.1f;
+  public static float citySellSmoothingRate = 0.05f; // start small
+  public static float cityMinSpread = 2.0f; // keep some margin
 
   public static InspectorTab inspectorTab = InspectorTab.TRADE;
 

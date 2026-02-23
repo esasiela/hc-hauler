@@ -32,6 +32,7 @@ import com.hedgecourt.hauler.debug.WorldSnapshot;
 import com.hedgecourt.hauler.debug.WorldSnapshot.GuySnapshot;
 import com.hedgecourt.hauler.ui.UiElement;
 import com.hedgecourt.hauler.ui.UiRenderer;
+import com.hedgecourt.hauler.ui.elements.ElapsedTimeUiElement;
 import com.hedgecourt.hauler.ui.elements.HeaderStatsUiElement;
 import com.hedgecourt.hauler.ui.elements.HoverTooltipUiElement;
 import com.hedgecourt.hauler.ui.elements.InspectorPanelUiElement;
@@ -116,6 +117,8 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
   private int tileHeightPx;
   private float worldWidthPx;
   private float worldHeightPx;
+
+  private double elapsedDelta;
 
   @Override
   public void create() {
@@ -205,6 +208,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         new HoverTooltipUiElement(
             hoverTooltipFont, glyphLayout, () -> hoveredEntity, this::getMouseUiPosition));
     uiElements.add(new PauseButtonUiElement(pauseButtonFont, () -> paused, () -> paused = !paused));
+    uiElements.add(new ElapsedTimeUiElement(pauseButtonFont, () -> elapsedDelta));
     uiElements.add(new PauseIndicatorUiElement(pauseIndicatorFont, glyphLayout, () -> paused));
     uiElements.add(
         new InspectorPanelUiElement(
@@ -389,6 +393,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     handleInput();
 
     if (!paused || stepOneFrame) {
+      elapsedDelta += delta;
       updateWorld(delta);
       stepOneFrame = false;
     }
@@ -802,6 +807,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
 
   private WorldSnapshot buildSnapshot() {
     WorldSnapshot s = new WorldSnapshot();
+    s.elapsedDelta = elapsedDelta;
     s.tau = Math.round(C.cityDistancePenalty * 1_000_000d) / 1_000_000d;
     s.harvestCost = C.harvestCostPerUnit;
     s.cityConsumptionRate = C.cityConsumptionRate;

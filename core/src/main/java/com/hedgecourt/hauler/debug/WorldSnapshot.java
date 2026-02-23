@@ -3,6 +3,7 @@ package com.hedgecourt.hauler.debug;
 import java.util.List;
 
 public class WorldSnapshot {
+  public double elapsedDelta;
   public double tau;
   public double harvestCost;
   public double cityConsumptionRate;

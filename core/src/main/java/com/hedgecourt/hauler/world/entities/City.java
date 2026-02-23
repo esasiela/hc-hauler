@@ -40,6 +40,7 @@ public class City extends WorldEntity implements Selectable {
   public void update(float delta) {
     consume(delta);
     adjustBuyPriceFromInventory(delta);
+    adjustSellPriceMaintainSpread(delta);
   }
 
   private void consume(float delta) {
@@ -57,6 +58,25 @@ public class City extends WorldEntity implements Selectable {
     }
 
     adjustBuyPrice(priceDelta);
+  }
+
+  private void adjustSellPriceMaintainSpread(float delta) {
+    float targetSell = buyPrice + C.cityMinSpread;
+
+    // how far away are we?
+    float diff = targetSell - sellPrice;
+
+    // smoothing toward target
+    float adjustment = diff * C.citySellSmoothingRate * delta;
+
+    // use the official mutation method
+    adjustSellPrice(adjustment);
+
+    // ensure we never violate minimum spread
+    if (sellPrice < targetSell) {
+      float correction = targetSell - sellPrice;
+      adjustSellPrice(correction);
+    }
   }
 
   public void adjustBuyPrice(float amount) {
