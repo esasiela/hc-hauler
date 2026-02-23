@@ -52,6 +52,7 @@ import com.hedgecourt.hauler.world.entities.Node;
 import com.hedgecourt.hauler.world.layers.CityAmountLabelLayer;
 import com.hedgecourt.hauler.world.layers.GuyStateTextLayer;
 import com.hedgecourt.hauler.world.layers.GuyTargetLinesLayer;
+import com.hedgecourt.hauler.world.layers.NodeAmountLabelLayer;
 import com.hedgecourt.hauler.world.layers.ProgressBarsLayer;
 import com.hedgecourt.hauler.world.layers.SelectionUnderLayer;
 import java.util.ArrayList;
@@ -238,6 +239,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     worldOverLayers.add(new ProgressBarsLayer(() -> nodes, () -> guys));
     worldOverLayers.add(new GuyStateTextLayer(() -> guys, worldLabelFont, glyphLayout));
     worldOverLayers.add(new CityAmountLabelLayer(() -> cities, worldLabelFont));
+    worldOverLayers.add(new NodeAmountLabelLayer(() -> nodes, worldLabelFont));
 
     /* ****
      * Setup texture files
