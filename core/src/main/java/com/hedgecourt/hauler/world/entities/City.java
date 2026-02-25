@@ -20,12 +20,16 @@ import lombok.experimental.SuperBuilder;
 public class City extends WorldEntity implements Selectable {
   private TextureRegion citySprite;
 
+  float previousDelta;
+
   float storedAmount;
+  float storedAmountLastFrame;
   String alliance;
   float buyPrice;
   float sellPrice;
   float buyPriceVelocity;
   float sellPriceVelocity;
+  float inventoryFlowRate;
 
   @Override
   public float getWidth() {
@@ -39,9 +43,20 @@ public class City extends WorldEntity implements Selectable {
 
   @Override
   public void update(float delta) {
+    // storedAmountLastFrame only changes in this method.
+    // storedAmount changes outside of this method (guys making deliveries & withdrawals)
+    if (previousDelta > 0f)
+      inventoryFlowRate = (storedAmount - storedAmountLastFrame) / previousDelta;
+    else inventoryFlowRate = 0f;
+
+    storedAmountLastFrame = storedAmount;
+
     consume(delta);
+
     adjustBuyPriceFromInventory(delta);
     adjustSellPriceMaintainSpread(delta);
+
+    previousDelta = delta;
   }
 
   private void consume(float delta) {
@@ -49,7 +64,37 @@ public class City extends WorldEntity implements Selectable {
   }
 
   private void adjustBuyPriceFromInventory(float delta) {
-    float pressure = C.cityTargetInventory - storedAmount;
+    /*
+       float pressure =
+           (C.cityTargetInventory - storedAmount) + C.cityInventoryFlowWeight *
+    (-inventoryFlowRate);
+    */
+
+    /*
+    float pressure =
+        ((C.cityTargetInventory - storedAmount) / C.cityTargetInventory)
+            + C.cityInventoryFlowWeight * (-inventoryFlowRate);
+     */
+
+    /*
+    float levelRatio = (C.cityTargetInventory - storedAmount) / C.cityTargetInventory;
+    float proximity = 1f - Math.abs(levelRatio);
+    float pressure = levelRatio + (C.cityInventoryFlowWeight * proximity * (-inventoryFlowRate));
+     */
+
+    // Shortage as 0..1 (0 = full or above target, 1 = empty)
+    float shortage = 1f - (storedAmount / C.cityTargetInventory);
+    shortage = Math.max(0f, Math.min(1f, shortage)); // clamp to [0,1]
+    // Exponential scarcity response (calm when mild, sharp when severe)
+    float scarcityBoost = shortage * shortage;
+    // Keep your flow modulation idea
+    float proximity = 1f - shortage;
+    // Final pressure
+    float pressure = scarcityBoost + (C.cityInventoryFlowWeight * proximity * (-inventoryFlowRate));
+
+    /* ****
+     * Compute price change based upon pressure
+     */
     float priceDelta = C.cityPriceAdjustRate * pressure * delta;
 
     // Prevent dropping below configured floor
@@ -62,6 +107,28 @@ public class City extends WorldEntity implements Selectable {
   }
 
   private void adjustSellPriceMaintainSpread(float delta) {
+
+    // 1. Inventory ratio (1.0 = at target)
+    float inventoryRatio = storedAmount / C.cityTargetInventory;
+    // 2. Deviation from target (positive = surplus, negative = scarcity)
+    float deviation = inventoryRatio - 1f;
+    // 3. Exponential curvature
+    float spreadScale = (float) Math.exp(-3f * deviation);
+    float dynamicSpread = C.cityMinSpread * spreadScale;
+    // Optional safety clamps
+    float minAllowedSpread = C.cityMinSpread * 0.3f;
+    float maxAllowedSpread = C.cityMinSpread * 2.0f;
+    dynamicSpread = Math.max(minAllowedSpread, dynamicSpread);
+    dynamicSpread = Math.min(maxAllowedSpread, dynamicSpread);
+    float targetSell = buyPrice + dynamicSpread;
+    // 4. Smooth toward new target
+    float diff = targetSell - sellPrice;
+    float adjustment = diff * C.citySellSmoothingRate * delta;
+
+    adjustSellPrice(adjustment);
+  }
+
+  private void adjustSellPriceMaintainSpreadFixed(float delta) {
     float targetSell = buyPrice + C.cityMinSpread;
 
     // how far away are we?
@@ -123,9 +190,13 @@ public class City extends WorldEntity implements Selectable {
                     "Map row/col: %d, %d",
                     (int) (worldX / C.MAP_TILE_WIDTH_PX), (int) (worldY / C.MAP_TILE_HEIGHT_PX)),
                 "Qty: " + Math.round(storedAmount),
+                String.format("Inventory Flow Rate: %+.3f", inventoryFlowRate),
                 "Alliance: " + alliance,
                 String.format("Buy Price : %.1f", buyPrice),
-                String.format("Sell Price: %.1f", sellPrice)));
+                String.format("Sell Price: %.1f", sellPrice),
+                String.format("Buy Price Vel : %.3f", buyPriceVelocity),
+                String.format("Sell Price Vel: %.3f", sellPriceVelocity)));
+
     return lines;
   }
 
@@ -217,6 +288,7 @@ public class City extends WorldEntity implements Selectable {
 
   private void adjustStoredAmount(float qtyDelta) {
     this.storedAmount += qtyDelta;
+
     if (storedAmount < C.RESOURCE_EPSILON) storedAmount = 0f;
   }
 }

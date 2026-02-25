@@ -106,7 +106,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
   private float stepCooldown = 0f;
 
   private float inspectorAlpha = C.UI_INSPECTOR_PANEL_ALPHA_TRANSPARENT;
-  private boolean inspectorVisible = true;
+  private boolean inspectorVisible = false;
   private float inspectorAlphaLerp = inspectorAlpha;
 
   private boolean marketBoardVisible = true;
@@ -291,6 +291,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
             .worldX(r.f("x", 0f))
             .worldY(r.f("y", 0f))
             .storedAmount(r.f("storedAmount", 0f))
+            .storedAmountLastFrame(r.f("storedAmount", 0f))
             .alliance(r.s("alliance", "Neutral").trim().toLowerCase())
             .buyPrice(r.f("buyPrice", 1.0f))
             .sellPrice(r.f("sellPrice", 1.0f))
@@ -810,12 +811,15 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
   private WorldSnapshot buildSnapshot() {
     WorldSnapshot s = new WorldSnapshot();
     s.elapsedDelta = elapsedDelta;
-    s.tau = Math.round(C.cityDistancePenalty * 1_000_000d) / 1_000_000d;
+    s.distancePenalty = Math.round(C.cityDistancePenalty * 1_000_000d) / 1_000_000d;
     s.harvestCost = C.harvestCostPerUnit;
     s.cityConsumptionRate = C.cityConsumptionRate;
     s.cityTargetInventory = C.cityTargetInventory;
+    s.cityInventoryFlowRate = C.cityInventoryFlowWeight;
     s.cityPriceAdjustRate = C.cityPriceAdjustRate;
     s.cityMinBuyPrice = C.cityMinBuyPrice;
+    s.citySellSmoothingRate = C.citySellSmoothingRate;
+    s.cityMinSpread = C.cityMinSpread;
 
     WorldSnapshot.MapInfo m = new WorldSnapshot.MapInfo();
     m.tilesWide = mapWidthTiles;
@@ -826,7 +830,9 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     m.worldHeightPx = Math.round(worldHeightPx);
     s.map = m;
 
-    // Cities
+    /* ****
+     * Cities
+     */
     s.cities =
         cities.stream()
             .sorted(Comparator.comparing(City::getName))
@@ -851,10 +857,17 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
                   cs.sellPrice = city.getSellPrice();
                   cs.spread = city.getSellPrice() - city.getBuyPrice();
 
+                  cs.buyPriceVelocity = city.getBuyPriceVelocity();
+                  cs.sellPriceVelocity = city.getSellPriceVelocity();
+                  cs.inventoryFlowRate = city.getInventoryFlowRate();
+
                   return cs;
                 })
             .toList();
 
+    /* ****
+     * Nodes
+     */
     s.nodes =
         nodes.stream()
             .sorted(Comparator.comparing(Node::getName))
@@ -882,6 +895,9 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
                 })
             .toList();
 
+    /* ****
+     * Guys
+     */
     s.guys =
         guys.stream()
             .sorted(Comparator.comparing(Guy::getName))
@@ -926,7 +942,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
                   }
 
                   if (bestHarvest != null && bestTrade != null) {
-                    gs.deltaScore = (double) (bestHarvest.score - bestTrade.score);
+                    gs.scoreDiff = (double) (bestHarvest.score - bestTrade.score);
                     gs.bestScoreOverall = (double) Math.max(bestHarvest.score, bestTrade.score);
                   } else {
                     if (bestHarvest != null) gs.bestScoreOverall = (double) bestHarvest.score;

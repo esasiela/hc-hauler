@@ -4,12 +4,15 @@ import java.util.List;
 
 public class WorldSnapshot {
   public double elapsedDelta;
-  public double tau;
+  public double distancePenalty;
   public double harvestCost;
   public double cityConsumptionRate;
   public double cityTargetInventory;
+  public double cityInventoryFlowRate;
   public double cityPriceAdjustRate;
   public double cityMinBuyPrice;
+  public double citySellSmoothingRate;
+  public double cityMinSpread;
 
   public MapInfo map;
 
@@ -43,6 +46,10 @@ public class WorldSnapshot {
     public double buyPrice;
     public double sellPrice;
     public double spread;
+
+    public double buyPriceVelocity = 0f;
+    public double sellPriceVelocity = 0f;
+    public double inventoryFlowRate = 0f;
   }
 
   public static class NodeSnapshot {
@@ -83,7 +90,7 @@ public class WorldSnapshot {
     public PlanOptionSnapshot bestHarvest;
     public PlanOptionSnapshot bestTrade;
 
-    public Double deltaScore;
+    public Double scoreDiff;
   }
 
   public static class PlanOptionSnapshot {

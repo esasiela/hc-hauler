@@ -105,6 +105,7 @@ public class MarketBoardUiElement implements UiElement {
       row.qty = String.valueOf(Math.round(city.getStoredAmount()));
       row.buy = String.format("%.2f", city.getBuyPrice());
       row.sell = String.format("%.2f", city.getSellPrice());
+      row.spread = String.format("%.2f", (city.getSellPrice() - city.getBuyPrice()));
 
       if (city.getBuyPriceVelocity() > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
         row.buyVelocityDirection = VelocityDirection.UP;
@@ -249,10 +250,15 @@ public class MarketBoardUiElement implements UiElement {
     float sellAnchorX = priceTableBounds.x + COL_SELL_X;
     float sellHeaderX = sellAnchorX - glyphLayout.width;
 
+    glyphLayout.setText(font, "Spread");
+    // TODO move market board spread col position to constants
+    float spreadAnchorX = sellHeaderX + 100f;
+
     font.draw(batch, "City", priceTableBounds.x + COL_NAME_X, headerY);
     font.draw(batch, "Qty", priceTableBounds.x + COL_QTY_X, headerY);
     font.draw(batch, "Buy", buyHeaderX, headerY);
     font.draw(batch, "Sell", sellHeaderX, headerY);
+    font.draw(batch, "Spread", spreadAnchorX, headerY);
 
     float currentRowY = headerY - (font.getLineHeight() + ROW_SPACING);
 
@@ -272,6 +278,8 @@ public class MarketBoardUiElement implements UiElement {
       // font.draw(batch, row.sell, sellDrawX, currentRowY);
       drawPriceAnchored(batch, row.buy, buyDecimalAnchorX, currentRowY);
       drawPriceAnchored(batch, row.sell, sellDecimalAnchorX, currentRowY);
+
+      drawPriceAnchored(batch, row.spread, sellDecimalAnchorX + 100f, currentRowY);
 
       currentRowY -= font.getLineHeight() + ROW_SPACING;
     }
@@ -399,6 +407,7 @@ public class MarketBoardUiElement implements UiElement {
     String sell;
     Rectangle sellVelocityBounds = null;
     VelocityDirection sellVelocityDirection = VelocityDirection.STABLE;
+    String spread;
   }
 
   private enum VelocityDirection {

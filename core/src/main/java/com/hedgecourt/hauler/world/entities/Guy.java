@@ -174,11 +174,58 @@ public class Guy extends WorldEntity implements Selectable {
     int NODE_W = 7;
     int CITY_W = 4;
 
-    List<String> lines = new ArrayList<>();
-    lines.add("== Harvest Options ==");
-
     List<PlanOption> harvestOptions = evaluateHarvestOptions();
     harvestOptions.sort((a, b) -> Float.compare(b.score, a.score));
+    List<PlanOption> tradeOptions = evaluateTradeOptions();
+    tradeOptions.sort((a, b) -> Float.compare(b.score, a.score));
+
+    List<String> lines = new ArrayList<>();
+    lines.add("== Best Options ==");
+
+    PlanOption bestHarvest =
+        harvestOptions.stream().max(Comparator.comparingDouble(opt -> opt.score)).orElse(null);
+
+    PlanOption bestTrade =
+        tradeOptions.stream().max(Comparator.comparingDouble(opt -> opt.score)).orElse(null);
+
+    if (bestHarvest != null && bestTrade != null) {
+      if (bestHarvest.score > bestTrade.score) {
+        lines.add(
+            String.format(
+                "%sHarvest wins : %+.2f",
+                (hoveredEntity == bestHarvest.node) ? " >" : "  ", bestHarvest.score));
+        lines.add(
+            String.format(
+                "%sTrade        : %+.2f",
+                (hoveredEntity == bestTrade.sourceCity) ? " >" : "  ", bestTrade.score));
+        lines.add(
+            String.format("  Diff         : %+.2f", Math.abs(bestHarvest.score - bestTrade.score)));
+      } else {
+        lines.add(
+            String.format(
+                "%sTrade   wins : %.2f",
+                (hoveredEntity == bestTrade.sourceCity) ? " >" : "  ", bestTrade.score));
+        lines.add(
+            String.format(
+                "%sHarvest      : %+.2f",
+                (hoveredEntity == bestHarvest.node) ? " >" : "  ", bestHarvest.score));
+        lines.add(
+            String.format("  Diff         : %+.2f", Math.abs(bestHarvest.score - bestTrade.score)));
+      }
+    } else if (bestHarvest != null) {
+      lines.add(
+          String.format(
+              "%sHarvest is only option : %+.2f",
+              (hoveredEntity == bestHarvest.node) ? " >" : "  ", bestHarvest.score));
+    } else if (bestTrade != null) {
+      lines.add(
+          String.format(
+              "%sTrade is only option : %+.2f",
+              (hoveredEntity == bestTrade.sourceCity) ? " >" : "  ", bestTrade.score));
+    }
+
+    lines.add("");
+    lines.add("== Harvest Options ==");
     for (PlanOption opt : harvestOptions) {
       lines.add(
           String.format(
@@ -193,9 +240,6 @@ public class Guy extends WorldEntity implements Selectable {
 
     lines.add("");
     lines.add("== Trade Options ==");
-
-    List<PlanOption> tradeOptions = evaluateTradeOptions();
-    tradeOptions.sort((a, b) -> Float.compare(b.score, a.score));
 
     for (PlanOption opt : tradeOptions) {
       lines.add(
@@ -602,9 +646,17 @@ public class Guy extends WorldEntity implements Selectable {
         option.node = node;
         option.destCity = sellCity;
 
-        option.profit = sellCity.getBuyPrice() - C.harvestCostPerUnit;
+        float harvestableAmount = Math.min(node.getResourceAmount(), carryCapacity);
+        float fullnessRatio = harvestableAmount / carryCapacity;
+        option.profit = (sellCity.getBuyPrice() - C.harvestCostPerUnit) * fullnessRatio;
+        // option.profit = sellCity.getBuyPrice() - C.harvestCostPerUnit;
+
         option.penalty = travelPenalty(distanceTo(node) + node.distanceTo(sellCity));
         option.score = option.profit - option.penalty;
+
+        /*
+        min(node.resourceAmount, carryCapacity) / carryCapacity
+         */
 
         options.add(option);
       }
