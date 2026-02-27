@@ -37,7 +37,6 @@ import com.hedgecourt.hauler.ui.elements.ElapsedTimeUiElement;
 import com.hedgecourt.hauler.ui.elements.HeaderStatsUiElement;
 import com.hedgecourt.hauler.ui.elements.HoverTooltipUiElement;
 import com.hedgecourt.hauler.ui.elements.InspectorPanelUiElement;
-import com.hedgecourt.hauler.ui.elements.MarketBoardRefinedUiElement;
 import com.hedgecourt.hauler.ui.elements.MarketBoardUiElement;
 import com.hedgecourt.hauler.ui.elements.PauseButtonUiElement;
 import com.hedgecourt.hauler.ui.elements.PauseIndicatorUiElement;
@@ -226,12 +225,18 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     uiElements.add(new StatusBarUiElement(statusBarFont, this::getStatusBarString));
 
     marketBoard =
-        new MarketBoardUiElement(inspectorFont, glyphLayout, this, () -> marketBoardVisible);
+        new MarketBoardUiElement(
+            ResourceType.RAW, inspectorFont, glyphLayout, this, () -> marketBoardVisible, 20f);
     uiElements.add(marketBoard);
 
     uiElements.add(
-        new MarketBoardRefinedUiElement(
-            inspectorFont, glyphLayout, this, () -> marketBoardVisible));
+        new MarketBoardUiElement(
+            ResourceType.REFINED,
+            inspectorFont,
+            glyphLayout,
+            this,
+            () -> marketBoardVisible,
+            410f));
 
     /* ****
      * Setup world UNDER layers

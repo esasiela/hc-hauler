@@ -1,6 +1,5 @@
 package com.hedgecourt.hauler.ui.elements;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -39,6 +38,8 @@ public class MarketBoardUiElement implements UiElement {
   private static final float MATRIX_PADDING_TOP = 20f;
   private static final float MATRIX_COL_WIDTH = 110f;
 
+  private final ResourceType resourceType;
+
   private final BitmapFont font;
   private final GlyphLayout glyphLayout;
   private final WorldView world;
@@ -48,19 +49,24 @@ public class MarketBoardUiElement implements UiElement {
   private final List<RowRenderData> rows = new ArrayList<>();
   private final List<MatrixRowRenderData> matrixRows = new ArrayList<>();
   private final Rectangle panelBounds = new Rectangle();
+  private final Rectangle titleBounds = new Rectangle();
   private final Rectangle priceTableBounds = new Rectangle();
   private final Rectangle highlightBounds = new Rectangle();
   private final Rectangle matrixBounds = new Rectangle();
 
   public MarketBoardUiElement(
+      ResourceType resourceType,
       BitmapFont font,
       GlyphLayout glyphLayout,
       WorldView world,
-      Supplier<Boolean> visibleSupplier) {
+      Supplier<Boolean> visibleSupplier,
+      float panelX) {
+    this.resourceType = resourceType;
     this.font = font;
     this.glyphLayout = glyphLayout;
     this.world = world;
     this.visibleSupplier = visibleSupplier;
+    this.panelBounds.x = panelX;
   }
 
   @Override
@@ -70,15 +76,25 @@ public class MarketBoardUiElement implements UiElement {
     /* ****
      * bounds for the whole panel
      */
-    float panelX = ((Gdx.graphics.getWidth() - C.UI_MARKET_WIDTH) / 2f) - C.UI_MARKET_X_LEFT_OFFSET;
+    // float panelX = ((Gdx.graphics.getWidth() - C.UI_MARKET_WIDTH) / 2f) -
+    // C.UI_MARKET_X_LEFT_OFFSET;
     float panelY = C.UI_MARKET_MARGIN_BOTTOM;
-    panelBounds.set(panelX, panelY, C.UI_MARKET_WIDTH, C.UI_MARKET_HEIGHT);
+    panelBounds.set(panelBounds.x, panelY, C.UI_MARKET_WIDTH, C.UI_MARKET_HEIGHT);
+
+    /* ****
+     * bounds for the resource name title
+     */
+    titleBounds.set(
+        panelBounds.x + TABLE_PADDING_X,
+        panelBounds.y + panelBounds.height - TABLE_PADDING_TOP,
+        panelBounds.width - 2 * TABLE_PADDING_X,
+        30f);
 
     /* ****
      * bounds for the price data table
      */
     float tableX = panelBounds.x + TABLE_PADDING_X;
-    float tableTopY = panelBounds.y + panelBounds.height - TABLE_PADDING_TOP;
+    float tableTopY = titleBounds.y - 10f;
 
     int cityCount = world.getCities().size();
     float rowHeight = font.getLineHeight() + ROW_SPACING;
@@ -103,14 +119,13 @@ public class MarketBoardUiElement implements UiElement {
 
       RowRenderData row = new RowRenderData();
       row.cityName = city.getName();
-      row.qty = String.valueOf(Math.round(city.getInventory(ResourceType.RAW)));
-      row.buy = String.format("%.2f", city.getBuyPrice(ResourceType.RAW));
-      row.sell = String.format("%.2f", city.getSellPrice(ResourceType.RAW));
+      row.qty = String.valueOf(Math.round(city.getInventory(resourceType)));
+      row.buy = String.format("%.2f", city.getBuyPrice(resourceType));
+      row.sell = String.format("%.2f", city.getSellPrice(resourceType));
       row.spread =
-          String.format(
-              "%.2f", (city.getSellPrice(ResourceType.RAW) - city.getBuyPrice(ResourceType.RAW)));
+          String.format("%.2f", (city.getSellPrice(resourceType) - city.getBuyPrice(resourceType)));
 
-      if (city.getBuyPriceVelocity(ResourceType.RAW) > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+      if (city.getBuyPriceVelocity(resourceType) > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
         row.buyVelocityDirection = VelocityDirection.UP;
         row.buyVelocityBounds =
             new Rectangle(
@@ -118,7 +133,7 @@ public class MarketBoardUiElement implements UiElement {
                 currentRowY - (halfRowHeight / 2f),
                 VEL_ARROW_W,
                 VEL_ARROW_H);
-      } else if (city.getBuyPriceVelocity(ResourceType.RAW) < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+      } else if (city.getBuyPriceVelocity(resourceType) < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
         row.buyVelocityDirection = VelocityDirection.DOWN;
         row.buyVelocityBounds =
             new Rectangle(
@@ -128,7 +143,7 @@ public class MarketBoardUiElement implements UiElement {
                 VEL_ARROW_H);
       }
 
-      if (city.getSellPriceVelocity(ResourceType.RAW) > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+      if (city.getSellPriceVelocity(resourceType) > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
         row.sellVelocityDirection = VelocityDirection.UP;
         row.sellVelocityBounds =
             new Rectangle(
@@ -136,8 +151,7 @@ public class MarketBoardUiElement implements UiElement {
                 currentRowY - (halfRowHeight / 2f),
                 VEL_ARROW_W,
                 VEL_ARROW_H);
-      } else if (city.getSellPriceVelocity(ResourceType.RAW)
-          < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+      } else if (city.getSellPriceVelocity(resourceType) < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
         row.sellVelocityDirection = VelocityDirection.DOWN;
         row.sellVelocityBounds =
             new Rectangle(
@@ -195,7 +209,7 @@ public class MarketBoardUiElement implements UiElement {
         if (src == dest) {
           row.values.add("---");
         } else {
-          float arb = dest.getBuyPrice(ResourceType.RAW) - src.getSellPrice(ResourceType.RAW);
+          float arb = dest.getBuyPrice(resourceType) - src.getSellPrice(resourceType);
           row.values.add(String.format("%+.2f", arb));
         }
       }
@@ -210,6 +224,9 @@ public class MarketBoardUiElement implements UiElement {
 
     sr.setColor(0.95f, 0.95f, 0.95f, 0.95f);
     sr.rect(panelBounds.x, panelBounds.y, panelBounds.width, panelBounds.height);
+
+    sr.setColor(0.85f, 0.85f, 0.85f, 0.85f);
+    sr.rect(titleBounds.x, titleBounds.y, titleBounds.width, titleBounds.height);
 
     sr.setColor(0.2f, 0.6f, 1f, 0.35f);
     sr.rect(highlightBounds.x, highlightBounds.y, highlightBounds.width, highlightBounds.height);
@@ -240,6 +257,14 @@ public class MarketBoardUiElement implements UiElement {
   @Override
   public void drawText(SpriteBatch batch) {
     if (!visibleSupplier.get()) return;
+
+    /* ****
+     * Title
+     */
+    glyphLayout.setText(font, resourceType.name());
+    float titleX = titleBounds.x + titleBounds.width / 2 - glyphLayout.width / 2;
+    float titleY = titleBounds.y + titleBounds.height / 2 + glyphLayout.height / 2;
+    font.draw(batch, resourceType.name(), titleX, titleY);
 
     /* ****
      * Price Data table
