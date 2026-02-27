@@ -22,14 +22,27 @@ public class City extends WorldEntity implements Selectable {
 
   float previousDelta;
 
-  float storedAmount;
-  float storedAmountLastFrame;
   String alliance;
-  float buyPrice;
-  float sellPrice;
-  float buyPriceVelocity;
-  float sellPriceVelocity;
+
+  float rawStoredAmount;
+  float rawStoredAmountLastFrame;
+  float refinedStoredAmount;
+  float refinedStoredAmountLastFrame;
+
+  float rawBuyPrice;
+  float rawSellPrice;
+  float rawBuyPriceVelocity;
+  float rawSellPriceVelocity;
   float inventoryFlowRate;
+
+  float refinedBuyPrice;
+  float refinedSellPrice;
+  float refinedBuyPriceVelocity;
+  float refinedSellPriceVelocity;
+
+  boolean craftsRefined;
+  boolean consumesRefined;
+  float craftRate;
 
   @Override
   public float getWidth() {
@@ -46,24 +59,40 @@ public class City extends WorldEntity implements Selectable {
     // storedAmountLastFrame only changes in this method.
     // storedAmount changes outside of this method (guys making deliveries & withdrawals)
     if (previousDelta > 0f)
-      inventoryFlowRate = (storedAmount - storedAmountLastFrame) / previousDelta;
+      inventoryFlowRate = (rawStoredAmount - rawStoredAmountLastFrame) / previousDelta;
     else inventoryFlowRate = 0f;
 
-    storedAmountLastFrame = storedAmount;
+    rawStoredAmountLastFrame = rawStoredAmount;
 
+    craft(delta);
     consume(delta);
 
-    adjustBuyPriceFromInventory(delta);
-    adjustSellPriceMaintainSpread(delta);
+    adjustRawBuyPriceFromInventory(delta);
+    adjustRawSellPriceMaintainSpread(delta);
+
+    adjustRefinedBuyPriceFromInventory(delta);
+    adjustRefinedSellPriceMaintainSpread(delta);
 
     previousDelta = delta;
   }
 
-  private void consume(float delta) {
-    adjustStoredAmount(-C.cityConsumptionRate * delta);
+  private void craft(float delta) {
+    if (!craftsRefined) return;
+
+    float rawInputQty = requestWithdrawRaw(craftRate * delta);
+    float craftAmount = rawInputQty; // 1:1 recipe
+    adjustRawStoredAmount(-craftAmount);
+    adjustRefinedStoredAmount(craftAmount);
   }
 
-  private void adjustBuyPriceFromInventory(float delta) {
+  private void consume(float delta) {
+    // adjustStoredAmount(-C.cityConsumptionRate * delta);
+
+    if (!consumesRefined) return;
+    adjustRefinedStoredAmount(-C.cityConsumptionRate * delta);
+  }
+
+  private void adjustRawBuyPriceFromInventory(float delta) {
     /*
        float pressure =
            (C.cityTargetInventory - storedAmount) + C.cityInventoryFlowWeight *
@@ -83,7 +112,7 @@ public class City extends WorldEntity implements Selectable {
      */
 
     // Shortage as 0..1 (0 = full or above target, 1 = empty)
-    float shortage = 1f - (storedAmount / C.cityTargetInventory);
+    float shortage = 1f - (rawStoredAmount / C.cityTargetInventory);
     shortage = Math.max(0f, Math.min(1f, shortage)); // clamp to [0,1]
     // Exponential scarcity response (calm when mild, sharp when severe)
     float scarcityBoost = shortage * shortage;
@@ -98,18 +127,18 @@ public class City extends WorldEntity implements Selectable {
     float priceDelta = C.cityPriceAdjustRate * pressure * delta;
 
     // Prevent dropping below configured floor
-    float desiredNewPrice = buyPrice + priceDelta;
+    float desiredNewPrice = rawBuyPrice + priceDelta;
     if (desiredNewPrice < C.cityMinBuyPrice) {
-      priceDelta = C.cityMinBuyPrice - buyPrice;
+      priceDelta = C.cityMinBuyPrice - rawBuyPrice;
     }
 
-    adjustBuyPrice(priceDelta);
+    adjustRawBuyPrice(priceDelta);
   }
 
-  private void adjustSellPriceMaintainSpread(float delta) {
+  private void adjustRawSellPriceMaintainSpread(float delta) {
 
     // 1. Inventory ratio (1.0 = at target)
-    float inventoryRatio = storedAmount / C.cityTargetInventory;
+    float inventoryRatio = rawStoredAmount / C.cityTargetInventory;
     // 2. Deviation from target (positive = surplus, negative = scarcity)
     float deviation = inventoryRatio - 1f;
     // 3. Exponential curvature
@@ -120,51 +149,104 @@ public class City extends WorldEntity implements Selectable {
     float maxAllowedSpread = C.cityMinSpread * 2.0f;
     dynamicSpread = Math.max(minAllowedSpread, dynamicSpread);
     dynamicSpread = Math.min(maxAllowedSpread, dynamicSpread);
-    float targetSell = buyPrice + dynamicSpread;
+    float targetSell = rawBuyPrice + dynamicSpread;
     // 4. Smooth toward new target
-    float diff = targetSell - sellPrice;
+    float diff = targetSell - rawSellPrice;
     float adjustment = diff * C.citySellSmoothingRate * delta;
 
-    adjustSellPrice(adjustment);
+    adjustRawSellPrice(adjustment);
   }
 
-  private void adjustSellPriceMaintainSpreadFixed(float delta) {
-    float targetSell = buyPrice + C.cityMinSpread;
+  private void adjustRawSellPriceMaintainSpreadFixed(float delta) {
+    float targetSell = rawBuyPrice + C.cityMinSpread;
 
     // how far away are we?
-    float diff = targetSell - sellPrice;
+    float diff = targetSell - rawSellPrice;
 
     // smoothing toward target
     float adjustment = diff * C.citySellSmoothingRate * delta;
 
     // use the official mutation method
-    adjustSellPrice(adjustment);
+    adjustRawSellPrice(adjustment);
 
     // ensure we never violate minimum spread
-    if (sellPrice < targetSell) {
-      float correction = targetSell - sellPrice;
-      adjustSellPrice(correction);
+    if (rawSellPrice < targetSell) {
+      float correction = targetSell - rawSellPrice;
+      adjustRawSellPrice(correction);
     }
   }
 
-  public void adjustBuyPrice(float amount) {
-    float oldPrice = buyPrice;
+  public void adjustRawBuyPrice(float amount) {
+    float oldPrice = rawBuyPrice;
 
-    float newPrice = buyPrice + amount;
-    if (newPrice < sellPrice && newPrice > 0f) {
-      buyPrice = newPrice;
+    float newPrice = rawBuyPrice + amount;
+    if (newPrice < rawSellPrice && newPrice > 0f) {
+      rawBuyPrice = newPrice;
     }
 
-    buyPriceVelocity = buyPrice - oldPrice;
+    rawBuyPriceVelocity = rawBuyPrice - oldPrice;
   }
 
-  public void adjustSellPrice(float amount) {
-    float oldPrice = sellPrice;
+  public void adjustRawSellPrice(float amount) {
+    float oldPrice = rawSellPrice;
 
-    float newPrice = sellPrice + amount;
-    if (newPrice > buyPrice && newPrice > 0f) sellPrice = newPrice;
+    float newPrice = rawSellPrice + amount;
+    if (newPrice > rawBuyPrice && newPrice > 0f) rawSellPrice = newPrice;
 
-    sellPriceVelocity = sellPrice - oldPrice;
+    rawSellPriceVelocity = rawSellPrice - oldPrice;
+  }
+
+  private void adjustRefinedBuyPriceFromInventory(float delta) {
+    float shortage = 1f - (refinedStoredAmount / C.cityTargetInventory);
+    // shortage = clamp 0..1
+
+    float pressure = shortage; // linear, no square, no flow
+
+    float priceDelta = C.cityPriceAdjustRate * pressure * delta;
+
+    adjustRefinedBuyPrice(priceDelta);
+  }
+
+  private void adjustRefinedSellPriceMaintainSpread(float delta) {
+
+    // 1. Inventory ratio (1.0 = at target)
+    float inventoryRatio = refinedStoredAmount / C.cityTargetInventory;
+    // 2. Deviation from target (positive = surplus, negative = scarcity)
+    float deviation = inventoryRatio - 1f;
+    // 3. Exponential curvature
+    float spreadScale = (float) Math.exp(-3f * deviation);
+    float dynamicSpread = C.cityMinSpread * spreadScale;
+    // Optional safety clamps
+    float minAllowedSpread = C.cityMinSpread * 0.3f;
+    float maxAllowedSpread = C.cityMinSpread * 2.0f;
+    dynamicSpread = Math.max(minAllowedSpread, dynamicSpread);
+    dynamicSpread = Math.min(maxAllowedSpread, dynamicSpread);
+    float targetSell = refinedBuyPrice + dynamicSpread;
+    // 4. Smooth toward new target
+    float diff = targetSell - refinedSellPrice;
+    float adjustment = diff * C.citySellSmoothingRate * delta;
+
+    adjustRefinedSellPrice(adjustment);
+  }
+
+  public void adjustRefinedBuyPrice(float amount) {
+    float oldPrice = refinedBuyPrice;
+
+    float newPrice = refinedBuyPrice + amount;
+    if (newPrice < refinedSellPrice && newPrice > 0f) {
+      refinedBuyPrice = newPrice;
+    }
+
+    refinedBuyPriceVelocity = refinedBuyPrice - oldPrice;
+  }
+
+  public void adjustRefinedSellPrice(float amount) {
+    float oldPrice = refinedSellPrice;
+
+    float newPrice = refinedSellPrice + amount;
+    if (newPrice > refinedBuyPrice && newPrice > 0f) refinedSellPrice = newPrice;
+
+    refinedSellPriceVelocity = refinedSellPrice - oldPrice;
   }
 
   @Override
@@ -189,13 +271,21 @@ public class City extends WorldEntity implements Selectable {
                 String.format(
                     "Map row/col: %d, %d",
                     (int) (worldX / C.MAP_TILE_WIDTH_PX), (int) (worldY / C.MAP_TILE_HEIGHT_PX)),
-                "Qty: " + Math.round(storedAmount),
+                "Raw Qty: " + Math.round(rawStoredAmount),
+                "Refined Qty: " + Math.round(refinedStoredAmount),
                 String.format("Inventory Flow Rate: %+.3f", inventoryFlowRate),
                 "Alliance: " + alliance,
-                String.format("Buy Price : %.1f", buyPrice),
-                String.format("Sell Price: %.1f", sellPrice),
-                String.format("Buy Price Vel : %.3f", buyPriceVelocity),
-                String.format("Sell Price Vel: %.3f", sellPriceVelocity)));
+                String.format("Raw Buy Price : %.1f", rawBuyPrice),
+                String.format("Raw Sell Price: %.1f", rawSellPrice),
+                String.format("Raw Buy Price Vel : %.3f", rawBuyPriceVelocity),
+                String.format("Raw Sell Price Vel: %.3f", rawSellPriceVelocity),
+                String.format("Ref Buy Price : %.1f", refinedBuyPrice),
+                String.format("Ref Sell Price: %.1f", refinedSellPrice),
+                String.format("Ref Buy Price Vel : %.3f", refinedBuyPriceVelocity),
+                String.format("Ref Sell Price Vel: %.3f", refinedSellPriceVelocity),
+                String.format("Craft Rate: %.3f", craftRate),
+                String.format("Crafts Refined  : %b", craftsRefined),
+                String.format("Consumes Refined: %b", consumesRefined)));
 
     return lines;
   }
@@ -206,19 +296,19 @@ public class City extends WorldEntity implements Selectable {
     for (City city : world.getCities()) {
       lines.add(
           String.format(
-              "%s: %.1f / %.1f", city.getName(), city.getBuyPrice(), city.getSellPrice()));
+              "%s: %.1f / %.1f", city.getName(), city.getRawBuyPrice(), city.getRawSellPrice()));
     }
     lines.add("");
     lines.add("== Trade Opportunities ==");
     lines.add("Buy here.......Sell there");
     for (City city : world.getCities()) {
       if (city == this) continue;
-      float spread = city.getBuyPrice() - this.getSellPrice();
+      float spread = city.getRawBuyPrice() - this.getRawSellPrice();
       lines.add(city.getName() + ":");
       lines.add(
           String.format(
               "Out@%.1f In@%.1f Spread=%s%.1f",
-              this.getSellPrice(), city.getBuyPrice(), spread >= 0f ? "+" : "", spread));
+              this.getRawSellPrice(), city.getRawBuyPrice(), spread >= 0f ? "+" : "", spread));
     }
     return lines;
   }
@@ -254,7 +344,7 @@ public class City extends WorldEntity implements Selectable {
   }
 
   public String getStatusDetails() {
-    return String.format("Qty=%d", Math.round(storedAmount));
+    return String.format("Qty=%d", Math.round(rawStoredAmount));
   }
 
   public String getStatusSummary() {
@@ -267,10 +357,17 @@ public class City extends WorldEntity implements Selectable {
    * @param qtyRequested the amount of resource the caller is requesting
    * @return the amount actually granted, which equals qtyRequested
    */
-  public float requestDelivery(float qtyRequested) {
+  public float requestDeliveryRaw(float qtyRequested) {
     // as of this writing, there's no logic or cap on how much a city can receive
     float qtyDelivered = qtyRequested;
-    adjustStoredAmount(qtyDelivered);
+    adjustRawStoredAmount(qtyDelivered);
+    return qtyDelivered;
+  }
+
+  public float requestDeliveryRefined(float qtyRequested) {
+    // as of this writing, there's no logic or cap on how much a city can receive
+    float qtyDelivered = qtyRequested;
+    adjustRefinedStoredAmount(qtyDelivered);
     return qtyDelivered;
   }
 
@@ -280,15 +377,25 @@ public class City extends WorldEntity implements Selectable {
    * @param qtyRequested the amount of resource the caller is requesting
    * @return the amount actually granted, which is 0 <= granted <= qtyRequested
    */
-  public float requestWithdraw(float qtyRequested) {
-    float qtyGiven = Math.min(storedAmount, qtyRequested);
-    adjustStoredAmount(-qtyGiven);
+  public float requestWithdrawRaw(float qtyRequested) {
+    float qtyGiven = Math.min(rawStoredAmount, qtyRequested);
+    adjustRawStoredAmount(-qtyGiven);
     return qtyGiven;
   }
 
-  private void adjustStoredAmount(float qtyDelta) {
-    this.storedAmount += qtyDelta;
+  public float requestWithdrawRefined(float qtyRequested) {
+    float qtyGiven = Math.min(rawStoredAmount, qtyRequested);
+    adjustRefinedStoredAmount(-qtyGiven);
+    return qtyGiven;
+  }
 
-    if (storedAmount < C.RESOURCE_EPSILON) storedAmount = 0f;
+  private void adjustRawStoredAmount(float qtyDelta) {
+    this.rawStoredAmount += qtyDelta;
+    if (rawStoredAmount < C.RESOURCE_EPSILON) rawStoredAmount = 0f;
+  }
+
+  private void adjustRefinedStoredAmount(float qtyDelta) {
+    this.refinedStoredAmount += qtyDelta;
+    if (refinedStoredAmount < C.RESOURCE_EPSILON) refinedStoredAmount = 0f;
   }
 }

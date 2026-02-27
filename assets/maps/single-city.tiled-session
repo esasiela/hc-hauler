@@ -54,7 +54,7 @@
         "test-map-001.tmx"
     ],
     "project": "single-city.tiled-project",
-    "property.type": "string",
+    "property.type": "float",
     "recentFiles": [
         "single-city.tmx",
         "test-tutorial.tmx",

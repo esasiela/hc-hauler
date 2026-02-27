@@ -37,6 +37,8 @@ public class Guy extends WorldEntity implements Selectable {
   @Builder.Default private BehaviorModel behaviorModel = BehaviorModel.NORMAL;
   @Builder.Default private Direction facing = Direction.SOUTH;
 
+  private PlanOption currentPlan;
+
   private float targetX;
   private float targetY;
 
@@ -46,12 +48,15 @@ public class Guy extends WorldEntity implements Selectable {
   private City buyTarget;
   private City lastInteractionCity;
 
+  private ResourceType carriedType;
   private float carriedAmount;
   private float carryCapacity;
 
   private float idleDelay;
   private float idleDelayJitter;
   private float idleDelayTimer;
+
+  private float idleSeconds;
 
   private float moveSpeed;
 
@@ -158,9 +163,12 @@ public class Guy extends WorldEntity implements Selectable {
         String.format("Move ETA: %s", getEtaString()),
         String.format("Autonomy enabled: %b", autonomyEnabled),
         String.format("Behavior Model: %s", behaviorModel.toString()),
+        String.format("Idle Sec  : %.2f", idleSeconds),
         String.format("Idle delay: %.2f (%.2f)", idleDelay, idleDelayTimer),
         String.format("Idle delay jitter: %.2f", idleDelayJitter),
-        String.format("Bag: %d / %d", Math.round(carriedAmount), Math.round(carryCapacity)),
+        String.format("Carried Type: %s", carriedType),
+        String.format(
+            "Carried Amt : %d / %d", Math.round(carriedAmount), Math.round(carryCapacity)),
         String.format("Harv Trgt: %s", harvestTarget == null ? "null" : harvestTarget.getId()),
         String.format("Depo Trgt: %s", deliverTarget == null ? "null" : deliverTarget.getId()),
         String.format("Loop City: %s", loopDeliverCity == null ? "null" : loopDeliverCity.getId()),
@@ -171,7 +179,7 @@ public class Guy extends WorldEntity implements Selectable {
   }
 
   private List<String> buildInspectorLinesTrade(WorldEntity hoveredEntity) {
-    int NODE_W = 7;
+    int NODE_W = 5;
     int CITY_W = 4;
 
     List<PlanOption> harvestOptions = evaluateHarvestOptions();
@@ -229,12 +237,13 @@ public class Guy extends WorldEntity implements Selectable {
     for (PlanOption opt : harvestOptions) {
       lines.add(
           String.format(
-              "%s%-" + NODE_W + "s->%-" + CITY_W + "s %+6.1f -%6.1f = %+6.1f",
+              "%s%-" + NODE_W + "s->%-" + CITY_W + "s %+4.1f -%4.1f +%2.1f= %+4.1f",
               opt.node == hoveredEntity ? " >" : "  ",
               C.clip(opt.node.getName(), NODE_W),
               C.clip(opt.destCity.getName(), CITY_W),
               opt.profit,
               opt.penalty,
+              opt.workIncentive,
               opt.score));
     }
 
@@ -244,13 +253,15 @@ public class Guy extends WorldEntity implements Selectable {
     for (PlanOption opt : tradeOptions) {
       lines.add(
           String.format(
-              "%s%-" + NODE_W + "s->%-" + CITY_W + "s %+6.1f -%6.1f = %+6.1f",
+              "%s%-" + NODE_W + "s->%-" + CITY_W + "s %+4.1f -%4.1f +%2.1f= %+4.1f %s",
               opt.sourceCity == hoveredEntity ? " >" : "  ",
               C.clip(opt.sourceCity.getName(), NODE_W),
               C.clip(opt.destCity.getName(), CITY_W),
               opt.profit,
               opt.penalty,
-              opt.score));
+              opt.workIncentive,
+              opt.score,
+              opt.resourceType));
     }
 
     return lines;
@@ -312,6 +323,10 @@ public class Guy extends WorldEntity implements Selectable {
       case BUYING -> updateBuying(delta);
       default -> animationTime = 0f;
     }
+
+    if (state == State.IDLE || state == State.IDLE_WAITING) idleSeconds += delta;
+    else idleSeconds = 0f;
+
     if (state == State.IDLE && autonomyEnabled) chooseNextPlan();
   }
 
@@ -364,6 +379,8 @@ public class Guy extends WorldEntity implements Selectable {
     // the max request is min of our full rate for this time tick, or our available bag capacity
     float requestQty = Math.min(harvestTarget.getHarvestRate() * delta, capacityRemaining());
     float harvestQty = harvestTarget.requestHarvest(requestQty);
+    // TODO set carriedType when harvesting off of node's resourceType
+    adjustCarriedType(ResourceType.RAW);
     adjustCarriedAmount(harvestQty);
   }
 
@@ -374,9 +391,12 @@ public class Guy extends WorldEntity implements Selectable {
     }
     // if we make it here, we're done harvesting
     if (loopDeliverCity != null && carriedAmount > 0) {
+      // this is the "manual clicked a city to loop on" branch
       moveToDeliver(loopDeliverCity);
     } else {
-      finishCurrentPlan();
+      // finishCurrentPlan();
+      moveToDeliver(harvestTarget.getClosest(world.getCities()));
+      harvestTarget = null;
     }
   }
 
@@ -391,13 +411,18 @@ public class Guy extends WorldEntity implements Selectable {
 
   private void performBuyTick(float delta) {
     float requestQty = Math.min(C.DELIVER_RATE * delta, capacityRemaining());
-    float buyQty = buyTarget.requestWithdraw(requestQty);
+    float buyQty =
+        currentPlan.resourceType == ResourceType.RAW
+            ? buyTarget.requestWithdrawRaw(requestQty)
+            : buyTarget.requestWithdrawRefined(requestQty);
+
+    adjustCarriedType(currentPlan.resourceType);
     adjustCarriedAmount(buyQty);
   }
 
   private void resolveBuyResults() {
     // we shall stop buying when our bag is full or the city is dry
-    if (capacityRemaining() <= 0 || buyTarget.getStoredAmount() <= 0) {
+    if (capacityRemaining() <= 0 || buyTarget.getRawStoredAmount() <= 0) {
       // TODO change the buying exit strategy to see if request to buy received zero
       lastInteractionCity = buyTarget;
       finishCurrentPlan();
@@ -415,7 +440,10 @@ public class Guy extends WorldEntity implements Selectable {
 
   private void performDeliverTick(float delta) {
     float requestQty = Math.min(C.DELIVER_RATE * delta, carriedAmount);
-    float deliverQty = deliverTarget.requestDelivery(requestQty);
+    float deliverQty =
+        currentPlan.resourceType == ResourceType.RAW
+            ? deliverTarget.requestDeliveryRaw(requestQty)
+            : deliverTarget.requestDeliveryRefined(requestQty);
     adjustCarriedAmount(-deliverQty);
   }
 
@@ -433,10 +461,18 @@ public class Guy extends WorldEntity implements Selectable {
     }
   }
 
+  private void adjustCarriedType(ResourceType newType) {
+    // i'm the only one who can touch carriedType
+    carriedType = newType;
+  }
+
   private void adjustCarriedAmount(float amount) {
     // i'm the only one who can touch carriedAmount
     carriedAmount += amount;
-    if (carriedAmount < C.RESOURCE_EPSILON) carriedAmount = 0f;
+    if (carriedAmount < C.RESOURCE_EPSILON) {
+      adjustCarriedType(null);
+      carriedAmount = 0f;
+    }
   }
 
   public float capacityRemaining() {
@@ -526,6 +562,8 @@ public class Guy extends WorldEntity implements Selectable {
   }
 
   private void finishCurrentPlan() {
+    adjustCarriedType(null);
+
     this.harvestTarget = null;
     this.deliverTarget = null;
     this.loopDeliverCity = null;
@@ -572,11 +610,13 @@ public class Guy extends WorldEntity implements Selectable {
       if (best == null || best.score <= 0f) return;
 
       if (best.optionType == OptionType.HARVEST) {
+        currentPlan = best;
         moveToHarvest(best.node);
         return;
       }
 
       if (best.optionType == OptionType.TRADE) {
+        currentPlan = best;
         moveToBuy(best.sourceCity);
         return;
       }
@@ -617,7 +657,9 @@ public class Guy extends WorldEntity implements Selectable {
               .filter(c -> c != lastInteractionCity)
               .max(
                   Comparator.comparingDouble(
-                      c -> c.getBuyPrice() - ((distanceTo(c) / moveSpeed) * C.cityDistancePenalty)))
+                      c ->
+                          c.getRawBuyPrice()
+                              - ((distanceTo(c) / moveSpeed) * C.cityDistancePenalty)))
               .orElse(null);
 
       // if nearest is null, that means there's no cities on the map (that we didnt recently buy
@@ -640,26 +682,25 @@ public class Guy extends WorldEntity implements Selectable {
     for (Node node : world.getNodes()) {
       if (node.getResourceAmount() <= 0) continue;
 
-      for (City sellCity : world.getCities()) {
-        PlanOption option = new PlanOption();
-        option.optionType = OptionType.HARVEST;
-        option.node = node;
-        option.destCity = sellCity;
+      City closestCity = node.getClosest(world.getCities());
+      if (closestCity == null) continue;
 
-        float harvestableAmount = Math.min(node.getResourceAmount(), carryCapacity);
-        float fullnessRatio = harvestableAmount / carryCapacity;
-        option.profit = (sellCity.getBuyPrice() - C.harvestCostPerUnit) * fullnessRatio;
-        // option.profit = sellCity.getBuyPrice() - C.harvestCostPerUnit;
+      PlanOption option = new PlanOption();
+      option.optionType = OptionType.HARVEST;
+      // TODO only type you can harvest is RAW, for now!
+      option.resourceType = ResourceType.RAW;
+      option.node = node;
+      option.destCity = closestCity;
 
-        option.penalty = travelPenalty(distanceTo(node) + node.distanceTo(sellCity));
-        option.score = option.profit - option.penalty;
+      float harvestableAmount = Math.min(node.getResourceAmount(), carryCapacity);
+      float fullnessRatio = harvestableAmount / carryCapacity;
+      option.profit = (closestCity.getRawBuyPrice() - C.harvestCostPerUnit) * fullnessRatio;
 
-        /*
-        min(node.resourceAmount, carryCapacity) / carryCapacity
-         */
+      option.penalty = travelPenalty(distanceTo(node) + node.distanceTo(closestCity));
+      option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
+      option.score = option.profit - option.penalty + option.workIncentive;
 
-        options.add(option);
-      }
+      options.add(option);
     }
     return options;
   }
@@ -667,22 +708,39 @@ public class Guy extends WorldEntity implements Selectable {
   public List<PlanOption> evaluateTradeOptions() {
     List<PlanOption> options = new ArrayList<>();
 
-    for (City sourceCity : world.getCities()) {
-      if (sourceCity.getStoredAmount() <= 0) continue;
+    for (City srcCity : world.getCities()) {
+      for (City dstCity : world.getCities()) {
+        if (dstCity == srcCity) continue;
 
-      for (City sellCity : world.getCities()) {
-        if (sellCity == sourceCity) continue;
+        if (srcCity.getRawStoredAmount() > 0) {
+          PlanOption option = new PlanOption();
+          option.optionType = OptionType.TRADE;
+          option.resourceType = ResourceType.RAW;
+          option.sourceCity = srcCity;
+          option.destCity = dstCity;
 
-        PlanOption option = new PlanOption();
-        option.optionType = OptionType.TRADE;
-        option.sourceCity = sourceCity;
-        option.destCity = sellCity;
+          option.profit = dstCity.getRawBuyPrice() - srcCity.getRawSellPrice();
+          option.penalty = travelPenalty(distanceTo(srcCity) + srcCity.distanceTo(dstCity));
+          option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
+          option.score = option.profit - option.penalty + option.workIncentive;
 
-        option.profit = sellCity.getBuyPrice() - sourceCity.getSellPrice();
-        option.penalty = travelPenalty(distanceTo(sourceCity) + sourceCity.distanceTo(sellCity));
-        option.score = option.profit - option.penalty;
+          options.add(option);
+        }
 
-        options.add(option);
+        if (srcCity.getRefinedStoredAmount() > 0) {
+          PlanOption option = new PlanOption();
+          option.optionType = OptionType.TRADE;
+          option.resourceType = ResourceType.REFINED;
+          option.sourceCity = srcCity;
+          option.destCity = dstCity;
+
+          option.profit = dstCity.getRefinedBuyPrice() - srcCity.getRefinedSellPrice();
+          option.penalty = travelPenalty(distanceTo(srcCity) + srcCity.distanceTo(dstCity));
+          option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
+          option.score = option.profit - option.penalty + option.workIncentive;
+
+          options.add(option);
+        }
       }
     }
     return options;
@@ -807,12 +865,20 @@ public class Guy extends WorldEntity implements Selectable {
 
     public OptionType optionType;
 
+    public ResourceType resourceType;
+
     public Node node; // only for HARVEST
     public City sourceCity; // only for TRADE
     public City destCity;
 
     public float profit;
     public float penalty;
+    public float workIncentive;
     public float score;
+  }
+
+  public enum ResourceType {
+    RAW,
+    REFINED
   }
 }

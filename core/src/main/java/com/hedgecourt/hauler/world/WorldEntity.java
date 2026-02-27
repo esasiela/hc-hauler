@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import com.hedgecourt.hauler.C;
 import com.hedgecourt.hauler.Selectable;
+import java.util.Comparator;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -69,6 +70,10 @@ public abstract class WorldEntity implements Selectable {
 
   public float distanceTo(Vector3 coords) {
     return distanceTo(coords.x, coords.y);
+  }
+
+  public <T extends WorldEntity> T getClosest(List<T> entities) {
+    return entities.stream().min(Comparator.comparingDouble(this::distanceTo)).orElse(null);
   }
 
   public float getCenterX() {

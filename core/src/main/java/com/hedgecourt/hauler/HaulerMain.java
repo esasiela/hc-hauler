@@ -36,6 +36,7 @@ import com.hedgecourt.hauler.ui.elements.ElapsedTimeUiElement;
 import com.hedgecourt.hauler.ui.elements.HeaderStatsUiElement;
 import com.hedgecourt.hauler.ui.elements.HoverTooltipUiElement;
 import com.hedgecourt.hauler.ui.elements.InspectorPanelUiElement;
+import com.hedgecourt.hauler.ui.elements.MarketBoardRefinedUiElement;
 import com.hedgecourt.hauler.ui.elements.MarketBoardUiElement;
 import com.hedgecourt.hauler.ui.elements.PauseButtonUiElement;
 import com.hedgecourt.hauler.ui.elements.PauseIndicatorUiElement;
@@ -227,6 +228,10 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         new MarketBoardUiElement(inspectorFont, glyphLayout, this, () -> marketBoardVisible);
     uiElements.add(marketBoard);
 
+    uiElements.add(
+        new MarketBoardRefinedUiElement(
+            inspectorFont, glyphLayout, this, () -> marketBoardVisible));
+
     /* ****
      * Setup world UNDER layers
      * ****/
@@ -290,11 +295,18 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
             .name(r.getMapObjectName())
             .worldX(r.f("x", 0f))
             .worldY(r.f("y", 0f))
-            .storedAmount(r.f("storedAmount", 0f))
-            .storedAmountLastFrame(r.f("storedAmount", 0f))
+            .craftRate(r.f("craftRate", 0f))
+            .craftsRefined(r.b("craftsRefined", false))
+            .consumesRefined(r.b("consumesRefined", false))
             .alliance(r.s("alliance", "Neutral").trim().toLowerCase())
-            .buyPrice(r.f("buyPrice", 1.0f))
-            .sellPrice(r.f("sellPrice", 1.0f))
+            .rawStoredAmount(r.f("rawStoredAmount", 0f))
+            .rawStoredAmountLastFrame(r.f("rawStoredAmount", 0f))
+            .rawBuyPrice(r.f("rawBuyPrice", 1.0f))
+            .rawSellPrice(r.f("rawSellPrice", 1.0f))
+            .refinedStoredAmount(r.f("refinedStoredAmount", 0f))
+            .refinedStoredAmountLastFrame(r.f("refinedStoredAmount", 0f))
+            .refinedBuyPrice(r.f("refinedBuyPrice", 1.0f))
+            .refinedSellPrice(r.f("refinedSellPrice", 1.0f))
             .build();
     city.buildSprites(baseTilesTexture);
     return city;
@@ -662,8 +674,8 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         City city = marketBoard.getHighlightCity();
         boolean isBuy = marketBoard.isHighlightFieldBuy();
         float increment = -1 * (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 1f : 0.1f);
-        if (isBuy) city.adjustBuyPrice(increment);
-        else city.adjustSellPrice(increment);
+        if (isBuy) city.adjustRawBuyPrice(increment);
+        else city.adjustRawSellPrice(increment);
       }
     }
     if (Gdx.input.isKeyJustPressed(Keys.RIGHT)) {
@@ -671,8 +683,8 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         City city = marketBoard.getHighlightCity();
         boolean isBuy = marketBoard.isHighlightFieldBuy();
         float increment = Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 1f : 0.1f;
-        if (isBuy) city.adjustBuyPrice(increment);
-        else city.adjustSellPrice(increment);
+        if (isBuy) city.adjustRawBuyPrice(increment);
+        else city.adjustRawSellPrice(increment);
       }
     }
 
@@ -820,6 +832,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     s.cityMinBuyPrice = C.cityMinBuyPrice;
     s.citySellSmoothingRate = C.citySellSmoothingRate;
     s.cityMinSpread = C.cityMinSpread;
+    s.guyWorkIncentiveWeight = C.guyWorkIncentiveWeight;
 
     WorldSnapshot.MapInfo m = new WorldSnapshot.MapInfo();
     m.tilesWide = mapWidthTiles;
@@ -851,15 +864,25 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
                   cs.centerX = Math.round(city.getCenterX());
                   cs.centerY = Math.round(city.getCenterY());
 
-                  cs.storedAmount = Math.round(city.getStoredAmount());
+                  cs.rawStoredAmount = city.getRawStoredAmount();
+                  cs.refinedStoredAmount = city.getRefinedStoredAmount();
 
-                  cs.buyPrice = city.getBuyPrice();
-                  cs.sellPrice = city.getSellPrice();
-                  cs.spread = city.getSellPrice() - city.getBuyPrice();
-
-                  cs.buyPriceVelocity = city.getBuyPriceVelocity();
-                  cs.sellPriceVelocity = city.getSellPriceVelocity();
+                  cs.rawBuyPrice = city.getRawBuyPrice();
+                  cs.rawSellPrice = city.getRawSellPrice();
+                  cs.rawPriceSpread = city.getRawSellPrice() - city.getRawBuyPrice();
+                  cs.rawBuyPriceVelocity = city.getRawBuyPriceVelocity();
+                  cs.rawSellPriceVelocity = city.getRawSellPriceVelocity();
                   cs.inventoryFlowRate = city.getInventoryFlowRate();
+
+                  cs.refinedBuyPrice = city.getRefinedBuyPrice();
+                  cs.refinedSellPrice = city.getRefinedSellPrice();
+                  cs.refinedPriceSpread = city.getRefinedSellPrice() - city.getRefinedBuyPrice();
+                  cs.refinedBuyPriceVelocity = city.getRefinedBuyPriceVelocity();
+                  cs.refinedSellPriceVelocity = city.getRefinedSellPriceVelocity();
+
+                  cs.craftRate = city.getCraftRate();
+                  cs.craftsRefined = city.isCraftsRefined();
+                  cs.consumesRefined = city.isConsumesRefined();
 
                   return cs;
                 })
@@ -913,10 +936,12 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
 
                   gs.moveSpeed = guy.getMoveSpeed();
 
+                  gs.carriedType = guy.getCarriedType();
                   gs.carriedAmount = Math.round(guy.getCarriedAmount());
                   gs.carryCapacity = Math.round(guy.getCarryCapacity());
 
                   gs.state = guy.getState().name();
+                  gs.idleSeconds = guy.getIdleSeconds();
                   gs.autonomyEnabled = guy.isAutonomyEnabled();
 
                   // ---- Evaluate Options ----
@@ -961,6 +986,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     WorldSnapshot.PlanOptionSnapshot ps = new WorldSnapshot.PlanOptionSnapshot();
 
     ps.optionType = opt.optionType.name();
+    ps.resourceType = opt.resourceType.name();
 
     if (opt.node != null) {
       ps.nodeId = opt.node.getId();

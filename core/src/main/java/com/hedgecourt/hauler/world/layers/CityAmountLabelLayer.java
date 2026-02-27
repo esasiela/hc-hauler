@@ -20,7 +20,10 @@ public class CityAmountLabelLayer implements WorldRenderLayer {
   @Override
   public void drawText(SpriteBatch batch) {
     for (City city : citiesSupplier.get()) {
-      String text = String.valueOf(Math.round(city.getStoredAmount()));
+      String text =
+          String.format(
+              "%d/%d",
+              Math.round(city.getRawStoredAmount()), Math.round(city.getRefinedStoredAmount()));
 
       float x = city.getWorldX();
       float y = city.getWorldY() + city.getHeight() + 12f;

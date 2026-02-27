@@ -8,15 +8,16 @@ public class C {
   /* ****
    * Live-editable (non-final) values at the top
    * ****/
-  public static float cityDistancePenalty = 0.22f;
-  public static float harvestCostPerUnit = 5.5f;
+  public static float cityDistancePenalty = 0.20f * 1.15f;
+  public static float harvestCostPerUnit = 5.2f;
   public static float cityConsumptionRate = 1.5f;
   public static float cityTargetInventory = 100f;
   public static float cityInventoryFlowWeight = 2.0f;
-  public static float cityPriceAdjustRate = 0.02f;
+  public static float cityPriceAdjustRate = 0.02f * 1.25f;
   public static float cityMinBuyPrice = 0.1f;
   public static float citySellSmoothingRate = 0.05f; // start small
   public static float cityMinSpread = 3.0f; // keep some margin
+  public static float guyWorkIncentiveWeight = 0.02f;
 
   public static InspectorTab inspectorTab = InspectorTab.TRADE;
 
@@ -34,7 +35,7 @@ public class C {
   public static final String MAP_FILE = "maps/test-map-003.tmx";
 
   // set to null for no initial selection
-  public static final String DEFAULT_SELECTED_GUY_NAME = "Simone";
+  public static final String DEFAULT_SELECTED_GUY_NAME = "fast1";
 
   public static final float FRAME_DURATION = 0.15f;
 
@@ -108,11 +109,13 @@ public class C {
   public static final float UI_INSPECTOR_PANEL_OFFSET_X =
       UI_INSPECTOR_PANEL_WIDTH + UI_SCREEN_PADDING;
 
-  public static final float UI_MARKET_WIDTH = 550f;
+  public static final float UI_MARKET_WIDTH = 370f;
   public static final float UI_MARKET_HEIGHT = 310f;
   public static final float UI_MARKET_MARGIN_BOTTOM = 40f;
-  public static final float UI_MARKET_X_LEFT_OFFSET = 50f;
+  public static final float UI_MARKET_X_LEFT_OFFSET = -50f;
   public static final float UI_MARKET_PRICE_VELOCITY_EPSILON = 0.0001f;
+
+  public static final float UI_MARKET_REFINED_X_LEFT_OFFSET = 330f;
 
   public static final int UI_HOVER_TOOLTIP_FONT_SIZE = 18;
   public static final float UI_HOVER_TOOLTIP_PAD_X = 6f;

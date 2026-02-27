@@ -51,7 +51,7 @@ public class HeaderStatsUiElement implements UiElement {
             cities.stream()
                 .collect(
                     Collectors.groupingBy(
-                        City::getAlliance, Collectors.summingDouble(City::getStoredAmount))));
+                        City::getAlliance, Collectors.summingDouble(City::getRawStoredAmount))));
 
     String allianceText =
         allianceTotals.entrySet().stream()

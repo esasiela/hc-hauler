@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class MarketBoardUiElement implements UiElement {
+public class MarketBoardRefinedUiElement implements UiElement {
   private static final float PRICE_DECIMAL_PADDING = 2f;
   private static final float PRICE_HIGHLIGHT_WIDTH = 60f; // tweak visually
   private static final float PRICE_DECIMAL_WIDTH_ESTIMATE = 20f + 2 * PRICE_DECIMAL_PADDING;
@@ -51,7 +51,7 @@ public class MarketBoardUiElement implements UiElement {
   private final Rectangle highlightBounds = new Rectangle();
   private final Rectangle matrixBounds = new Rectangle();
 
-  public MarketBoardUiElement(
+  public MarketBoardRefinedUiElement(
       BitmapFont font,
       GlyphLayout glyphLayout,
       WorldView world,
@@ -69,7 +69,8 @@ public class MarketBoardUiElement implements UiElement {
     /* ****
      * bounds for the whole panel
      */
-    float panelX = ((Gdx.graphics.getWidth() - C.UI_MARKET_WIDTH) / 2f) - C.UI_MARKET_X_LEFT_OFFSET;
+    float panelX =
+        ((Gdx.graphics.getWidth() - C.UI_MARKET_WIDTH) / 2f) - C.UI_MARKET_REFINED_X_LEFT_OFFSET;
     float panelY = C.UI_MARKET_MARGIN_BOTTOM;
     panelBounds.set(panelX, panelY, C.UI_MARKET_WIDTH, C.UI_MARKET_HEIGHT);
 
@@ -102,12 +103,12 @@ public class MarketBoardUiElement implements UiElement {
 
       RowRenderData row = new RowRenderData();
       row.cityName = city.getName();
-      row.qty = String.valueOf(Math.round(city.getRawStoredAmount()));
-      row.buy = String.format("%.2f", city.getRawBuyPrice());
-      row.sell = String.format("%.2f", city.getRawSellPrice());
-      row.spread = String.format("%.2f", (city.getRawSellPrice() - city.getRawBuyPrice()));
+      row.qty = String.valueOf(Math.round(city.getRefinedStoredAmount()));
+      row.buy = String.format("%.2f", city.getRefinedBuyPrice());
+      row.sell = String.format("%.2f", city.getRefinedSellPrice());
+      row.spread = String.format("%.2f", (city.getRefinedSellPrice() - city.getRefinedBuyPrice()));
 
-      if (city.getRawBuyPriceVelocity() > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+      if (city.getRefinedBuyPriceVelocity() > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
         row.buyVelocityDirection = VelocityDirection.UP;
         row.buyVelocityBounds =
             new Rectangle(
@@ -115,7 +116,7 @@ public class MarketBoardUiElement implements UiElement {
                 currentRowY - (halfRowHeight / 2f),
                 VEL_ARROW_W,
                 VEL_ARROW_H);
-      } else if (city.getRawBuyPriceVelocity() < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+      } else if (city.getRefinedBuyPriceVelocity() < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
         row.buyVelocityDirection = VelocityDirection.DOWN;
         row.buyVelocityBounds =
             new Rectangle(
@@ -125,7 +126,7 @@ public class MarketBoardUiElement implements UiElement {
                 VEL_ARROW_H);
       }
 
-      if (city.getRawSellPriceVelocity() > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+      if (city.getRefinedSellPriceVelocity() > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
         row.sellVelocityDirection = VelocityDirection.UP;
         row.sellVelocityBounds =
             new Rectangle(
@@ -133,7 +134,7 @@ public class MarketBoardUiElement implements UiElement {
                 currentRowY - (halfRowHeight / 2f),
                 VEL_ARROW_W,
                 VEL_ARROW_H);
-      } else if (city.getRawSellPriceVelocity() < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+      } else if (city.getRefinedSellPriceVelocity() < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
         row.sellVelocityDirection = VelocityDirection.DOWN;
         row.sellVelocityBounds =
             new Rectangle(
@@ -191,7 +192,7 @@ public class MarketBoardUiElement implements UiElement {
         if (src == dest) {
           row.values.add("---");
         } else {
-          float arb = dest.getRawBuyPrice() - src.getRawSellPrice();
+          float arb = dest.getRefinedBuyPrice() - src.getRefinedSellPrice();
           row.values.add(String.format("%+.2f", arb));
         }
       }

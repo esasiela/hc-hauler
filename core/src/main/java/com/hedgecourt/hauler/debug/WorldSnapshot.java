@@ -1,5 +1,6 @@
 package com.hedgecourt.hauler.debug;
 
+import com.hedgecourt.hauler.world.entities.Guy.ResourceType;
 import java.util.List;
 
 public class WorldSnapshot {
@@ -13,6 +14,7 @@ public class WorldSnapshot {
   public double cityMinBuyPrice;
   public double citySellSmoothingRate;
   public double cityMinSpread;
+  public double guyWorkIncentiveWeight;
 
   public MapInfo map;
 
@@ -41,15 +43,26 @@ public class WorldSnapshot {
     public int centerX;
     public int centerY;
 
-    public int storedAmount;
+    public double rawStoredAmount;
+    public double refinedStoredAmount;
 
-    public double buyPrice;
-    public double sellPrice;
-    public double spread;
+    public double rawBuyPrice;
+    public double rawSellPrice;
+    public double rawPriceSpread;
 
-    public double buyPriceVelocity = 0f;
-    public double sellPriceVelocity = 0f;
+    public double rawBuyPriceVelocity = 0f;
+    public double rawSellPriceVelocity = 0f;
     public double inventoryFlowRate = 0f;
+
+    public double refinedBuyPrice;
+    public double refinedSellPrice;
+    public double refinedPriceSpread;
+    public double refinedBuyPriceVelocity = 0f;
+    public double refinedSellPriceVelocity = 0f;
+
+    public float craftRate;
+    public boolean craftsRefined;
+    public boolean consumesRefined;
   }
 
   public static class NodeSnapshot {
@@ -80,10 +93,12 @@ public class WorldSnapshot {
 
     public double moveSpeed;
 
+    public ResourceType carriedType;
     public int carriedAmount;
     public int carryCapacity;
 
     public String state;
+    public double idleSeconds;
     public boolean autonomyEnabled;
 
     public Double bestScoreOverall;
@@ -95,7 +110,7 @@ public class WorldSnapshot {
 
   public static class PlanOptionSnapshot {
     public String optionType; // "HARVEST" or "TRADE"
-
+    public String resourceType;
     public String nodeId; // for harvest
     public String sourceCityId; // for trade
     public String destCityId;
