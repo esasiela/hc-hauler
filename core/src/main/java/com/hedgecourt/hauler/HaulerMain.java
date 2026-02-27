@@ -30,6 +30,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.hedgecourt.hauler.C.InspectorTab;
 import com.hedgecourt.hauler.debug.WorldSnapshot;
 import com.hedgecourt.hauler.debug.WorldSnapshot.GuySnapshot;
+import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.ui.UiElement;
 import com.hedgecourt.hauler.ui.UiRenderer;
 import com.hedgecourt.hauler.ui.elements.ElapsedTimeUiElement;
@@ -299,15 +300,27 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
             .craftsRefined(r.b("craftsRefined", false))
             .consumesRefined(r.b("consumesRefined", false))
             .alliance(r.s("alliance", "Neutral").trim().toLowerCase())
-            .rawStoredAmount(r.f("rawStoredAmount", 0f))
-            .rawStoredAmountLastFrame(r.f("rawStoredAmount", 0f))
-            .rawBuyPrice(r.f("rawBuyPrice", 1.0f))
-            .rawSellPrice(r.f("rawSellPrice", 1.0f))
-            .refinedStoredAmount(r.f("refinedStoredAmount", 0f))
-            .refinedStoredAmountLastFrame(r.f("refinedStoredAmount", 0f))
-            .refinedBuyPrice(r.f("refinedBuyPrice", 1.0f))
-            .refinedSellPrice(r.f("refinedSellPrice", 1.0f))
+            // .rawStoredAmount(r.f("rawStoredAmount", 0f))
+            // .rawStoredAmountLastFrame(r.f("rawStoredAmount", 0f))
+            // .rawBuyPrice(r.f("rawBuyPrice", 1.0f))
+            // .rawSellPrice(r.f("rawSellPrice", 1.0f))
+            // .refinedStoredAmount(r.f("refinedStoredAmount", 0f))
+            // .refinedStoredAmountLastFrame(r.f("refinedStoredAmount", 0f))
+            // .refinedBuyPrice(r.f("refinedBuyPrice", 1.0f))
+            // .refinedSellPrice(r.f("refinedSellPrice", 1.0f))
             .build();
+    city.initializeResource(
+        ResourceType.RAW,
+        r.f("rawStoredAmount", 0f),
+        r.f("rawBuyPrice", 1.0f),
+        r.f("rawSellPrice", 1.0f));
+
+    city.initializeResource(
+        ResourceType.REFINED,
+        r.f("refinedStoredAmount", 0f),
+        r.f("refinedBuyPrice", 1.0f),
+        r.f("refinedSellPrice", 1.0f));
+
     city.buildSprites(baseTilesTexture);
     return city;
   }
@@ -674,8 +687,8 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         City city = marketBoard.getHighlightCity();
         boolean isBuy = marketBoard.isHighlightFieldBuy();
         float increment = -1 * (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 1f : 0.1f);
-        if (isBuy) city.adjustRawBuyPrice(increment);
-        else city.adjustRawSellPrice(increment);
+        if (isBuy) city.adjustBuyPrice(ResourceType.RAW, increment);
+        else city.adjustSellPrice(ResourceType.RAW, increment);
       }
     }
     if (Gdx.input.isKeyJustPressed(Keys.RIGHT)) {
@@ -683,8 +696,8 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         City city = marketBoard.getHighlightCity();
         boolean isBuy = marketBoard.isHighlightFieldBuy();
         float increment = Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 1f : 0.1f;
-        if (isBuy) city.adjustRawBuyPrice(increment);
-        else city.adjustRawSellPrice(increment);
+        if (isBuy) city.adjustBuyPrice(ResourceType.RAW, increment);
+        else city.adjustSellPrice(ResourceType.RAW, increment);
       }
     }
 
@@ -827,7 +840,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     s.harvestCost = C.harvestCostPerUnit;
     s.cityConsumptionRate = C.cityConsumptionRate;
     s.cityTargetInventory = C.cityTargetInventory;
-    s.cityInventoryFlowRate = C.cityInventoryFlowWeight;
+    s.cityInventoryVelocitySensitivity = C.cityInventoryVelocitySensitivity;
     s.cityPriceAdjustRate = C.cityPriceAdjustRate;
     s.cityMinBuyPrice = C.cityMinBuyPrice;
     s.citySellSmoothingRate = C.citySellSmoothingRate;
@@ -864,21 +877,20 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
                   cs.centerX = Math.round(city.getCenterX());
                   cs.centerY = Math.round(city.getCenterY());
 
-                  cs.rawStoredAmount = city.getRawStoredAmount();
-                  cs.refinedStoredAmount = city.getRefinedStoredAmount();
+                  cs.rawInventory = city.getInventory(ResourceType.RAW);
+                  cs.refinedInventory = city.getInventory(ResourceType.REFINED);
+                  cs.rawInventoryVelocity = city.getInventoryVelocity(ResourceType.RAW);
+                  cs.refinedInventoryVelocity = city.getInventoryVelocity(ResourceType.REFINED);
 
-                  cs.rawBuyPrice = city.getRawBuyPrice();
-                  cs.rawSellPrice = city.getRawSellPrice();
-                  cs.rawPriceSpread = city.getRawSellPrice() - city.getRawBuyPrice();
-                  cs.rawBuyPriceVelocity = city.getRawBuyPriceVelocity();
-                  cs.rawSellPriceVelocity = city.getRawSellPriceVelocity();
-                  cs.inventoryFlowRate = city.getInventoryFlowRate();
+                  cs.rawBuyPrice = city.getBuyPrice(ResourceType.RAW);
+                  cs.rawSellPrice = city.getSellPrice(ResourceType.RAW);
+                  cs.rawBuyPriceVelocity = city.getBuyPriceVelocity(ResourceType.RAW);
+                  cs.rawSellPriceVelocity = city.getSellPriceVelocity(ResourceType.RAW);
 
-                  cs.refinedBuyPrice = city.getRefinedBuyPrice();
-                  cs.refinedSellPrice = city.getRefinedSellPrice();
-                  cs.refinedPriceSpread = city.getRefinedSellPrice() - city.getRefinedBuyPrice();
-                  cs.refinedBuyPriceVelocity = city.getRefinedBuyPriceVelocity();
-                  cs.refinedSellPriceVelocity = city.getRefinedSellPriceVelocity();
+                  cs.refinedBuyPrice = city.getBuyPrice(ResourceType.REFINED);
+                  cs.refinedSellPrice = city.getSellPrice(ResourceType.REFINED);
+                  cs.refinedBuyPriceVelocity = city.getBuyPriceVelocity(ResourceType.REFINED);
+                  cs.refinedSellPriceVelocity = city.getSellPriceVelocity(ResourceType.REFINED);
 
                   cs.craftRate = city.getCraftRate();
                   cs.craftsRefined = city.isCraftsRefined();
@@ -1002,6 +1014,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
 
     ps.profit = opt.profit;
     ps.penalty = opt.penalty;
+    ps.workIncentive = opt.workIncentive;
     ps.score = opt.score;
 
     return ps;

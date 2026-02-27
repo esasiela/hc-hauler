@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.hedgecourt.hauler.C;
 import com.hedgecourt.hauler.Direction;
 import com.hedgecourt.hauler.Selectable;
+import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.world.WorldEntity;
 import com.hedgecourt.hauler.world.entities.Guy.PlanOption.OptionType;
 import java.util.ArrayList;
@@ -411,18 +412,14 @@ public class Guy extends WorldEntity implements Selectable {
 
   private void performBuyTick(float delta) {
     float requestQty = Math.min(C.DELIVER_RATE * delta, capacityRemaining());
-    float buyQty =
-        currentPlan.resourceType == ResourceType.RAW
-            ? buyTarget.requestWithdrawRaw(requestQty)
-            : buyTarget.requestWithdrawRefined(requestQty);
-
+    float buyQty = buyTarget.requestWithdraw(currentPlan.resourceType, requestQty);
     adjustCarriedType(currentPlan.resourceType);
     adjustCarriedAmount(buyQty);
   }
 
   private void resolveBuyResults() {
     // we shall stop buying when our bag is full or the city is dry
-    if (capacityRemaining() <= 0 || buyTarget.getRawStoredAmount() <= 0) {
+    if (capacityRemaining() <= 0 || buyTarget.getInventory(ResourceType.RAW) <= 0) {
       // TODO change the buying exit strategy to see if request to buy received zero
       lastInteractionCity = buyTarget;
       finishCurrentPlan();
@@ -440,10 +437,7 @@ public class Guy extends WorldEntity implements Selectable {
 
   private void performDeliverTick(float delta) {
     float requestQty = Math.min(C.DELIVER_RATE * delta, carriedAmount);
-    float deliverQty =
-        currentPlan.resourceType == ResourceType.RAW
-            ? deliverTarget.requestDeliveryRaw(requestQty)
-            : deliverTarget.requestDeliveryRefined(requestQty);
+    float deliverQty = deliverTarget.requestDelivery(currentPlan.resourceType, requestQty);
     adjustCarriedAmount(-deliverQty);
   }
 
@@ -658,7 +652,7 @@ public class Guy extends WorldEntity implements Selectable {
               .max(
                   Comparator.comparingDouble(
                       c ->
-                          c.getRawBuyPrice()
+                          c.getBuyPrice(carriedType)
                               - ((distanceTo(c) / moveSpeed) * C.cityDistancePenalty)))
               .orElse(null);
 
@@ -694,7 +688,8 @@ public class Guy extends WorldEntity implements Selectable {
 
       float harvestableAmount = Math.min(node.getResourceAmount(), carryCapacity);
       float fullnessRatio = harvestableAmount / carryCapacity;
-      option.profit = (closestCity.getRawBuyPrice() - C.harvestCostPerUnit) * fullnessRatio;
+      option.profit =
+          (closestCity.getBuyPrice(ResourceType.RAW) - C.harvestCostPerUnit) * fullnessRatio;
 
       option.penalty = travelPenalty(distanceTo(node) + node.distanceTo(closestCity));
       option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
@@ -712,14 +707,15 @@ public class Guy extends WorldEntity implements Selectable {
       for (City dstCity : world.getCities()) {
         if (dstCity == srcCity) continue;
 
-        if (srcCity.getRawStoredAmount() > 0) {
+        if (srcCity.getInventory(ResourceType.RAW) > 0) {
           PlanOption option = new PlanOption();
           option.optionType = OptionType.TRADE;
           option.resourceType = ResourceType.RAW;
           option.sourceCity = srcCity;
           option.destCity = dstCity;
 
-          option.profit = dstCity.getRawBuyPrice() - srcCity.getRawSellPrice();
+          option.profit =
+              dstCity.getBuyPrice(ResourceType.RAW) - srcCity.getSellPrice(ResourceType.RAW);
           option.penalty = travelPenalty(distanceTo(srcCity) + srcCity.distanceTo(dstCity));
           option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
           option.score = option.profit - option.penalty + option.workIncentive;
@@ -727,14 +723,17 @@ public class Guy extends WorldEntity implements Selectable {
           options.add(option);
         }
 
-        if (srcCity.getRefinedStoredAmount() > 0) {
+        // TODO make guy trading eval logic loop on resource types instead of copy/paste
+        if (srcCity.getInventory(ResourceType.REFINED) > 0) {
           PlanOption option = new PlanOption();
           option.optionType = OptionType.TRADE;
           option.resourceType = ResourceType.REFINED;
           option.sourceCity = srcCity;
           option.destCity = dstCity;
 
-          option.profit = dstCity.getRefinedBuyPrice() - srcCity.getRefinedSellPrice();
+          option.profit =
+              dstCity.getBuyPrice(ResourceType.REFINED)
+                  - srcCity.getSellPrice(ResourceType.REFINED);
           option.penalty = travelPenalty(distanceTo(srcCity) + srcCity.distanceTo(dstCity));
           option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
           option.score = option.profit - option.penalty + option.workIncentive;
@@ -875,10 +874,5 @@ public class Guy extends WorldEntity implements Selectable {
     public float penalty;
     public float workIncentive;
     public float score;
-  }
-
-  public enum ResourceType {
-    RAW,
-    REFINED
   }
 }

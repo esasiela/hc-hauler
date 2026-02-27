@@ -9,10 +9,7 @@ import com.hedgecourt.hauler.world.entities.City;
 import com.hedgecourt.hauler.world.entities.Guy;
 import com.hedgecourt.hauler.world.entities.Node;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class HeaderStatsUiElement implements UiElement {
 
@@ -46,25 +43,11 @@ public class HeaderStatsUiElement implements UiElement {
     List<Node> nodes = nodesSupplier.get();
     List<Guy> guys = guysSupplier.get();
 
-    Map<String, Double> allianceTotals =
-        new TreeMap<>(
-            cities.stream()
-                .collect(
-                    Collectors.groupingBy(
-                        City::getAlliance, Collectors.summingDouble(City::getRawStoredAmount))));
-
-    String allianceText =
-        allianceTotals.entrySet().stream()
-            .map(e -> String.format("%s [%.0f]", e.getKey(), e.getValue()))
-            .collect(Collectors.joining("  "));
-
     double nodeTotal = nodes.stream().mapToDouble(Node::getResourceAmount).sum();
     double guyTotal = guys.stream().mapToDouble(Guy::getCarriedAmount).sum();
 
     String headerText =
-        String.format(
-            "Cities: %s    Nodes [%d] Guys [%d]",
-            allianceText, Math.round(nodeTotal), Math.round(guyTotal));
+        String.format("Nodes [%d] Guys [%d]", Math.round(nodeTotal), Math.round(guyTotal));
 
     glyphLayout.setText(font, headerText);
     maxWidth = Math.max(maxWidth, glyphLayout.width);

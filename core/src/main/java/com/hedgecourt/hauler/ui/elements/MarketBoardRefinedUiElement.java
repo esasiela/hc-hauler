@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.hedgecourt.hauler.C;
+import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.ui.UiElement;
 import com.hedgecourt.hauler.world.WorldView;
 import com.hedgecourt.hauler.world.entities.City;
@@ -103,12 +104,15 @@ public class MarketBoardRefinedUiElement implements UiElement {
 
       RowRenderData row = new RowRenderData();
       row.cityName = city.getName();
-      row.qty = String.valueOf(Math.round(city.getRefinedStoredAmount()));
-      row.buy = String.format("%.2f", city.getRefinedBuyPrice());
-      row.sell = String.format("%.2f", city.getRefinedSellPrice());
-      row.spread = String.format("%.2f", (city.getRefinedSellPrice() - city.getRefinedBuyPrice()));
+      row.qty = String.valueOf(Math.round(city.getInventory(ResourceType.REFINED)));
+      row.buy = String.format("%.2f", city.getBuyPrice(ResourceType.REFINED));
+      row.sell = String.format("%.2f", city.getSellPrice(ResourceType.REFINED));
+      row.spread =
+          String.format(
+              "%.2f",
+              (city.getSellPrice(ResourceType.REFINED) - city.getBuyPrice(ResourceType.REFINED)));
 
-      if (city.getRefinedBuyPriceVelocity() > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+      if (city.getBuyPriceVelocity(ResourceType.REFINED) > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
         row.buyVelocityDirection = VelocityDirection.UP;
         row.buyVelocityBounds =
             new Rectangle(
@@ -116,7 +120,8 @@ public class MarketBoardRefinedUiElement implements UiElement {
                 currentRowY - (halfRowHeight / 2f),
                 VEL_ARROW_W,
                 VEL_ARROW_H);
-      } else if (city.getRefinedBuyPriceVelocity() < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+      } else if (city.getBuyPriceVelocity(ResourceType.REFINED)
+          < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
         row.buyVelocityDirection = VelocityDirection.DOWN;
         row.buyVelocityBounds =
             new Rectangle(
@@ -126,7 +131,7 @@ public class MarketBoardRefinedUiElement implements UiElement {
                 VEL_ARROW_H);
       }
 
-      if (city.getRefinedSellPriceVelocity() > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+      if (city.getSellPriceVelocity(ResourceType.REFINED) > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
         row.sellVelocityDirection = VelocityDirection.UP;
         row.sellVelocityBounds =
             new Rectangle(
@@ -134,7 +139,8 @@ public class MarketBoardRefinedUiElement implements UiElement {
                 currentRowY - (halfRowHeight / 2f),
                 VEL_ARROW_W,
                 VEL_ARROW_H);
-      } else if (city.getRefinedSellPriceVelocity() < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+      } else if (city.getSellPriceVelocity(ResourceType.REFINED)
+          < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
         row.sellVelocityDirection = VelocityDirection.DOWN;
         row.sellVelocityBounds =
             new Rectangle(
@@ -192,7 +198,8 @@ public class MarketBoardRefinedUiElement implements UiElement {
         if (src == dest) {
           row.values.add("---");
         } else {
-          float arb = dest.getRefinedBuyPrice() - src.getRefinedSellPrice();
+          float arb =
+              dest.getBuyPrice(ResourceType.REFINED) - src.getSellPrice(ResourceType.REFINED);
           row.values.add(String.format("%+.2f", arb));
         }
       }

@@ -3,6 +3,7 @@ package com.hedgecourt.hauler.world.layers;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.world.WorldRenderLayer;
 import com.hedgecourt.hauler.world.entities.City;
 import java.util.List;
@@ -23,7 +24,8 @@ public class CityAmountLabelLayer implements WorldRenderLayer {
       String text =
           String.format(
               "%d/%d",
-              Math.round(city.getRawStoredAmount()), Math.round(city.getRefinedStoredAmount()));
+              Math.round(city.getInventory(ResourceType.RAW)),
+              Math.round(city.getInventory(ResourceType.REFINED)));
 
       float x = city.getWorldX();
       float y = city.getWorldY() + city.getHeight() + 12f;

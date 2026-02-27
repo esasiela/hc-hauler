@@ -1,6 +1,6 @@
 package com.hedgecourt.hauler.debug;
 
-import com.hedgecourt.hauler.world.entities.Guy.ResourceType;
+import com.hedgecourt.hauler.economy.ResourceType;
 import java.util.List;
 
 public class WorldSnapshot {
@@ -9,7 +9,7 @@ public class WorldSnapshot {
   public double harvestCost;
   public double cityConsumptionRate;
   public double cityTargetInventory;
-  public double cityInventoryFlowRate;
+  public double cityInventoryVelocitySensitivity;
   public double cityPriceAdjustRate;
   public double cityMinBuyPrice;
   public double citySellSmoothingRate;
@@ -43,22 +43,20 @@ public class WorldSnapshot {
     public int centerX;
     public int centerY;
 
-    public double rawStoredAmount;
-    public double refinedStoredAmount;
+    public double rawInventory;
+    public double rawInventoryVelocity;
+    public double refinedInventory;
+    public double refinedInventoryVelocity;
 
     public double rawBuyPrice;
     public double rawSellPrice;
-    public double rawPriceSpread;
-
-    public double rawBuyPriceVelocity = 0f;
-    public double rawSellPriceVelocity = 0f;
-    public double inventoryFlowRate = 0f;
+    public double rawBuyPriceVelocity;
+    public double rawSellPriceVelocity;
 
     public double refinedBuyPrice;
     public double refinedSellPrice;
-    public double refinedPriceSpread;
-    public double refinedBuyPriceVelocity = 0f;
-    public double refinedSellPriceVelocity = 0f;
+    public double refinedBuyPriceVelocity;
+    public double refinedSellPriceVelocity;
 
     public float craftRate;
     public boolean craftsRefined;
@@ -117,6 +115,7 @@ public class WorldSnapshot {
 
     public double profit;
     public double penalty;
+    public double workIncentive;
     public double score;
   }
 }

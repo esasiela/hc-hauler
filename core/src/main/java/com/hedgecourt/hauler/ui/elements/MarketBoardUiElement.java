@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.hedgecourt.hauler.C;
+import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.ui.UiElement;
 import com.hedgecourt.hauler.world.WorldView;
 import com.hedgecourt.hauler.world.entities.City;
@@ -102,12 +103,14 @@ public class MarketBoardUiElement implements UiElement {
 
       RowRenderData row = new RowRenderData();
       row.cityName = city.getName();
-      row.qty = String.valueOf(Math.round(city.getRawStoredAmount()));
-      row.buy = String.format("%.2f", city.getRawBuyPrice());
-      row.sell = String.format("%.2f", city.getRawSellPrice());
-      row.spread = String.format("%.2f", (city.getRawSellPrice() - city.getRawBuyPrice()));
+      row.qty = String.valueOf(Math.round(city.getInventory(ResourceType.RAW)));
+      row.buy = String.format("%.2f", city.getBuyPrice(ResourceType.RAW));
+      row.sell = String.format("%.2f", city.getSellPrice(ResourceType.RAW));
+      row.spread =
+          String.format(
+              "%.2f", (city.getSellPrice(ResourceType.RAW) - city.getBuyPrice(ResourceType.RAW)));
 
-      if (city.getRawBuyPriceVelocity() > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+      if (city.getBuyPriceVelocity(ResourceType.RAW) > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
         row.buyVelocityDirection = VelocityDirection.UP;
         row.buyVelocityBounds =
             new Rectangle(
@@ -115,7 +118,7 @@ public class MarketBoardUiElement implements UiElement {
                 currentRowY - (halfRowHeight / 2f),
                 VEL_ARROW_W,
                 VEL_ARROW_H);
-      } else if (city.getRawBuyPriceVelocity() < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+      } else if (city.getBuyPriceVelocity(ResourceType.RAW) < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
         row.buyVelocityDirection = VelocityDirection.DOWN;
         row.buyVelocityBounds =
             new Rectangle(
@@ -125,7 +128,7 @@ public class MarketBoardUiElement implements UiElement {
                 VEL_ARROW_H);
       }
 
-      if (city.getRawSellPriceVelocity() > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+      if (city.getSellPriceVelocity(ResourceType.RAW) > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
         row.sellVelocityDirection = VelocityDirection.UP;
         row.sellVelocityBounds =
             new Rectangle(
@@ -133,7 +136,8 @@ public class MarketBoardUiElement implements UiElement {
                 currentRowY - (halfRowHeight / 2f),
                 VEL_ARROW_W,
                 VEL_ARROW_H);
-      } else if (city.getRawSellPriceVelocity() < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
+      } else if (city.getSellPriceVelocity(ResourceType.RAW)
+          < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
         row.sellVelocityDirection = VelocityDirection.DOWN;
         row.sellVelocityBounds =
             new Rectangle(
@@ -191,7 +195,7 @@ public class MarketBoardUiElement implements UiElement {
         if (src == dest) {
           row.values.add("---");
         } else {
-          float arb = dest.getRawBuyPrice() - src.getRawSellPrice();
+          float arb = dest.getBuyPrice(ResourceType.RAW) - src.getSellPrice(ResourceType.RAW);
           row.values.add(String.format("%+.2f", arb));
         }
       }
