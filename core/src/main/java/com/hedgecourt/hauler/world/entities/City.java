@@ -49,16 +49,25 @@ public class City extends WorldEntity implements Selectable {
 
   @Override
   public void update(float delta) {
-    getResource(ResourceType.RAW).updateInventoryVelocity(delta);
+    for (ResourceType type : ResourceType.values()) {
+      getResource(type).updateInventoryVelocity(delta);
+    }
 
     craft(delta);
     consume(delta);
 
+    for (ResourceType type : ResourceType.values()) {
+      updateBuyPrice(type, delta);
+      updateSellPrice(type, delta);
+    }
+
+    /*
     adjustRawBuyPriceFromInventory(delta);
     adjustRawSellPriceMaintainSpread(delta);
 
     adjustRefinedBuyPriceFromInventory(delta);
     adjustRefinedSellPriceMaintainSpread(delta);
+     */
   }
 
   private void craft(float delta) {
@@ -73,94 +82,6 @@ public class City extends WorldEntity implements Selectable {
   private void consume(float delta) {
     if (!consumesRefined) return;
     adjustInventory(ResourceType.REFINED, -C.cityConsumptionRate * delta);
-  }
-
-  private void adjustRawBuyPriceFromInventory(float delta) {
-    /*
-       float pressure =
-           (C.cityTargetInventory - storedAmount) + C.cityInventoryFlowWeight *
-    (-inventoryFlowRate);
-    */
-
-    /*
-    float pressure =
-        ((C.cityTargetInventory - storedAmount) / C.cityTargetInventory)
-            + C.cityInventoryFlowWeight * (-inventoryFlowRate);
-     */
-
-    /*
-    float levelRatio = (C.cityTargetInventory - storedAmount) / C.cityTargetInventory;
-    float proximity = 1f - Math.abs(levelRatio);
-    float pressure = levelRatio + (C.cityInventoryFlowWeight * proximity * (-inventoryFlowRate));
-     */
-
-    // Shortage as 0..1 (0 = full or above target, 1 = empty)
-    float shortage = 1f - (getInventory(ResourceType.RAW) / C.cityTargetInventory);
-    shortage = Math.max(0f, Math.min(1f, shortage)); // clamp to [0,1]
-    // Exponential scarcity response (calm when mild, sharp when severe)
-    float scarcityBoost = shortage * shortage;
-    // Keep your flow modulation idea
-    float proximity = 1f - shortage;
-    // Final pressure
-    float pressure =
-        scarcityBoost
-            + (C.cityInventoryVelocitySensitivity
-                * proximity
-                * (-1 * getResource(ResourceType.RAW).inventoryVelocity));
-
-    /* ****
-     * Compute price change based upon pressure
-     */
-    float priceDelta = C.cityPriceAdjustRate * pressure * delta;
-
-    // Prevent dropping below configured floor
-    float desiredNewPrice = getBuyPrice(ResourceType.RAW) + priceDelta;
-    if (desiredNewPrice < C.cityMinBuyPrice) {
-      priceDelta = C.cityMinBuyPrice - getBuyPrice(ResourceType.RAW);
-    }
-
-    adjustBuyPrice(ResourceType.RAW, priceDelta);
-  }
-
-  private void adjustRawSellPriceMaintainSpread(float delta) {
-
-    // 1. Inventory ratio (1.0 = at target)
-    float inventoryRatio = getInventory(ResourceType.RAW) / C.cityTargetInventory;
-    // 2. Deviation from target (positive = surplus, negative = scarcity)
-    float deviation = inventoryRatio - 1f;
-    // 3. Exponential curvature
-    float spreadScale = (float) Math.exp(-3f * deviation);
-    float dynamicSpread = C.cityMinSpread * spreadScale;
-    // Optional safety clamps
-    float minAllowedSpread = C.cityMinSpread * 0.3f;
-    float maxAllowedSpread = C.cityMinSpread * 2.0f;
-    dynamicSpread = Math.max(minAllowedSpread, dynamicSpread);
-    dynamicSpread = Math.min(maxAllowedSpread, dynamicSpread);
-    float targetSell = getBuyPrice(ResourceType.RAW) + dynamicSpread;
-    // 4. Smooth toward new target
-    float diff = targetSell - getSellPrice(ResourceType.RAW);
-    float adjustment = diff * C.citySellSmoothingRate * delta;
-
-    adjustSellPrice(ResourceType.RAW, adjustment);
-  }
-
-  private void adjustRawSellPriceMaintainSpreadFixed(float delta) {
-    float targetSell = getBuyPrice(ResourceType.RAW) + C.cityMinSpread;
-
-    // how far away are we?
-    float diff = targetSell - getSellPrice(ResourceType.RAW);
-
-    // smoothing toward target
-    float adjustment = diff * C.citySellSmoothingRate * delta;
-
-    // use the official mutation method
-    adjustSellPrice(ResourceType.RAW, adjustment);
-
-    // ensure we never violate minimum spread
-    if (getSellPrice(ResourceType.RAW) < targetSell) {
-      float correction = targetSell - getSellPrice(ResourceType.RAW);
-      adjustSellPrice(ResourceType.RAW, correction);
-    }
   }
 
   public void adjustBuyPrice(ResourceType type, float amount) {
@@ -183,37 +104,56 @@ public class City extends WorldEntity implements Selectable {
     getResource(type).sellPriceVelocity = newPrice - oldPrice;
   }
 
-  private void adjustRefinedBuyPriceFromInventory(float delta) {
-    float shortage = 1f - (getInventory(ResourceType.REFINED) / C.cityTargetInventory);
-    // shortage = clamp 0..1
-
-    float pressure = shortage; // linear, no square, no flow
-
+  private void updateBuyPrice(ResourceType type, float delta) {
+    float pressure = computeBuyPressure(type);
     float priceDelta = C.cityPriceAdjustRate * pressure * delta;
 
-    adjustBuyPrice(ResourceType.REFINED, priceDelta);
+    float desired = getBuyPrice(type) + priceDelta;
+    if (desired < C.cityMinBuyPrice) {
+      priceDelta = C.cityMinBuyPrice - getBuyPrice(type);
+    }
+
+    adjustBuyPrice(type, priceDelta);
   }
 
-  private void adjustRefinedSellPriceMaintainSpread(float delta) {
+  private float computeBuyPressure(ResourceType type) {
+    float shortage = 1f - (getInventory(type) / C.cityTargetInventory);
+    shortage = Math.max(0f, Math.min(1f, shortage));
 
-    // 1. Inventory ratio (1.0 = at target)
-    float inventoryRatio = getInventory(ResourceType.REFINED) / C.cityTargetInventory;
-    // 2. Deviation from target (positive = surplus, negative = scarcity)
+    if (type == ResourceType.RAW) {
+      float scarcityBoost = shortage * shortage;
+      float proximity = 1f - shortage;
+      float velocity = getResource(type).inventoryVelocity;
+
+      return scarcityBoost + (C.cityInventoryVelocitySensitivity * proximity * (-velocity));
+    }
+
+    if (type == ResourceType.REFINED) {
+      return shortage;
+    }
+
+    return shortage; // safe fallback
+  }
+
+  private void updateSellPrice(ResourceType type, float delta) {
+    float inventoryRatio = getInventory(type) / C.cityTargetInventory;
     float deviation = inventoryRatio - 1f;
-    // 3. Exponential curvature
+
     float spreadScale = (float) Math.exp(-3f * deviation);
     float dynamicSpread = C.cityMinSpread * spreadScale;
-    // Optional safety clamps
+
     float minAllowedSpread = C.cityMinSpread * 0.3f;
     float maxAllowedSpread = C.cityMinSpread * 2.0f;
+
     dynamicSpread = Math.max(minAllowedSpread, dynamicSpread);
     dynamicSpread = Math.min(maxAllowedSpread, dynamicSpread);
-    float targetSell = getBuyPrice(ResourceType.REFINED) + dynamicSpread;
-    // 4. Smooth toward new target
-    float diff = targetSell - getSellPrice(ResourceType.REFINED);
+
+    float targetSell = getBuyPrice(type) + dynamicSpread;
+
+    float diff = targetSell - getSellPrice(type);
     float adjustment = diff * C.citySellSmoothingRate * delta;
 
-    adjustSellPrice(ResourceType.REFINED, adjustment);
+    adjustSellPrice(type, adjustment);
   }
 
   @Override
