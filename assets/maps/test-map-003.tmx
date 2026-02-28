@@ -29,27 +29,46 @@
   <object id="1" name="sf" type="City" gid="294" x="288" y="224" width="32" height="32">
    <properties>
     <property name="alliance" value="Pacific"/>
-    <property name="rawBuyPrice" type="float" value="10"/>
-    <property name="rawSellPrice" type="float" value="13"/>
-    <property name="rawStoredAmount" type="float" value="100"/>
-    <property name="refinedBuyPrice" type="float" value="8"/>
-    <property name="refinedSellPrice" type="float" value="11"/>
-    <property name="storedAmount" type="float" value="110"/>
+    <property name="resourcesJson">{
+  &quot;RAW&quot;: {
+    &quot;inventory&quot;: 100,
+    &quot;buy&quot;: 10,
+    &quot;sell&quot;: 13,
+    &quot;consumeRate&quot;: 0,
+    &quot;craftRate&quot;: 0
+  },
+  &quot;REFINED&quot;: {
+    &quot;inventory&quot;: 0,
+    &quot;buy&quot;: 8,
+    &quot;sell&quot;: 11,
+    &quot;consumeRate&quot;: 0,
+    &quot;craftRate&quot;: 0
+  }
+}</property>
    </properties>
   </object>
   <object id="2" name="ny" type="City" gid="294" x="800" y="224" width="32" height="32">
    <properties>
     <property name="alliance" value="Atlantic"/>
-    <property name="buyPrice" type="float" value="10"/>
     <property name="consumesRefined" type="bool" value="true"/>
     <property name="craftRate" type="float" value="2"/>
     <property name="craftsRefined" type="bool" value="true"/>
-    <property name="rawBuyPrice" type="float" value="10"/>
-    <property name="rawSellPrice" type="float" value="13"/>
-    <property name="rawStoredAmount" type="float" value="100"/>
-    <property name="refinedBuyPrice" type="float" value="8"/>
-    <property name="refinedSellPrice" type="float" value="11"/>
-    <property name="refinedStoredAmount" type="float" value="100"/>
+    <property name="resourcesJson">{
+  &quot;RAW&quot;: {
+    &quot;inventory&quot;: 100,
+    &quot;buy&quot;: 10,
+    &quot;sell&quot;: 13,
+    &quot;consumeRate&quot;: 0,
+    &quot;craftRate&quot;: 0
+  },
+  &quot;REFINED&quot;: {
+    &quot;inventory&quot;: 50,
+    &quot;buy&quot;: 8,
+    &quot;sell&quot;: 11,
+    &quot;consumeRate&quot;: 1.5,
+    &quot;craftRate&quot;: 2.0
+  }
+}</property>
    </properties>
   </object>
   <object id="3" name="wnTop" type="Node" gid="878" x="128" y="128" width="32" height="32">

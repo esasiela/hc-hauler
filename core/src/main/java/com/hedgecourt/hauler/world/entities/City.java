@@ -9,8 +9,10 @@ import com.hedgecourt.hauler.economy.ResourceState;
 import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.world.WorldEntity;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,10 +26,6 @@ public class City extends WorldEntity implements Selectable {
   private TextureRegion citySprite;
 
   String alliance;
-
-  boolean craftsRefined;
-  boolean consumesRefined;
-  float craftRate;
 
   private final EnumMap<ResourceType, ResourceState> resources = new EnumMap<>(ResourceType.class);
 
@@ -54,34 +52,37 @@ public class City extends WorldEntity implements Selectable {
     }
 
     craft(delta);
+
+    // TODO move consume() logic into resource-specific loop
     consume(delta);
 
     for (ResourceType type : ResourceType.values()) {
       updateBuyPrice(type, delta);
       updateSellPrice(type, delta);
     }
-
-    /*
-    adjustRawBuyPriceFromInventory(delta);
-    adjustRawSellPriceMaintainSpread(delta);
-
-    adjustRefinedBuyPriceFromInventory(delta);
-    adjustRefinedSellPriceMaintainSpread(delta);
-     */
   }
 
   private void craft(float delta) {
-    if (!craftsRefined) return;
+    ResourceState raw = getResource(ResourceType.RAW);
+    ResourceState refined = getResource(ResourceType.REFINED);
 
-    float rawInputQty = requestWithdraw(ResourceType.RAW, craftRate * delta);
-    float craftAmount = rawInputQty; // 1:1 recipe
-    adjustInventory(ResourceType.RAW, -craftAmount);
-    adjustInventory(ResourceType.REFINED, craftAmount);
+    float rate = refined.craftRate;
+    if (rate <= 0f) return;
+
+    float amount = rate * delta;
+
+    // TODO use requestWithdraw()
+    float available = Math.min(amount, raw.inventory);
+
+    // TODO implement an adjustInventory method on ResourceState
+    raw.inventory -= available;
+    refined.inventory += available;
   }
 
   private void consume(float delta) {
-    if (!consumesRefined) return;
-    adjustInventory(ResourceType.REFINED, -C.cityConsumptionRate * delta);
+    for (ResourceType type : ResourceType.values()) {
+      getResource(type).applyConsumption(delta);
+    }
   }
 
   public void adjustBuyPrice(ResourceType type, float amount) {
@@ -116,16 +117,16 @@ public class City extends WorldEntity implements Selectable {
     adjustBuyPrice(type, priceDelta);
   }
 
-  private float computeBuyPressure(ResourceType type) {
+  public float computeBuyPressure(ResourceType type) {
     float shortage = 1f - (getInventory(type) / C.cityTargetInventory);
     shortage = Math.max(0f, Math.min(1f, shortage));
 
     if (type == ResourceType.RAW) {
-      float scarcityBoost = shortage * shortage;
+      float scarcityBoost = (float) Math.pow(shortage, C.inventoryScarcityExponent);
       float proximity = 1f - shortage;
       float velocity = getResource(type).inventoryVelocity;
 
-      return scarcityBoost + (C.cityInventoryVelocitySensitivity * proximity * (-velocity));
+      return scarcityBoost + (C.inventoryVelocitySensitivity * proximity * (-velocity));
     }
 
     if (type == ResourceType.REFINED) {
@@ -136,24 +137,26 @@ public class City extends WorldEntity implements Selectable {
   }
 
   private void updateSellPrice(ResourceType type, float delta) {
+    float targetSell = computeTargetSellPrice(type);
+
+    float diff = targetSell - getSellPrice(type);
+    float adjustment = diff * C.citySellSmoothingRate * delta;
+
+    adjustSellPrice(type, adjustment);
+  }
+
+  public float computeTargetSellPrice(ResourceType type) {
     float inventoryRatio = getInventory(type) / C.cityTargetInventory;
     float deviation = inventoryRatio - 1f;
-
     float spreadScale = (float) Math.exp(-3f * deviation);
     float dynamicSpread = C.cityMinSpread * spreadScale;
-
     float minAllowedSpread = C.cityMinSpread * 0.3f;
     float maxAllowedSpread = C.cityMinSpread * 2.0f;
 
     dynamicSpread = Math.max(minAllowedSpread, dynamicSpread);
     dynamicSpread = Math.min(maxAllowedSpread, dynamicSpread);
 
-    float targetSell = getBuyPrice(type) + dynamicSpread;
-
-    float diff = targetSell - getSellPrice(type);
-    float adjustment = diff * C.citySellSmoothingRate * delta;
-
-    adjustSellPrice(type, adjustment);
+    return getBuyPrice(type) + dynamicSpread;
   }
 
   @Override
@@ -200,9 +203,7 @@ public class City extends WorldEntity implements Selectable {
                 String.format(
                     "Ref Sell Price Vel: %.2f", getSellPriceVelocity(ResourceType.REFINED)),
                 "",
-                String.format("Craft Rate: %.2f", craftRate),
-                String.format("Crafts Refined  : %b", craftsRefined),
-                String.format("Consumes Refined: %b", consumesRefined)));
+                "TODO: inspector for crafting"));
 
     return lines;
   }
@@ -322,7 +323,16 @@ public class City extends WorldEntity implements Selectable {
   }
 
   public void initializeResource(
-      ResourceType type, float inventory, float buyPrice, float sellPrice) {
-    getResource(type).initialize(inventory, buyPrice, sellPrice);
+      ResourceType type,
+      float inventory,
+      float buyPrice,
+      float sellPrice,
+      float consumeRate,
+      float craftRate) {
+    getResource(type).initialize(inventory, buyPrice, sellPrice, consumeRate, craftRate);
+  }
+
+  public Map<ResourceType, ResourceState> getResourcesView() {
+    return Collections.unmodifiableMap(resources);
   }
 }

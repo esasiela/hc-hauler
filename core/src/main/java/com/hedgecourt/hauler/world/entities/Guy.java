@@ -653,7 +653,7 @@ public class Guy extends WorldEntity implements Selectable {
                   Comparator.comparingDouble(
                       c ->
                           c.getBuyPrice(carriedType)
-                              - ((distanceTo(c) / moveSpeed) * C.cityDistancePenalty)))
+                              - ((distanceTo(c) / moveSpeed) * C.distancePenalty)))
               .orElse(null);
 
       // if nearest is null, that means there's no cities on the map (that we didnt recently buy
@@ -668,7 +668,7 @@ public class Guy extends WorldEntity implements Selectable {
   }
 
   private float travelPenalty(float distance) {
-    return (distance / moveSpeed) * C.cityDistancePenalty;
+    return (distance / moveSpeed) * C.distancePenalty;
   }
 
   public List<PlanOption> evaluateHarvestOptions() {
@@ -688,8 +688,7 @@ public class Guy extends WorldEntity implements Selectable {
 
       float harvestableAmount = Math.min(node.getResourceAmount(), carryCapacity);
       float fullnessRatio = harvestableAmount / carryCapacity;
-      option.profit =
-          (closestCity.getBuyPrice(ResourceType.RAW) - C.harvestCostPerUnit) * fullnessRatio;
+      option.profit = (closestCity.getBuyPrice(ResourceType.RAW) - C.harvestCost) * fullnessRatio;
 
       option.penalty = travelPenalty(distanceTo(node) + node.distanceTo(closestCity));
       option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;

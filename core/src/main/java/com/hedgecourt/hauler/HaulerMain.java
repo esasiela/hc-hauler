@@ -25,11 +25,17 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.hedgecourt.hauler.C.InspectorTab;
 import com.hedgecourt.hauler.debug.WorldSnapshot;
 import com.hedgecourt.hauler.debug.WorldSnapshot.GuySnapshot;
+import com.hedgecourt.hauler.debug.WorldSnapshot.MapInfoSnapshot;
+import com.hedgecourt.hauler.debug.WorldSnapshot.SimulationSnapshot;
+import com.hedgecourt.hauler.debug.WorldSnapshotBuilder;
+import com.hedgecourt.hauler.economy.ResourceInitConfig;
+import com.hedgecourt.hauler.economy.ResourceState;
 import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.ui.UiElement;
 import com.hedgecourt.hauler.ui.UiRenderer;
@@ -58,10 +64,12 @@ import com.hedgecourt.hauler.world.layers.ProgressBarsLayer;
 import com.hedgecourt.hauler.world.layers.SelectionUnderLayer;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import lombok.Getter;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class HaulerMain extends ApplicationAdapter implements WorldView {
@@ -113,14 +121,16 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
   private boolean marketBoardVisible = true;
   private MarketBoardUiElement marketBoard;
 
-  private int mapWidthTiles;
-  private int mapHeightTiles;
-  private int tileWidthPx;
-  private int tileHeightPx;
-  private float worldWidthPx;
-  private float worldHeightPx;
+  @Getter private int mapWidthTiles;
+  @Getter private int mapHeightTiles;
+  @Getter private int tileWidthPx;
+  @Getter private int tileHeightPx;
+  @Getter private int worldWidthPx;
+  @Getter private int worldHeightPx;
 
-  private double elapsedDelta;
+  @Getter private double simulationTime;
+  @Getter private double simulationDelta;
+  @Getter private int simulationTick;
 
   @Override
   public void create() {
@@ -210,7 +220,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         new HoverTooltipUiElement(
             hoverTooltipFont, glyphLayout, () -> hoveredEntity, this::getMouseUiPosition));
     uiElements.add(new PauseButtonUiElement(pauseButtonFont, () -> paused, () -> paused = !paused));
-    uiElements.add(new ElapsedTimeUiElement(pauseButtonFont, () -> elapsedDelta));
+    uiElements.add(new ElapsedTimeUiElement(pauseButtonFont, () -> simulationTime));
     uiElements.add(new PauseIndicatorUiElement(pauseIndicatorFont, glyphLayout, () -> paused));
     uiElements.add(
         new InspectorPanelUiElement(
@@ -301,30 +311,40 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
             .name(r.getMapObjectName())
             .worldX(r.f("x", 0f))
             .worldY(r.f("y", 0f))
-            .craftRate(r.f("craftRate", 0f))
-            .craftsRefined(r.b("craftsRefined", false))
-            .consumesRefined(r.b("consumesRefined", false))
             .alliance(r.s("alliance", "Neutral").trim().toLowerCase())
-            // .rawStoredAmount(r.f("rawStoredAmount", 0f))
-            // .rawStoredAmountLastFrame(r.f("rawStoredAmount", 0f))
-            // .rawBuyPrice(r.f("rawBuyPrice", 1.0f))
-            // .rawSellPrice(r.f("rawSellPrice", 1.0f))
-            // .refinedStoredAmount(r.f("refinedStoredAmount", 0f))
-            // .refinedStoredAmountLastFrame(r.f("refinedStoredAmount", 0f))
-            // .refinedBuyPrice(r.f("refinedBuyPrice", 1.0f))
-            // .refinedSellPrice(r.f("refinedSellPrice", 1.0f))
             .build();
-    city.initializeResource(
-        ResourceType.RAW,
-        r.f("rawStoredAmount", 0f),
-        r.f("rawBuyPrice", 1.0f),
-        r.f("rawSellPrice", 1.0f));
 
-    city.initializeResource(
-        ResourceType.REFINED,
-        r.f("refinedStoredAmount", 0f),
-        r.f("refinedBuyPrice", 1.0f),
-        r.f("refinedSellPrice", 1.0f));
+    try {
+      String resourcesJson = r.s("resourcesJson", null);
+      Map<ResourceType, ResourceInitConfig> initMap = new EnumMap<>(ResourceType.class);
+
+      if (resourcesJson != null && !resourcesJson.isBlank()) {
+        Map<String, ResourceInitConfig> rawMap =
+            mapper.readValue(
+                resourcesJson, new TypeReference<Map<String, ResourceInitConfig>>() {});
+
+        for (Map.Entry<String, ResourceInitConfig> entry : rawMap.entrySet()) {
+          ResourceType type = ResourceType.valueOf(entry.getKey().toUpperCase());
+          initMap.put(type, entry.getValue());
+        }
+      }
+
+      for (ResourceType type : ResourceType.values()) {
+        ResourceInitConfig cfg = initMap.get(type);
+
+        float inventory = (cfg != null && cfg.inventory != null) ? cfg.inventory : 0f;
+        float buy = (cfg != null && cfg.buy != null) ? cfg.buy : C.cityDefaultBuyPrice;
+        float sell = (cfg != null && cfg.sell != null) ? cfg.sell : buy + C.cityMinSpread;
+        float consumeRate = (cfg != null && cfg.consumeRate != null) ? cfg.consumeRate : 0f;
+        float craftRate = (cfg != null && cfg.craftRate != null) ? cfg.craftRate : 0f;
+
+        city.initializeResource(type, inventory, buy, sell, consumeRate, craftRate);
+      }
+    } catch (Exception e) {
+      System.err.println(
+          "Error loading resource for city " + city.getName() + ": " + e.getMessage());
+      e.printStackTrace();
+    }
 
     city.buildSprites(baseTilesTexture);
     return city;
@@ -426,7 +446,10 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     handleInput();
 
     if (!paused || stepOneFrame) {
-      elapsedDelta += delta;
+      simulationTime += delta;
+      simulationDelta = delta;
+      simulationTick++;
+
       updateWorld(delta);
       stepOneFrame = false;
     }
@@ -638,13 +661,13 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
      * Plus, Equals, Minus
      */
     if (Gdx.input.isKeyJustPressed(Keys.PLUS) || Gdx.input.isKeyJustPressed(Keys.EQUALS)) {
-      C.cityDistancePenalty += (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 0.1f : 0.01f);
+      C.distancePenalty += (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 0.1f : 0.01f);
     }
 
     if (Gdx.input.isKeyJustPressed(Keys.MINUS)) {
-      C.cityDistancePenalty -= (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 0.1f : 0.01f);
-      if (C.cityDistancePenalty < 0f) {
-        C.cityDistancePenalty = 0f;
+      C.distancePenalty -= (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 0.1f : 0.01f);
+      if (C.distancePenalty < 0f) {
+        C.distancePenalty = 0f;
       }
     }
 
@@ -653,13 +676,13 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
      * Square braces []
      */
     if (Gdx.input.isKeyJustPressed(Keys.LEFT_BRACKET)) {
-      C.harvestCostPerUnit -= (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 1f : 0.1f);
-      if (C.harvestCostPerUnit < 0f) {
-        C.harvestCostPerUnit = 0f;
+      C.harvestCost -= (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 1f : 0.1f);
+      if (C.harvestCost < 0f) {
+        C.harvestCost = 0f;
       }
     }
     if (Gdx.input.isKeyJustPressed(Keys.RIGHT_BRACKET)) {
-      C.harvestCostPerUnit += (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 1f : 0.1f);
+      C.harvestCost += (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 1f : 0.1f);
     }
 
     /* ****
@@ -815,11 +838,12 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         (int) worldMousePos.y,
         mapCol,
         mapRow,
-        C.cityDistancePenalty);
+        C.distancePenalty);
   }
 
   private void dumpWorld() {
-    WorldSnapshot snapshot = buildSnapshot();
+    // WorldSnapshot snapshot = buildSnapshot();
+    WorldSnapshot snapshot = WorldSnapshotBuilder.build(this);
     try {
       String json = mapper.writeValueAsString(snapshot);
 
@@ -840,19 +864,15 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
 
   private WorldSnapshot buildSnapshot() {
     WorldSnapshot s = new WorldSnapshot();
-    s.elapsedDelta = elapsedDelta;
-    s.distancePenalty = Math.round(C.cityDistancePenalty * 1_000_000d) / 1_000_000d;
-    s.harvestCost = C.harvestCostPerUnit;
-    s.cityConsumptionRate = C.cityConsumptionRate;
-    s.cityTargetInventory = C.cityTargetInventory;
-    s.cityInventoryVelocitySensitivity = C.cityInventoryVelocitySensitivity;
-    s.cityPriceAdjustRate = C.cityPriceAdjustRate;
-    s.cityMinBuyPrice = C.cityMinBuyPrice;
-    s.citySellSmoothingRate = C.citySellSmoothingRate;
-    s.cityMinSpread = C.cityMinSpread;
-    s.guyWorkIncentiveWeight = C.guyWorkIncentiveWeight;
 
-    WorldSnapshot.MapInfo m = new WorldSnapshot.MapInfo();
+    s.simulation = new SimulationSnapshot();
+    s.simulation.time = simulationTime;
+    s.simulation.delta = simulationDelta;
+    s.simulation.tick = simulationTick;
+
+    // s.constants = snapshotConstants(C.class);
+
+    MapInfoSnapshot m = new MapInfoSnapshot();
     m.tilesWide = mapWidthTiles;
     m.tilesHigh = mapHeightTiles;
     m.tileWidthPx = tileWidthPx;
@@ -882,24 +902,12 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
                   cs.centerX = Math.round(city.getCenterX());
                   cs.centerY = Math.round(city.getCenterY());
 
-                  cs.rawInventory = city.getInventory(ResourceType.RAW);
-                  cs.refinedInventory = city.getInventory(ResourceType.REFINED);
-                  cs.rawInventoryVelocity = city.getInventoryVelocity(ResourceType.RAW);
-                  cs.refinedInventoryVelocity = city.getInventoryVelocity(ResourceType.REFINED);
+                  for (var entry : city.getResourcesView().entrySet()) {
+                    ResourceType t = entry.getKey();
+                    ResourceState r = entry.getValue();
 
-                  cs.rawBuyPrice = city.getBuyPrice(ResourceType.RAW);
-                  cs.rawSellPrice = city.getSellPrice(ResourceType.RAW);
-                  cs.rawBuyPriceVelocity = city.getBuyPriceVelocity(ResourceType.RAW);
-                  cs.rawSellPriceVelocity = city.getSellPriceVelocity(ResourceType.RAW);
-
-                  cs.refinedBuyPrice = city.getBuyPrice(ResourceType.REFINED);
-                  cs.refinedSellPrice = city.getSellPrice(ResourceType.REFINED);
-                  cs.refinedBuyPriceVelocity = city.getBuyPriceVelocity(ResourceType.REFINED);
-                  cs.refinedSellPriceVelocity = city.getSellPriceVelocity(ResourceType.REFINED);
-
-                  cs.craftRate = city.getCraftRate();
-                  cs.craftsRefined = city.isCraftsRefined();
-                  cs.consumesRefined = city.isConsumesRefined();
+                    cs.resources.put(t, toCityResourceSnapshot(city, t, r));
+                  }
 
                   return cs;
                 })
@@ -998,12 +1006,38 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     return s;
   }
 
+  private WorldSnapshot.CityResourceSnapshot toCityResourceSnapshot(
+      City c, ResourceType t, ResourceState r) {
+    WorldSnapshot.CityResourceSnapshot snap = new WorldSnapshot.CityResourceSnapshot();
+    snap.inventory = r.inventory;
+    snap.inventoryTarget = C.cityTargetInventory;
+    snap.inventoryRatio = snap.inventoryTarget > 0 ? r.inventory / snap.inventoryTarget : 0f;
+    snap.inventoryDeviation = r.inventory - snap.inventoryTarget;
+    snap.inventoryVelocity = r.inventoryVelocity;
+
+    snap.buyPrice = r.buyPrice;
+    snap.sellPrice = r.sellPrice;
+    snap.priceSpread = r.sellPrice - r.buyPrice;
+
+    snap.buyPriceVelocity = r.buyPriceVelocity;
+    snap.sellPriceVelocity = r.sellPriceVelocity;
+
+    snap.buyPressure = c.computeBuyPressure(t);
+    snap.targetSellPrice = c.computeTargetSellPrice(t);
+    snap.dynamicSpread = snap.targetSellPrice - snap.buyPrice;
+
+    snap.consumeRate = r.consumeRate;
+    snap.craftRate = r.craftRate;
+
+    return snap;
+  }
+
   private WorldSnapshot.PlanOptionSnapshot toPlanOptionSnapshot(Guy.PlanOption opt) {
 
     WorldSnapshot.PlanOptionSnapshot ps = new WorldSnapshot.PlanOptionSnapshot();
 
-    ps.optionType = opt.optionType.name();
-    ps.resourceType = opt.resourceType.name();
+    ps.optionType = opt.optionType;
+    ps.resourceType = opt.resourceType;
 
     if (opt.node != null) {
       ps.nodeId = opt.node.getId();

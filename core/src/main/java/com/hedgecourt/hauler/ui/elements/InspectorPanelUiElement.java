@@ -65,8 +65,8 @@ public class InspectorPanelUiElement implements UiElement {
             C.inspectorTab == InspectorTab.SUMMARY ? "[SUMMARY]" : " SUMMARY ",
             C.inspectorTab == InspectorTab.TRADE ? "[TRADE]" : " TRADE ",
             C.inspectorTab == InspectorTab.DEBUG ? "[DEBUG]" : " DEBUG ",
-            C.cityDistancePenalty,
-            C.harvestCostPerUnit));
+            C.distancePenalty,
+            C.harvestCost));
     lines.add("");
     if (selected == null) {
       lines.add("No Selection");

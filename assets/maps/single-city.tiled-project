@@ -36,34 +36,9 @@
                     "value": false
                 },
                 {
-                    "name": "rawBuyPrice",
-                    "type": "float",
-                    "value": 0
-                },
-                {
-                    "name": "rawSellPrice",
-                    "type": "float",
-                    "value": 0
-                },
-                {
-                    "name": "rawStoredAmount",
-                    "type": "float",
-                    "value": 0
-                },
-                {
-                    "name": "refinedBuyPrice",
-                    "type": "float",
-                    "value": 0
-                },
-                {
-                    "name": "refinedSellPrice",
-                    "type": "float",
-                    "value": 0
-                },
-                {
-                    "name": "refinedStoredAmount",
-                    "type": "float",
-                    "value": 0
+                    "name": "resourcesJson",
+                    "type": "string",
+                    "value": ""
                 }
             ],
             "name": "City",
