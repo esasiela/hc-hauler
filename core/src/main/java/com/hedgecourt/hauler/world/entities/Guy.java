@@ -10,12 +10,14 @@ import com.badlogic.gdx.math.Vector3;
 import com.hedgecourt.hauler.C;
 import com.hedgecourt.hauler.Direction;
 import com.hedgecourt.hauler.Selectable;
+import com.hedgecourt.hauler.economy.NodeResource;
 import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.world.WorldEntity;
 import com.hedgecourt.hauler.world.entities.Guy.PlanOption.OptionType;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -378,15 +380,16 @@ public class Guy extends WorldEntity implements Selectable {
 
   private void performHarvestTick(float delta) {
     // the max request is min of our full rate for this time tick, or our available bag capacity
-    float requestQty = Math.min(harvestTarget.getHarvestRate() * delta, capacityRemaining());
-    float harvestQty = harvestTarget.requestHarvest(requestQty);
-    // TODO set carriedType when harvesting off of node's resourceType
-    adjustCarriedType(ResourceType.RAW);
+    float requestQty =
+        Math.min(
+            harvestTarget.getHarvestRate(currentPlan.resourceType) * delta, capacityRemaining());
+    float harvestQty = harvestTarget.requestHarvest(currentPlan.resourceType, requestQty);
+    adjustCarriedType(currentPlan.resourceType);
     adjustCarriedAmount(harvestQty);
   }
 
   private void resolveHarvestResults() {
-    if (harvestTarget.getResourceAmount() > 0 && capacityRemaining() > 0) {
+    if (harvestTarget.getAmount(currentPlan.resourceType) > 0 && capacityRemaining() > 0) {
       // we're good to continue harvesting so don't do anything
       return;
     }
@@ -673,29 +676,38 @@ public class Guy extends WorldEntity implements Selectable {
 
   public List<PlanOption> evaluateHarvestOptions() {
     List<PlanOption> options = new ArrayList<>();
+
     for (Node node : world.getNodes()) {
-      if (node.getResourceAmount() <= 0) continue;
 
-      City closestCity = node.getClosest(world.getCities());
-      if (closestCity == null) continue;
+      for (Map.Entry<ResourceType, NodeResource> entry :
+          node.getNodeResources().view().entrySet()) {
+        ResourceType type = entry.getKey();
+        NodeResource res = entry.getValue();
 
-      PlanOption option = new PlanOption();
-      option.optionType = OptionType.HARVEST;
-      // TODO only type you can harvest is RAW, for now!
-      option.resourceType = ResourceType.RAW;
-      option.node = node;
-      option.destCity = closestCity;
+        if (res.amount <= 0f) continue;
 
-      float harvestableAmount = Math.min(node.getResourceAmount(), carryCapacity);
-      float fullnessRatio = harvestableAmount / carryCapacity;
-      option.profit = (closestCity.getBuyPrice(ResourceType.RAW) - C.harvestCost) * fullnessRatio;
+        City closestCity = node.getClosest(world.getCities());
+        if (closestCity == null) continue;
 
-      option.penalty = travelPenalty(distanceTo(node) + node.distanceTo(closestCity));
-      option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
-      option.score = option.profit - option.penalty + option.workIncentive;
+        PlanOption option = new PlanOption();
+        option.optionType = OptionType.HARVEST;
+        option.resourceType = type;
+        option.node = node;
+        option.destCity = closestCity;
 
-      options.add(option);
+        float harvestableAmount = Math.min(res.amount, carryCapacity);
+        float fullnessRatio = harvestableAmount / carryCapacity;
+
+        option.profit = (closestCity.getBuyPrice(type) - C.harvestCost) * fullnessRatio;
+        option.penalty = travelPenalty(distanceTo(node) + node.distanceTo(closestCity));
+        option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
+
+        option.score = option.profit - option.penalty + option.workIncentive;
+
+        options.add(option);
+      }
     }
+
     return options;
   }
 
@@ -706,41 +718,26 @@ public class Guy extends WorldEntity implements Selectable {
       for (City dstCity : world.getCities()) {
         if (dstCity == srcCity) continue;
 
-        if (srcCity.getInventory(ResourceType.RAW) > 0) {
+        for (ResourceType type : ResourceType.values()) {
+          if (srcCity.getInventory(type) <= 0f) continue;
+
           PlanOption option = new PlanOption();
           option.optionType = OptionType.TRADE;
-          option.resourceType = ResourceType.RAW;
+          option.resourceType = type;
           option.sourceCity = srcCity;
           option.destCity = dstCity;
 
-          option.profit =
-              dstCity.getBuyPrice(ResourceType.RAW) - srcCity.getSellPrice(ResourceType.RAW);
+          option.profit = dstCity.getBuyPrice(type) - srcCity.getSellPrice(type);
           option.penalty = travelPenalty(distanceTo(srcCity) + srcCity.distanceTo(dstCity));
           option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
-          option.score = option.profit - option.penalty + option.workIncentive;
 
-          options.add(option);
-        }
-
-        // TODO make guy trading eval logic loop on resource types instead of copy/paste
-        if (srcCity.getInventory(ResourceType.REFINED) > 0) {
-          PlanOption option = new PlanOption();
-          option.optionType = OptionType.TRADE;
-          option.resourceType = ResourceType.REFINED;
-          option.sourceCity = srcCity;
-          option.destCity = dstCity;
-
-          option.profit =
-              dstCity.getBuyPrice(ResourceType.REFINED)
-                  - srcCity.getSellPrice(ResourceType.REFINED);
-          option.penalty = travelPenalty(distanceTo(srcCity) + srcCity.distanceTo(dstCity));
-          option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
           option.score = option.profit - option.penalty + option.workIncentive;
 
           options.add(option);
         }
       }
     }
+
     return options;
   }
 
@@ -760,7 +757,7 @@ public class Guy extends WorldEntity implements Selectable {
     if (carriedAmount <= 0) {
       Node nearest =
           world.getNodes().stream()
-              .filter(node -> node.getResourceAmount() > 0)
+              // .filter(node -> node.getResourceAmount() > 0)
               .min(Comparator.comparingDouble(this::distanceTo))
               .orElse(null);
       if (nearest != null) {

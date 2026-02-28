@@ -1,6 +1,8 @@
 package com.hedgecourt.hauler.economy;
 
-public class ResourceState {
+import com.hedgecourt.hauler.C;
+
+public class CityResource {
 
   private float lastFrameDelta;
   private float lastFrameInventory;
@@ -17,8 +19,13 @@ public class ResourceState {
   public float consumeRate;
   public float craftRate;
 
-  public void initialize(
-      float inventory, float buy, float sell, float consumeRate, float craftRate) {
+  public void initialize(CityResourceInitConfig cfg) {
+    float inventory = cfg.inventory != null ? cfg.inventory : 0f;
+    float buy = cfg.buy != null ? cfg.buy : C.cityDefaultBuyPrice;
+    float sell = cfg.sell != null ? cfg.sell : buy + C.cityMinSpread;
+    float consumeRate = cfg.consumeRate != null ? cfg.consumeRate : 0f;
+    float craftRate = cfg.craftRate != null ? cfg.craftRate : 0f;
+
     // TODO call adjuster to enforce "business logic"
     this.inventory = inventory;
     this.lastFrameInventory = inventory;
@@ -36,12 +43,7 @@ public class ResourceState {
 
   public void applyConsumption(float delta) {
     if (consumeRate <= 0f) return;
-
-    float amount = consumeRate * delta;
-    inventory -= amount;
-
-    // TODO add an adjustInventory(float amt) to ResourceState
-    if (inventory < 0f) inventory = 0f;
+    adjustInventory(-consumeRate * delta);
   }
 
   public void updateInventoryVelocity(float delta) {
@@ -49,5 +51,18 @@ public class ResourceState {
     else inventoryVelocity = 0f;
     lastFrameInventory = inventory;
     lastFrameDelta = delta;
+  }
+
+  public void adjustInventory(float amount) {
+    inventory += amount;
+    if (inventory < C.RESOURCE_EPSILON) inventory = 0f;
+  }
+
+  public static class CityResourceInitConfig {
+    public Float inventory;
+    public Float buy;
+    public Float sell;
+    public Float consumeRate;
+    public Float craftRate;
   }
 }

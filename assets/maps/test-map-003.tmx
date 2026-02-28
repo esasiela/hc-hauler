@@ -78,6 +78,15 @@
     <property name="regenRate" type="float" value="1.65"/>
     <property name="resourceAmount" type="float" value="50"/>
     <property name="resourceAmountMax" type="float" value="50"/>
+    <property name="resourcesJson">{
+  &quot;RAW&quot;: {
+    &quot;amount&quot;: 50,
+    &quot;amountMax&quot;: 50,
+    &quot;regenRate&quot;: 1.65,
+    &quot;regenDelay&quot;: 5.0,
+    &quot;harvestRate&quot;: 20.0
+  }
+}</property>
    </properties>
   </object>
   <object id="4" name="wnBot" type="Node" gid="878" x="128" y="320" width="32" height="32">
@@ -87,6 +96,10 @@
     <property name="regenRate" type="float" value="1.65"/>
     <property name="resourceAmount" type="float" value="50"/>
     <property name="resourceAmountMax" type="float" value="50"/>
+    <property name="resourcesJson">{
+  &quot;RAW&quot;: {
+  }
+}</property>
    </properties>
   </object>
   <object id="7" name="slow1" type="Guy" gid="1028" x="128" y="224" width="32" height="32">

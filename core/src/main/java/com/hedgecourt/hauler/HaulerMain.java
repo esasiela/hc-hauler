@@ -31,7 +31,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.hedgecourt.hauler.C.InspectorTab;
 import com.hedgecourt.hauler.debug.WorldSnapshot;
 import com.hedgecourt.hauler.debug.WorldSnapshotBuilder;
-import com.hedgecourt.hauler.economy.ResourceInitConfig;
+import com.hedgecourt.hauler.economy.CityResource.CityResourceInitConfig;
+import com.hedgecourt.hauler.economy.NodeResource.NodeResourceInitConfig;
 import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.ui.UiElement;
 import com.hedgecourt.hauler.ui.UiRenderer;
@@ -310,29 +311,22 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
 
     try {
       String resourcesJson = r.s("resourcesJson", null);
-      Map<ResourceType, ResourceInitConfig> initMap = new EnumMap<>(ResourceType.class);
+      Map<ResourceType, CityResourceInitConfig> initMap = new EnumMap<>(ResourceType.class);
 
       if (resourcesJson != null && !resourcesJson.isBlank()) {
-        Map<String, ResourceInitConfig> rawMap =
+        Map<String, CityResourceInitConfig> rawMap =
             mapper.readValue(
-                resourcesJson, new TypeReference<Map<String, ResourceInitConfig>>() {});
+                resourcesJson, new TypeReference<Map<String, CityResourceInitConfig>>() {});
 
-        for (Map.Entry<String, ResourceInitConfig> entry : rawMap.entrySet()) {
+        for (Map.Entry<String, CityResourceInitConfig> entry : rawMap.entrySet()) {
           ResourceType type = ResourceType.valueOf(entry.getKey().toUpperCase());
           initMap.put(type, entry.getValue());
         }
       }
 
       for (ResourceType type : ResourceType.values()) {
-        ResourceInitConfig cfg = initMap.get(type);
-
-        float inventory = (cfg != null && cfg.inventory != null) ? cfg.inventory : 0f;
-        float buy = (cfg != null && cfg.buy != null) ? cfg.buy : C.cityDefaultBuyPrice;
-        float sell = (cfg != null && cfg.sell != null) ? cfg.sell : buy + C.cityMinSpread;
-        float consumeRate = (cfg != null && cfg.consumeRate != null) ? cfg.consumeRate : 0f;
-        float craftRate = (cfg != null && cfg.craftRate != null) ? cfg.craftRate : 0f;
-
-        city.initializeResource(type, inventory, buy, sell, consumeRate, craftRate);
+        CityResourceInitConfig cfg = initMap.getOrDefault(type, new CityResourceInitConfig());
+        city.initializeResource(type, cfg);
       }
     } catch (Exception e) {
       System.err.println(
@@ -354,12 +348,42 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
             .name(r.getMapObjectName())
             .worldX(r.f("x", 0f))
             .worldY(r.f("y", 0f))
-            .resourceAmount(r.f("resourceAmount", 100f))
-            .resourceAmountMax(r.f("resourceAmountMax", 100f))
-            .harvestRate(r.f("harvestRate", 20f))
-            .regenRate(r.f("regenRate", 2.0f))
-            .regenDelay(r.f("regenDelay", 10.0f))
             .build();
+
+    try {
+      String resourcesJson = r.s("resourcesJson", null);
+      Map<ResourceType, NodeResourceInitConfig> initMap = new EnumMap<>(ResourceType.class);
+
+      if (resourcesJson != null && !resourcesJson.isBlank()) {
+        Map<String, NodeResourceInitConfig> rawMap =
+            mapper.readValue(
+                resourcesJson, new TypeReference<Map<String, NodeResourceInitConfig>>() {});
+
+        for (Map.Entry<String, NodeResourceInitConfig> entry : rawMap.entrySet()) {
+          ResourceType type = ResourceType.valueOf(entry.getKey().toUpperCase());
+          initMap.put(type, entry.getValue());
+        }
+      }
+
+      for (ResourceType type : ResourceType.values()) {
+        NodeResourceInitConfig cfg = initMap.get(type);
+        node.initializeResource(type, cfg);
+      }
+    } catch (Exception e) {
+      System.err.println(
+          "Error loading resource for node " + node.getName() + ": " + e.getMessage());
+      e.printStackTrace();
+    }
+
+    long count =
+        node.getNodeResources().values().stream()
+            .filter(nodeResource -> nodeResource.amountMax > 0f)
+            .count();
+    if (count == 0)
+      throw new IllegalStateException("Node " + node.getId() + " has no resource defined.");
+    if (count > 1)
+      throw new IllegalStateException("Node " + node.getId() + " has multiple resources defined.");
+
     node.buildSprites(baseTilesTexture);
     return node;
   }

@@ -2,6 +2,7 @@ package com.hedgecourt.hauler.world.layers;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.world.WorldRenderLayer;
 import com.hedgecourt.hauler.world.entities.Guy;
 import com.hedgecourt.hauler.world.entities.Node;
@@ -23,9 +24,11 @@ public class ProgressBarsLayer implements WorldRenderLayer {
 
     // ---- Node bars ----
     for (Node node : nodesSupplier.get()) {
+      ResourceType resourceType = node.getPrimaryResourceType();
 
       sr.setColor(
-          node.getRegenCooldownTimer() > 0f
+          // node.getRegenCooldownTimer() > 0f
+          node.getRegenCooldownTimer(resourceType) > 0f
               ? new Color(1f, 0f, 0f, 1f)
               : new Color(0.4f, 0.4f, 0.4f, 1f));
 
@@ -36,7 +39,7 @@ public class ProgressBarsLayer implements WorldRenderLayer {
       sr.rect(
           node.getWorldX(),
           node.getWorldY() + node.getHeight(),
-          node.getWidth() * (node.getResourceAmount() / node.getResourceAmountMax()),
+          node.getWidth() * (node.getAmount(resourceType) / node.getAmountMax(resourceType)),
           4f);
     }
 

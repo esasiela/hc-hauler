@@ -5,12 +5,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.hedgecourt.hauler.C;
 import com.hedgecourt.hauler.Selectable;
-import com.hedgecourt.hauler.economy.ResourceState;
+import com.hedgecourt.hauler.economy.CityResource;
+import com.hedgecourt.hauler.economy.CityResource.CityResourceInitConfig;
+import com.hedgecourt.hauler.economy.ResourceContainer;
 import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.world.WorldEntity;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
@@ -27,11 +27,11 @@ public class City extends WorldEntity implements Selectable {
 
   String alliance;
 
-  private final EnumMap<ResourceType, ResourceState> resources = new EnumMap<>(ResourceType.class);
+  private final ResourceContainer<CityResource> cityResources = new ResourceContainer<>();
 
   {
     for (ResourceType type : ResourceType.values()) {
-      resources.put(type, new ResourceState());
+      cityResources.put(type, new CityResource());
     }
   }
 
@@ -63,8 +63,8 @@ public class City extends WorldEntity implements Selectable {
   }
 
   private void craft(float delta) {
-    ResourceState raw = getResource(ResourceType.RAW);
-    ResourceState refined = getResource(ResourceType.REFINED);
+    CityResource raw = getResource(ResourceType.RAW);
+    CityResource refined = getResource(ResourceType.REFINED);
 
     float rate = refined.craftRate;
     if (rate <= 0f) return;
@@ -91,7 +91,9 @@ public class City extends WorldEntity implements Selectable {
     float newPrice = oldPrice + amount;
     if (!(0f < newPrice && newPrice < getSellPrice(ResourceType.RAW))) return;
 
+    // TODO move adjustBuyPrice logic to CityResource
     getResource(type).buyPrice = newPrice;
+    // TODO make buyPriceVelocity an actual velocity
     getResource(type).buyPriceVelocity = newPrice - oldPrice;
   }
 
@@ -101,7 +103,9 @@ public class City extends WorldEntity implements Selectable {
     float newPrice = oldPrice + amount;
     if (!(0f < newPrice && getBuyPrice(type) < newPrice)) return;
 
+    // TODO move adjustSellPrice logic to CityResource
     getResource(type).sellPrice = newPrice;
+    // TODO make sellPriceVelocity an actual velocity
     getResource(type).sellPriceVelocity = newPrice - oldPrice;
   }
 
@@ -267,14 +271,6 @@ public class City extends WorldEntity implements Selectable {
     citySprite = baseTiles[cityId / 8][cityId % 8];
   }
 
-  public String getStatusDetails() {
-    return String.format("Qty=%d", Math.round(getInventory(ResourceType.RAW)));
-  }
-
-  public String getStatusSummary() {
-    return "City";
-  }
-
   public float requestDelivery(ResourceType type, float qtyRequested) {
     // as of this writing, there's no logic or cap on how much a city can receive
     float qtyDelivered = qtyRequested;
@@ -288,18 +284,17 @@ public class City extends WorldEntity implements Selectable {
     return qtyGiven;
   }
 
-  private ResourceState getResource(ResourceType type) {
-    return resources.get(type);
+  public void adjustInventory(ResourceType type, float amount) {
+    CityResource r = getResource(type);
+    r.adjustInventory(amount);
+  }
+
+  private CityResource getResource(ResourceType type) {
+    return cityResources.get(type);
   }
 
   public float getInventory(ResourceType type) {
     return getResource(type).inventory;
-  }
-
-  public void adjustInventory(ResourceType type, float amount) {
-    ResourceState r = getResource(type);
-    r.inventory += amount;
-    if (r.inventory < C.RESOURCE_EPSILON) r.inventory = 0f;
   }
 
   public float getBuyPrice(ResourceType type) {
@@ -322,17 +317,11 @@ public class City extends WorldEntity implements Selectable {
     return getResource(type).sellPriceVelocity;
   }
 
-  public void initializeResource(
-      ResourceType type,
-      float inventory,
-      float buyPrice,
-      float sellPrice,
-      float consumeRate,
-      float craftRate) {
-    getResource(type).initialize(inventory, buyPrice, sellPrice, consumeRate, craftRate);
+  public void initializeResource(ResourceType type, CityResourceInitConfig cfg) {
+    getResource(type).initialize(cfg);
   }
 
-  public Map<ResourceType, ResourceState> getResourcesView() {
-    return Collections.unmodifiableMap(resources);
+  public Map<ResourceType, CityResource> getResourcesView() {
+    return cityResources.view();
   }
 }

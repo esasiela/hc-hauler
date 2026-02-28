@@ -43,11 +43,9 @@ public class HeaderStatsUiElement implements UiElement {
     List<Node> nodes = nodesSupplier.get();
     List<Guy> guys = guysSupplier.get();
 
-    double nodeTotal = nodes.stream().mapToDouble(Node::getResourceAmount).sum();
     double guyTotal = guys.stream().mapToDouble(Guy::getCarriedAmount).sum();
 
-    String headerText =
-        String.format("Nodes [%d] Guys [%d]", Math.round(nodeTotal), Math.round(guyTotal));
+    String headerText = String.format("Guys Carrying [%d]", Math.round(guyTotal));
 
     glyphLayout.setText(font, headerText);
     maxWidth = Math.max(maxWidth, glyphLayout.width);

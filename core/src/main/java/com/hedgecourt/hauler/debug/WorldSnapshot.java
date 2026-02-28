@@ -2,7 +2,9 @@ package com.hedgecourt.hauler.debug;
 
 import com.hedgecourt.hauler.C;
 import com.hedgecourt.hauler.HaulerMain;
-import com.hedgecourt.hauler.economy.ResourceState;
+import com.hedgecourt.hauler.debug.WorldSnapshot.CityResourceSnapshot;
+import com.hedgecourt.hauler.economy.CityResource;
+import com.hedgecourt.hauler.economy.NodeResource;
 import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.world.entities.City;
 import com.hedgecourt.hauler.world.entities.Guy;
@@ -78,7 +80,7 @@ public class WorldSnapshot {
 
       for (var entry : city.getResourcesView().entrySet()) {
         ResourceType t = entry.getKey();
-        ResourceState r = entry.getValue();
+        CityResource r = entry.getValue();
 
         s.resources.put(t, CityResourceSnapshot.from(world, city, t, r));
       }
@@ -112,7 +114,7 @@ public class WorldSnapshot {
     public Map<String, Float> cityArbitrageOpportunity = new HashMap<>();
 
     public static CityResourceSnapshot from(
-        HaulerMain world, City city, ResourceType t, ResourceState r) {
+        HaulerMain world, City city, ResourceType t, CityResource r) {
       CityResourceSnapshot snap = new CityResourceSnapshot();
       snap.inventory = r.inventory;
       snap.inventoryTarget = C.cityTargetInventory;
@@ -158,13 +160,8 @@ public class WorldSnapshot {
     public int centerX;
     public int centerY;
 
-    public int resourceAmount;
-    public int resourceAmountMax;
-
-    public double regenRate;
-    public double regenDelay;
-
-    public double regenCooldownTimer;
+    public EnumMap<ResourceType, NodeResourceSnapshot> resources =
+        new EnumMap<>(ResourceType.class);
 
     public static NodeSnapshot from(Node n) {
       WorldSnapshot.NodeSnapshot ns = new WorldSnapshot.NodeSnapshot();
@@ -178,14 +175,34 @@ public class WorldSnapshot {
       ns.centerX = Math.round(n.getCenterX());
       ns.centerY = Math.round(n.getCenterY());
 
-      ns.resourceAmount = Math.round(n.getResourceAmount());
-      ns.resourceAmountMax = Math.round(n.getResourceAmountMax());
+      for (var entry : n.getResourcesView().entrySet()) {
+        ResourceType t = entry.getKey();
+        NodeResource r = entry.getValue();
 
-      ns.regenRate = n.getRegenRate();
-      ns.regenDelay = n.getRegenDelay();
-      ns.regenCooldownTimer = n.getRegenCooldownTimer();
+        ns.resources.put(t, NodeResourceSnapshot.from(r));
+      }
 
       return ns;
+    }
+
+    public static class NodeResourceSnapshot {
+      public double amount;
+      public double amountMax;
+      public double regenRate;
+      public double regenDelay;
+      public double regenCooldownTimer;
+      public double harvestRate;
+
+      public static NodeResourceSnapshot from(NodeResource r) {
+        NodeResourceSnapshot snap = new NodeResourceSnapshot();
+        snap.amount = r.amount;
+        snap.amountMax = r.amountMax;
+        snap.regenRate = r.regenRate;
+        snap.regenDelay = r.regenDelay;
+        snap.regenCooldownTimer = r.regenCooldownTimer;
+        snap.harvestRate = r.harvestRate;
+        return snap;
+      }
     }
   }
 

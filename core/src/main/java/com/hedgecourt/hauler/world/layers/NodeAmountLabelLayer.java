@@ -20,7 +20,7 @@ public class NodeAmountLabelLayer implements WorldRenderLayer {
   @Override
   public void drawText(SpriteBatch batch) {
     for (Node node : nodesSupplier.get()) {
-      String text = String.valueOf(Math.round(node.getResourceAmount()));
+      String text = String.valueOf(Math.round(node.getAmount(node.getPrimaryResourceType())));
 
       float x = node.getWorldX();
       float y = node.getWorldY() + node.getHeight() + 16f;
