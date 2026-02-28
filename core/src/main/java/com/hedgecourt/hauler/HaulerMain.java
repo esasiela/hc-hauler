@@ -30,12 +30,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.hedgecourt.hauler.C.InspectorTab;
 import com.hedgecourt.hauler.debug.WorldSnapshot;
-import com.hedgecourt.hauler.debug.WorldSnapshot.GuySnapshot;
-import com.hedgecourt.hauler.debug.WorldSnapshot.MapInfoSnapshot;
-import com.hedgecourt.hauler.debug.WorldSnapshot.SimulationSnapshot;
 import com.hedgecourt.hauler.debug.WorldSnapshotBuilder;
 import com.hedgecourt.hauler.economy.ResourceInitConfig;
-import com.hedgecourt.hauler.economy.ResourceState;
 import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.ui.UiElement;
 import com.hedgecourt.hauler.ui.UiRenderer;
@@ -54,7 +50,6 @@ import com.hedgecourt.hauler.world.WorldView;
 import com.hedgecourt.hauler.world.entities.City;
 import com.hedgecourt.hauler.world.entities.Guy;
 import com.hedgecourt.hauler.world.entities.Guy.BehaviorModel;
-import com.hedgecourt.hauler.world.entities.Guy.PlanOption;
 import com.hedgecourt.hauler.world.entities.Node;
 import com.hedgecourt.hauler.world.layers.CityAmountLabelLayer;
 import com.hedgecourt.hauler.world.layers.GuyStateTextLayer;
@@ -63,7 +58,6 @@ import com.hedgecourt.hauler.world.layers.NodeAmountLabelLayer;
 import com.hedgecourt.hauler.world.layers.ProgressBarsLayer;
 import com.hedgecourt.hauler.world.layers.SelectionUnderLayer;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
@@ -860,203 +854,6 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
       System.err.println("Error building JSON world snapshot: " + e.getMessage());
       e.printStackTrace();
     }
-  }
-
-  private WorldSnapshot buildSnapshot() {
-    WorldSnapshot s = new WorldSnapshot();
-
-    s.simulation = new SimulationSnapshot();
-    s.simulation.time = simulationTime;
-    s.simulation.delta = simulationDelta;
-    s.simulation.tick = simulationTick;
-
-    // s.constants = snapshotConstants(C.class);
-
-    MapInfoSnapshot m = new MapInfoSnapshot();
-    m.tilesWide = mapWidthTiles;
-    m.tilesHigh = mapHeightTiles;
-    m.tileWidthPx = tileWidthPx;
-    m.tileHeightPx = tileHeightPx;
-    m.worldWidthPx = Math.round(worldWidthPx);
-    m.worldHeightPx = Math.round(worldHeightPx);
-    s.map = m;
-
-    /* ****
-     * Cities
-     */
-    s.cities =
-        cities.stream()
-            .sorted(Comparator.comparing(City::getName))
-            .map(
-                city -> {
-                  WorldSnapshot.CitySnapshot cs = new WorldSnapshot.CitySnapshot();
-
-                  cs.id = city.getId();
-                  cs.name = city.getName();
-
-                  cs.worldX = Math.round(city.getWorldX());
-                  cs.worldY = Math.round(city.getWorldY());
-                  cs.width = Math.round(city.getWidth());
-                  cs.height = Math.round(city.getHeight());
-
-                  cs.centerX = Math.round(city.getCenterX());
-                  cs.centerY = Math.round(city.getCenterY());
-
-                  for (var entry : city.getResourcesView().entrySet()) {
-                    ResourceType t = entry.getKey();
-                    ResourceState r = entry.getValue();
-
-                    cs.resources.put(t, toCityResourceSnapshot(city, t, r));
-                  }
-
-                  return cs;
-                })
-            .toList();
-
-    /* ****
-     * Nodes
-     */
-    s.nodes =
-        nodes.stream()
-            .sorted(Comparator.comparing(Node::getName))
-            .map(
-                node -> {
-                  WorldSnapshot.NodeSnapshot ns = new WorldSnapshot.NodeSnapshot();
-
-                  ns.id = node.getId();
-                  ns.name = node.getName();
-
-                  ns.worldX = Math.round(node.getWorldX());
-                  ns.worldY = Math.round(node.getWorldY());
-
-                  ns.centerX = Math.round(node.getCenterX());
-                  ns.centerY = Math.round(node.getCenterY());
-
-                  ns.resourceAmount = Math.round(node.getResourceAmount());
-                  ns.resourceAmountMax = Math.round(node.getResourceAmountMax());
-
-                  ns.regenRate = node.getRegenRate();
-                  ns.regenDelay = node.getRegenDelay();
-                  ns.regenCooldownTimer = node.getRegenCooldownTimer();
-
-                  return ns;
-                })
-            .toList();
-
-    /* ****
-     * Guys
-     */
-    s.guys =
-        guys.stream()
-            .sorted(Comparator.comparing(Guy::getName))
-            .map(
-                guy -> {
-                  GuySnapshot gs = new GuySnapshot();
-
-                  gs.id = guy.getId();
-                  gs.name = guy.getName();
-
-                  gs.worldX = Math.round(guy.getWorldX());
-                  gs.worldY = Math.round(guy.getWorldY());
-
-                  gs.moveSpeed = guy.getMoveSpeed();
-
-                  gs.carriedType = guy.getCarriedType();
-                  gs.carriedAmount = Math.round(guy.getCarriedAmount());
-                  gs.carryCapacity = Math.round(guy.getCarryCapacity());
-
-                  gs.state = guy.getState().name();
-                  gs.idleSeconds = guy.getIdleSeconds();
-                  gs.autonomyEnabled = guy.isAutonomyEnabled();
-
-                  // ---- Evaluate Options ----
-                  List<PlanOption> harvestOptions = guy.evaluateHarvestOptions();
-                  List<PlanOption> tradeOptions = guy.evaluateTradeOptions();
-
-                  PlanOption bestHarvest =
-                      harvestOptions.stream()
-                          .max(Comparator.comparingDouble(opt -> opt.score))
-                          .orElse(null);
-
-                  PlanOption bestTrade =
-                      tradeOptions.stream()
-                          .max(Comparator.comparingDouble(opt -> opt.score))
-                          .orElse(null);
-
-                  if (bestHarvest != null) {
-                    gs.bestHarvest = toPlanOptionSnapshot(bestHarvest);
-                  }
-
-                  if (bestTrade != null) {
-                    gs.bestTrade = toPlanOptionSnapshot(bestTrade);
-                  }
-
-                  if (bestHarvest != null && bestTrade != null) {
-                    gs.scoreDiff = (double) (bestHarvest.score - bestTrade.score);
-                    gs.bestScoreOverall = (double) Math.max(bestHarvest.score, bestTrade.score);
-                  } else {
-                    if (bestHarvest != null) gs.bestScoreOverall = (double) bestHarvest.score;
-                    else if (bestTrade != null) gs.bestScoreOverall = (double) bestTrade.score;
-                  }
-
-                  return gs;
-                })
-            .toList();
-
-    return s;
-  }
-
-  private WorldSnapshot.CityResourceSnapshot toCityResourceSnapshot(
-      City c, ResourceType t, ResourceState r) {
-    WorldSnapshot.CityResourceSnapshot snap = new WorldSnapshot.CityResourceSnapshot();
-    snap.inventory = r.inventory;
-    snap.inventoryTarget = C.cityTargetInventory;
-    snap.inventoryRatio = snap.inventoryTarget > 0 ? r.inventory / snap.inventoryTarget : 0f;
-    snap.inventoryDeviation = r.inventory - snap.inventoryTarget;
-    snap.inventoryVelocity = r.inventoryVelocity;
-
-    snap.buyPrice = r.buyPrice;
-    snap.sellPrice = r.sellPrice;
-    snap.priceSpread = r.sellPrice - r.buyPrice;
-
-    snap.buyPriceVelocity = r.buyPriceVelocity;
-    snap.sellPriceVelocity = r.sellPriceVelocity;
-
-    snap.buyPressure = c.computeBuyPressure(t);
-    snap.targetSellPrice = c.computeTargetSellPrice(t);
-    snap.dynamicSpread = snap.targetSellPrice - snap.buyPrice;
-
-    snap.consumeRate = r.consumeRate;
-    snap.craftRate = r.craftRate;
-
-    return snap;
-  }
-
-  private WorldSnapshot.PlanOptionSnapshot toPlanOptionSnapshot(Guy.PlanOption opt) {
-
-    WorldSnapshot.PlanOptionSnapshot ps = new WorldSnapshot.PlanOptionSnapshot();
-
-    ps.optionType = opt.optionType;
-    ps.resourceType = opt.resourceType;
-
-    if (opt.node != null) {
-      ps.nodeId = opt.node.getId();
-    }
-
-    if (opt.sourceCity != null) {
-      ps.sourceCityId = opt.sourceCity.getId();
-    }
-
-    if (opt.destCity != null) {
-      ps.destCityId = opt.destCity.getId();
-    }
-
-    ps.profit = opt.profit;
-    ps.penalty = opt.penalty;
-    ps.workIncentive = opt.workIncentive;
-    ps.score = opt.score;
-
-    return ps;
   }
 
   @Override
