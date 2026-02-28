@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="40" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="11">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="40" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="12">
  <tileset firstgid="1" source="[Base]BaseChip_pipo.tsx"/>
  <layer id="1" name="Ground" width="40" height="20">
   <data encoding="csv">
@@ -67,17 +67,15 @@
     &quot;sell&quot;: 11,
     &quot;consumeRate&quot;: 1.5,
     &quot;craftRate&quot;: 2.0
+  },
+  &quot;HERB&quot;: {
+    &quot;buy&quot;: 9
   }
 }</property>
    </properties>
   </object>
   <object id="3" name="wnTop" type="Node" gid="878" x="128" y="128" width="32" height="32">
    <properties>
-    <property name="harvestRate" type="float" value="20"/>
-    <property name="regenDelay" type="float" value="5"/>
-    <property name="regenRate" type="float" value="1.65"/>
-    <property name="resourceAmount" type="float" value="50"/>
-    <property name="resourceAmountMax" type="float" value="50"/>
     <property name="resourcesJson">{
   &quot;RAW&quot;: {
     &quot;amount&quot;: 50,
@@ -91,13 +89,17 @@
   </object>
   <object id="4" name="wnBot" type="Node" gid="878" x="128" y="320" width="32" height="32">
    <properties>
-    <property name="harvestRate" type="float" value="20"/>
-    <property name="regenDelay" type="float" value="5"/>
-    <property name="regenRate" type="float" value="1.65"/>
-    <property name="resourceAmount" type="float" value="50"/>
-    <property name="resourceAmountMax" type="float" value="50"/>
     <property name="resourcesJson">{
   &quot;RAW&quot;: {
+  }
+}</property>
+   </properties>
+  </object>
+  <object id="11" name="enBot" type="Node" gid="878" x="800" y="320" width="32" height="32">
+   <properties>
+    <property name="resourcesJson">{
+  &quot;HERB&quot;: {
+    &quot;amountMax&quot;: 40
   }
 }</property>
    </properties>

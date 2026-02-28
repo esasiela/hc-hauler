@@ -231,8 +231,12 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
 
     marketBoard =
         new MarketBoardUiElement(
-            ResourceType.RAW, inspectorFont, glyphLayout, this, () -> marketBoardVisible, 20f);
+            ResourceType.HERB, inspectorFont, glyphLayout, this, () -> marketBoardVisible, 20f);
     uiElements.add(marketBoard);
+
+    uiElements.add(
+        new MarketBoardUiElement(
+            ResourceType.RAW, inspectorFont, glyphLayout, this, () -> marketBoardVisible, 410f));
 
     uiElements.add(
         new MarketBoardUiElement(
@@ -241,7 +245,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
             glyphLayout,
             this,
             () -> marketBoardVisible,
-            410f));
+            410f + 390f));
 
     /* ****
      * Setup world UNDER layers

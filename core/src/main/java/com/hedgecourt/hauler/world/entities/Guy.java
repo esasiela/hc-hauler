@@ -695,7 +695,7 @@ public class Guy extends WorldEntity implements Selectable {
         option.node = node;
         option.destCity = closestCity;
 
-        float harvestableAmount = Math.min(res.amount, carryCapacity);
+        float harvestableAmount = Math.min(res.amount, capacityRemaining());
         float fullnessRatio = harvestableAmount / carryCapacity;
 
         option.profit = (closestCity.getBuyPrice(type) - C.harvestCost) * fullnessRatio;
