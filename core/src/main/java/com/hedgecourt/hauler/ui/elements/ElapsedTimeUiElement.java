@@ -11,11 +11,11 @@ import java.util.function.Supplier;
 
 public class ElapsedTimeUiElement implements UiElement {
   private final BitmapFont font;
-  private final Supplier<Double> elapsedSupplier;
+  private final Supplier<Float> elapsedSupplier;
 
   private final Rectangle bounds = new Rectangle(2f, 0f, 130f, 48f);
 
-  public ElapsedTimeUiElement(BitmapFont font, Supplier<Double> elapsedSupplier) {
+  public ElapsedTimeUiElement(BitmapFont font, Supplier<Float> elapsedSupplier) {
     this.font = font;
     this.elapsedSupplier = elapsedSupplier;
   }

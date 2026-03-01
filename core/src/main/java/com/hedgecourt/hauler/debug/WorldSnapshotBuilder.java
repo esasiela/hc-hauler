@@ -3,7 +3,6 @@ package com.hedgecourt.hauler.debug;
 import com.hedgecourt.hauler.C;
 import com.hedgecourt.hauler.HaulerMain;
 import com.hedgecourt.hauler.debug.WorldSnapshot.CitySnapshot;
-import com.hedgecourt.hauler.debug.WorldSnapshot.GuySnapshot;
 import com.hedgecourt.hauler.debug.WorldSnapshot.MapInfoSnapshot;
 import com.hedgecourt.hauler.debug.WorldSnapshot.NodeSnapshot;
 import com.hedgecourt.hauler.debug.WorldSnapshot.SimulationSnapshot;
@@ -95,40 +94,4 @@ public final class WorldSnapshotBuilder {
         .map(GuySnapshot::from)
         .toList();
   }
-
-  /*
-  public static <T> T map(Object src, Class<T> dstType) {
-    try {
-      T dst = dstType.getDeclaredConstructor().newInstance();
-      copyMatchingFields(src, dst);
-      return dst;
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public static void copyMatchingFields(Object src, Object dst) {
-    var srcFields = src.getClass().getDeclaredFields();
-
-    for (var sf : srcFields) {
-      try {
-        var df = dst.getClass().getDeclaredField(sf.getName());
-
-        sf.setAccessible(true);
-        df.setAccessible(true);
-
-        Object value = sf.get(src);
-
-        if (value != null && df.getType().isAssignableFrom(sf.getType())) {
-          df.set(dst, value);
-        }
-
-      } catch (NoSuchFieldException ignored) {
-      } catch (IllegalAccessException e) {
-        throw new RuntimeException(e);
-      }
-    }
-  }
-
-   */
 }

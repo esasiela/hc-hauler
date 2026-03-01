@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface WorldView {
 
+  public float getSimulationTime();
+
   public List<Node> getNodes();
 
   public List<City> getCities();

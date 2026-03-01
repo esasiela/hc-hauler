@@ -7,9 +7,6 @@ import com.hedgecourt.hauler.economy.CityResource;
 import com.hedgecourt.hauler.economy.NodeResource;
 import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.world.entities.City;
-import com.hedgecourt.hauler.world.entities.Guy;
-import com.hedgecourt.hauler.world.entities.Guy.PlanOption;
-import com.hedgecourt.hauler.world.entities.Guy.PlanOption.OptionType;
 import com.hedgecourt.hauler.world.entities.Node;
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -215,116 +212,6 @@ public class WorldSnapshot {
         snap.harvestRate = r.harvestRate;
         return snap;
       }
-    }
-  }
-
-  public static class GuySnapshot {
-    public String id;
-    public String name;
-
-    public int worldX;
-    public int worldY;
-
-    public double moveSpeed;
-
-    public ResourceType carriedType;
-    public int carriedAmount;
-    public int carryCapacity;
-
-    public String state;
-    public double idleSeconds;
-    public boolean autonomyEnabled;
-
-    public Double bestScoreOverall;
-    public PlanOptionSnapshot bestHarvest;
-    public PlanOptionSnapshot bestTrade;
-
-    public Double scoreDiff;
-
-    public static GuySnapshot from(Guy g) {
-      GuySnapshot gs = new GuySnapshot();
-
-      gs.id = g.getId();
-      gs.name = g.getName();
-
-      gs.worldX = Math.round(g.getWorldX());
-      gs.worldY = Math.round(g.getWorldY());
-
-      gs.moveSpeed = g.getMoveSpeed();
-
-      gs.carriedType = g.getCarriedType();
-      gs.carriedAmount = Math.round(g.getCarriedAmount());
-      gs.carryCapacity = Math.round(g.getCarryCapacity());
-
-      gs.state = g.getState().name();
-      gs.idleSeconds = g.getIdleSeconds();
-      gs.autonomyEnabled = g.isAutonomyEnabled();
-
-      // ---- Evaluate Options ----
-      List<PlanOption> harvestOptions = g.evaluateHarvestOptions();
-      List<PlanOption> tradeOptions = g.evaluateTradeOptions();
-
-      PlanOption bestHarvest =
-          harvestOptions.stream().max(Comparator.comparingDouble(opt -> opt.score)).orElse(null);
-
-      PlanOption bestTrade =
-          tradeOptions.stream().max(Comparator.comparingDouble(opt -> opt.score)).orElse(null);
-
-      if (bestHarvest != null) {
-        gs.bestHarvest = PlanOptionSnapshot.from(bestHarvest);
-      }
-
-      if (bestTrade != null) {
-        gs.bestTrade = PlanOptionSnapshot.from(bestTrade);
-      }
-
-      if (bestHarvest != null && bestTrade != null) {
-        gs.scoreDiff = (double) (bestHarvest.score - bestTrade.score);
-        gs.bestScoreOverall = (double) Math.max(bestHarvest.score, bestTrade.score);
-      } else {
-        if (bestHarvest != null) gs.bestScoreOverall = (double) bestHarvest.score;
-        else if (bestTrade != null) gs.bestScoreOverall = (double) bestTrade.score;
-      }
-
-      return gs;
-    }
-  }
-
-  public static class PlanOptionSnapshot {
-    public OptionType optionType; // "HARVEST" or "TRADE"
-    public ResourceType resourceType;
-    public String nodeId; // for harvest
-    public String sourceCityId; // for trade
-    public String destCityId;
-
-    public double profit;
-    public double penalty;
-    public double workIncentive;
-    public double score;
-
-    public static PlanOptionSnapshot from(PlanOption opt) {
-      PlanOptionSnapshot ps = new PlanOptionSnapshot();
-      ps.optionType = opt.optionType;
-      ps.resourceType = opt.resourceType;
-
-      if (opt.node != null) {
-        ps.nodeId = opt.node.getId();
-      }
-
-      if (opt.sourceCity != null) {
-        ps.sourceCityId = opt.sourceCity.getId();
-      }
-
-      if (opt.destCity != null) {
-        ps.destCityId = opt.destCity.getId();
-      }
-
-      ps.profit = opt.profit;
-      ps.penalty = opt.penalty;
-      ps.workIncentive = opt.workIncentive;
-      ps.score = opt.score;
-
-      return ps;
     }
   }
 }

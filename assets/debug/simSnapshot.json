@@ -1,8 +1,8 @@
 {
   "simulation": {
-    "time": 43.54248160868883,
-    "delta": 0.016394082456827164,
-    "tick": 4791
+    "time": 0.7498705983161926,
+    "delta": 0.008129333145916462,
+    "tick": 88
   },
   "constants": {
     "cityDefaultBuyPrice": 10.0,
@@ -36,25 +36,25 @@
       "centerY": 432,
       "resources": {
         "RAW": {
-          "inventory": 213.57286071777344,
+          "inventory": 100.0,
           "inventoryTarget": 100.0,
-          "inventoryRatio": 2.135728607177734,
-          "inventoryDeviation": 113.57286071777344,
-          "inventoryVelocity": 21.25553321838379,
-          "buyPrice": 1.1774559020996094,
-          "sellPrice": 4.357700824737549,
-          "priceSpread": 3.1802449226379395,
-          "buyPriceVelocity": -0.47628939151763916,
-          "sellPriceVelocity": -0.11410410702228546,
-          "buyPressure": -42.51106643676758,
-          "targetSellPrice": 2.077455997467041,
-          "dynamicSpread": 0.9000000953674316,
+          "inventoryRatio": 1.0,
+          "inventoryDeviation": 0.0,
+          "inventoryVelocity": 0.0,
+          "buyPrice": 10.0,
+          "sellPrice": 13.0,
+          "priceSpread": 3.0,
+          "buyPriceVelocity": 0.0,
+          "sellPriceVelocity": 0.0,
+          "buyPressure": 0.0,
+          "targetSellPrice": 13.0,
+          "dynamicSpread": 3.0,
           "consumeRate": 0.0,
           "craftRate": 0.0,
           "marketIntakeRate": 20.0,
           "marketOutputRate": 20.0,
           "cityArbitrageOpportunity": {
-            "City_2": 8.372852
+            "City_2": -2.927925
           }
         },
         "REFINED": {
@@ -63,20 +63,20 @@
           "inventoryRatio": 0.0,
           "inventoryDeviation": -100.0,
           "inventoryVelocity": 0.0,
-          "buyPrice": 9.088566780090332,
-          "sellPrice": 14.305563926696777,
-          "priceSpread": 5.216997146606445,
-          "buyPriceVelocity": 0.02501390129327774,
-          "sellPriceVelocity": 0.039207834750413895,
+          "buyPrice": 8.018744468688965,
+          "sellPrice": 11.110779762268066,
+          "priceSpread": 3.0920352935791016,
+          "buyPriceVelocity": 0.024987613782286644,
+          "sellPriceVelocity": 0.14546778798103333,
           "buyPressure": 1.0,
-          "targetSellPrice": 15.088566780090332,
+          "targetSellPrice": 14.018744468688965,
           "dynamicSpread": 6.0,
           "consumeRate": 0.0,
           "craftRate": 0.0,
           "marketIntakeRate": 20.0,
           "marketOutputRate": 20.0,
           "cityArbitrageOpportunity": {
-            "City_2": -5.879816
+            "City_2": -3.1014385
           }
         },
         "HERB": {
@@ -98,7 +98,7 @@
           "marketIntakeRate": 20.0,
           "marketOutputRate": 20.0,
           "cityArbitrageOpportunity": {
-            "City_2": -3.1561947
+            "City_2": -3.9812555
           }
         }
       }
@@ -114,69 +114,69 @@
       "centerY": 432,
       "resources": {
         "RAW": {
-          "inventory": 12.915216445922852,
+          "inventory": 98.50025177001953,
           "inventoryTarget": 100.0,
-          "inventoryRatio": 0.1291521644592285,
-          "inventoryDeviation": -87.08478355407715,
-          "inventoryVelocity": -2.000006914138794,
-          "buyPrice": 12.73055362701416,
-          "sellPrice": 17.342668533325195,
-          "priceSpread": 4.612114906311035,
-          "buyPriceVelocity": 0.03187818080186844,
-          "sellPriceVelocity": 0.06945720314979553,
-          "buyPressure": 1.2749865055084229,
-          "targetSellPrice": 18.730552673339844,
-          "dynamicSpread": 5.999999046325684,
+          "inventoryRatio": 0.9850025177001953,
+          "inventoryDeviation": -1.4997482299804688,
+          "inventoryVelocity": -1.9999475479125977,
+          "buyPrice": 10.072074890136719,
+          "sellPrice": 13.003886222839355,
+          "priceSpread": 2.9318113327026367,
+          "buyPriceVelocity": 0.0985426977276802,
+          "sellPriceVelocity": 0.010323520749807358,
+          "buyPressure": 3.940131664276123,
+          "targetSellPrice": 13.210134506225586,
+          "dynamicSpread": 3.138059616088867,
           "consumeRate": 0.0,
           "craftRate": 0.0,
           "marketIntakeRate": 20.0,
           "marketOutputRate": 20.0,
           "cityArbitrageOpportunity": {
-            "City_1": -16.165213
+            "City_1": -3.0038862
           }
         },
         "REFINED": {
-          "inventory": 71.77145385742188,
+          "inventory": 50.37493896484375,
           "inventoryTarget": 100.0,
-          "inventoryRatio": 0.7177145385742187,
-          "inventoryDeviation": -28.228546142578125,
-          "inventoryVelocity": 0.5002779960632324,
-          "buyPrice": 8.425747871398926,
-          "sellPrice": 13.928834915161133,
-          "priceSpread": 5.503087043762207,
-          "buyPriceVelocity": 0.00703879538923502,
-          "sellPriceVelocity": 0.024839386343955994,
-          "buyPressure": 0.2822854518890381,
-          "targetSellPrice": 14.425747871398926,
+          "inventoryRatio": 0.5037493896484375,
+          "inventoryDeviation": -49.62506103515625,
+          "inventoryVelocity": 0.4997522532939911,
+          "buyPrice": 8.0093412399292,
+          "sellPrice": 11.110607147216797,
+          "priceSpread": 3.1012659072875977,
+          "buyPriceVelocity": 0.01243515033274889,
+          "sellPriceVelocity": 0.14499853551387787,
+          "buyPressure": 0.49625062942504883,
+          "targetSellPrice": 14.0093412399292,
           "dynamicSpread": 6.0,
           "consumeRate": 1.5,
           "craftRate": 2.0,
           "marketIntakeRate": 20.0,
           "marketOutputRate": 20.0,
           "cityArbitrageOpportunity": {
-            "City_1": -4.840268
+            "City_1": -3.0918627
           }
         },
         "HERB": {
-          "inventory": 79.7589340209961,
+          "inventory": 0.0,
           "inventoryTarget": 200.0,
-          "inventoryRatio": 0.3987946701049805,
-          "inventoryDeviation": -120.2410659790039,
+          "inventoryRatio": 0.0,
+          "inventoryDeviation": -200.0,
           "inventoryVelocity": 0.0,
-          "buyPrice": 9.843805313110352,
-          "sellPrice": 15.196221351623535,
-          "priceSpread": 5.352416038513184,
-          "buyPriceVelocity": 0.01500834058970213,
-          "sellPriceVelocity": 0.03240172937512398,
-          "buyPressure": 0.6012053489685059,
-          "targetSellPrice": 15.843805313110352,
+          "buyPrice": 9.018744468688965,
+          "sellPrice": 12.110779762268066,
+          "priceSpread": 3.0920352935791016,
+          "buyPriceVelocity": 0.024987613782286644,
+          "sellPriceVelocity": 0.14546778798103333,
+          "buyPressure": 1.0,
+          "targetSellPrice": 15.018744468688965,
           "dynamicSpread": 6.0,
           "consumeRate": 0.0,
           "craftRate": 0.0,
           "marketIntakeRate": 5.0,
           "marketOutputRate": 5.0,
           "cityArbitrageOpportunity": {
-            "City_1": -5.1962214
+            "City_1": -2.1107798
           }
         }
       }
@@ -208,7 +208,7 @@
           "harvestRate": 0.0
         },
         "HERB": {
-          "amount": 9.29587459564209,
+          "amount": 40.0,
           "amountMax": 40.0,
           "regenRate": 1.649999976158142,
           "regenDelay": 5.0,
@@ -226,7 +226,7 @@
       "centerY": 528,
       "resources": {
         "RAW": {
-          "amount": 19.112892150878906,
+          "amount": 49.534584045410156,
           "amountMax": 50.0,
           "regenRate": 1.649999976158142,
           "regenDelay": 5.0,
@@ -260,7 +260,7 @@
       "centerY": 336,
       "resources": {
         "RAW": {
-          "amount": 42.96457290649414,
+          "amount": 50.0,
           "amountMax": 50.0,
           "regenRate": 1.649999976158142,
           "regenDelay": 5.0,
@@ -288,152 +288,248 @@
   ],
   "guys": [
     {
-      "id": "Guy_10",
       "name": "slow2",
-      "worldX": 461,
-      "worldY": 416,
-      "moveSpeed": 48.0,
-      "carriedType": null,
-      "carriedAmount": 0,
-      "carryCapacity": 20,
-      "state": "MOVING",
-      "idleSeconds": 0.0,
+      "id": "Guy_10",
       "autonomyEnabled": true,
-      "bestScoreOverall": 7.848333835601807,
-      "bestHarvest": {
+      "state": "HARVESTING",
+      "idleSeconds": 0.0,
+      "position": {
+        "worldX": 125.0,
+        "worldY": 513.0
+      },
+      "movement": {
+        "moveSpeed": 48.0,
+        "targetX": 125.0,
+        "targetY": 513.0
+      },
+      "cargo": {
+        "carriedType": "RAW",
+        "carriedAmount": 0,
+        "carryCapacity": 20
+      },
+      "currentPlan": {
+        "decisionTime": 0.023460457,
         "optionType": "HARVEST",
-        "resourceType": "HERB",
-        "nodeId": "Node_11",
-        "sourceCityId": null,
-        "destCityId": "City_2",
-        "profit": 91.50678253173828,
-        "penalty": 11.65938949584961,
-        "workIncentive": 0.0,
-        "score": 7.848333835601807
-      },
-      "bestTrade": {
-        "optionType": "TRADE",
         "resourceType": "RAW",
-        "nodeId": null,
-        "sourceCityId": "City_1",
-        "destCityId": "City_2",
-        "profit": 8.372852325439453,
-        "penalty": 3.2831313610076904,
-        "workIncentive": 0.0,
-        "score": 5.089720726013184
+        "nodeId": "Node_3",
+        "sourceCityId": null,
+        "destCityId": "City_1",
+        "profit": 200.0,
+        "totalTime": 6.5539679527282715,
+        "workIncentive": 4.6920913155190647E-4,
+        "score": 30.516334533691406
       },
-      "scoreDiff": 2.758613109588623
+      "decisionContext": {
+        "bestScoreOverall": 33.618900299072266,
+        "scoreDiff": 35.85489273071289,
+        "bestHarvest": {
+          "evaluationTime": 0.7498706,
+          "optionType": "HARVEST",
+          "resourceType": "RAW",
+          "nodeId": "Node_3",
+          "sourceCityId": null,
+          "destCityId": "City_1",
+          "profit": 200.0,
+          "totalTime": 5.949034690856934,
+          "workIncentive": 0.0,
+          "score": 33.618900299072266
+        },
+        "bestTrade": {
+          "evaluationTime": 0.7498706,
+          "optionType": "TRADE",
+          "resourceType": "RAW",
+          "nodeId": null,
+          "sourceCityId": "City_2",
+          "destCityId": "City_1",
+          "profit": -60.07772445678711,
+          "totalTime": 26.868473052978516,
+          "workIncentive": 0.0,
+          "score": -2.2359931468963623
+        }
+      }
     },
     {
-      "id": "Guy_7",
       "name": "slow1",
-      "worldX": 431,
-      "worldY": 414,
-      "moveSpeed": 48.0,
-      "carriedType": null,
-      "carriedAmount": 0,
-      "carryCapacity": 20,
+      "id": "Guy_7",
+      "autonomyEnabled": true,
       "state": "MOVING",
       "idleSeconds": 0.0,
-      "autonomyEnabled": true,
-      "bestScoreOverall": 7.462281227111816,
-      "bestHarvest": {
+      "position": {
+        "worldX": 129.0,
+        "worldY": 451.0
+      },
+      "movement": {
+        "moveSpeed": 48.0,
+        "targetX": 131.0,
+        "targetY": 509.0
+      },
+      "cargo": {
+        "carriedType": null,
+        "carriedAmount": 0,
+        "carryCapacity": 20
+      },
+      "currentPlan": {
+        "decisionTime": 0.023460457,
         "optionType": "HARVEST",
-        "resourceType": "HERB",
-        "nodeId": "Node_11",
-        "sourceCityId": null,
-        "destCityId": "City_2",
-        "profit": 91.50678253173828,
-        "penalty": 12.262575149536133,
-        "workIncentive": 0.0,
-        "score": 7.462281227111816
-      },
-      "bestTrade": {
-        "optionType": "TRADE",
         "resourceType": "RAW",
-        "nodeId": null,
-        "sourceCityId": "City_1",
-        "destCityId": "City_2",
-        "profit": 8.372852325439453,
-        "penalty": 3.1378018856048584,
-        "workIncentive": 0.0,
-        "score": 5.235050201416016
+        "nodeId": "Node_3",
+        "sourceCityId": null,
+        "destCityId": "City_1",
+        "profit": 200.0,
+        "totalTime": 7.887301445007324,
+        "workIncentive": 4.6920913155190647E-4,
+        "score": 25.357685089111328
       },
-      "scoreDiff": 2.227231025695801
+      "decisionContext": {
+        "bestScoreOverall": 27.927194595336914,
+        "scoreDiff": 30.180490493774414,
+        "bestHarvest": {
+          "evaluationTime": 0.7498706,
+          "optionType": "HARVEST",
+          "resourceType": "RAW",
+          "nodeId": "Node_3",
+          "sourceCityId": null,
+          "destCityId": "City_1",
+          "profit": 200.0,
+          "totalTime": 7.161478519439697,
+          "workIncentive": 0.0,
+          "score": 27.927194595336914
+        },
+        "bestTrade": {
+          "evaluationTime": 0.7498706,
+          "optionType": "TRADE",
+          "resourceType": "RAW",
+          "nodeId": null,
+          "sourceCityId": "City_2",
+          "destCityId": "City_1",
+          "profit": -60.07772445678711,
+          "totalTime": 26.662158966064453,
+          "workIncentive": 0.0,
+          "score": -2.253295660018921
+        }
+      }
     },
     {
-      "id": "Guy_8",
       "name": "mid1",
-      "worldX": 286,
-      "worldY": 415,
-      "moveSpeed": 64.0,
-      "carriedType": "RAW",
-      "carriedAmount": 14,
-      "carryCapacity": 20,
-      "state": "DELIVERING",
-      "idleSeconds": 0.0,
+      "id": "Guy_8",
       "autonomyEnabled": true,
-      "bestScoreOverall": 7.635359764099121,
-      "bestHarvest": {
-        "optionType": "HARVEST",
-        "resourceType": "HERB",
-        "nodeId": "Node_11",
-        "sourceCityId": null,
-        "destCityId": "City_2",
-        "profit": 91.50678253173828,
-        "penalty": 11.984606742858887,
-        "workIncentive": 0.0,
-        "score": 7.635359764099121
-      },
-      "bestTrade": {
-        "optionType": "TRADE",
-        "resourceType": "RAW",
-        "nodeId": null,
-        "sourceCityId": "City_1",
-        "destCityId": "City_2",
-        "profit": 8.372852325439453,
-        "penalty": 1.8467479944229126,
-        "workIncentive": 0.0,
-        "score": 6.52610445022583
-      },
-      "scoreDiff": 1.109255313873291
-    },
-    {
-      "id": "Guy_9",
-      "name": "fast1",
-      "worldX": 746,
-      "worldY": 418,
-      "moveSpeed": 96.0,
-      "carriedType": null,
-      "carriedAmount": 20,
-      "carryCapacity": 20,
       "state": "MOVING",
       "idleSeconds": 0.0,
+      "position": {
+        "worldX": 91.0,
+        "worldY": 454.0
+      },
+      "movement": {
+        "moveSpeed": 64.0,
+        "targetX": 131.0,
+        "targetY": 511.0
+      },
+      "cargo": {
+        "carriedType": null,
+        "carriedAmount": 0,
+        "carryCapacity": 20
+      },
+      "currentPlan": {
+        "decisionTime": 0.023460457,
+        "optionType": "HARVEST",
+        "resourceType": "RAW",
+        "nodeId": "Node_3",
+        "sourceCityId": null,
+        "destCityId": "City_1",
+        "profit": 200.0,
+        "totalTime": 6.7182512283325195,
+        "workIncentive": 4.6920913155190647E-4,
+        "score": 29.77012062072754
+      },
+      "decisionContext": {
+        "bestScoreOverall": 33.377098083496094,
+        "scoreDiff": 36.22439956665039,
+        "bestHarvest": {
+          "evaluationTime": 0.7498706,
+          "optionType": "HARVEST",
+          "resourceType": "RAW",
+          "nodeId": "Node_3",
+          "sourceCityId": null,
+          "destCityId": "City_1",
+          "profit": 200.0,
+          "totalTime": 5.992132663726807,
+          "workIncentive": 0.0,
+          "score": 33.377098083496094
+        },
+        "bestTrade": {
+          "evaluationTime": 0.7498706,
+          "optionType": "TRADE",
+          "resourceType": "RAW",
+          "nodeId": null,
+          "sourceCityId": "City_2",
+          "destCityId": "City_1",
+          "profit": -60.07772445678711,
+          "totalTime": 21.099868774414062,
+          "workIncentive": 0.0,
+          "score": -2.8473031520843506
+        }
+      }
+    },
+    {
+      "name": "fast1",
+      "id": "Guy_9",
       "autonomyEnabled": true,
-      "bestScoreOverall": 20.397207260131836,
-      "bestHarvest": {
+      "state": "MOVING",
+      "idleSeconds": 0.0,
+      "position": {
+        "worldX": 1085.0,
+        "worldY": 398.0
+      },
+      "movement": {
+        "moveSpeed": 96.0,
+        "targetX": 798.0,
+        "targetY": 321.0
+      },
+      "cargo": {
+        "carriedType": null,
+        "carriedAmount": 0,
+        "carryCapacity": 20
+      },
+      "currentPlan": {
+        "decisionTime": 0.023460457,
         "optionType": "HARVEST",
         "resourceType": "HERB",
         "nodeId": "Node_11",
         "sourceCityId": null,
         "destCityId": "City_2",
-        "profit": 91.50678253173828,
-        "penalty": 4.486240863800049,
-        "workIncentive": 0.0,
-        "score": 20.397207260131836
+        "profit": 180.01173400878906,
+        "totalTime": 9.80058479309082,
+        "workIncentive": 4.6920913155190647E-4,
+        "score": 18.367918014526367
       },
-      "bestTrade": {
-        "optionType": "TRADE",
-        "resourceType": "RAW",
-        "nodeId": null,
-        "sourceCityId": "City_1",
-        "destCityId": "City_2",
-        "profit": 8.372852325439453,
-        "penalty": 2.323916435241699,
-        "workIncentive": 0.0,
-        "score": 6.048935890197754
-      },
-      "scoreDiff": 14.348271369934082
+      "decisionContext": {
+        "bestScoreOverall": 19.8778076171875,
+        "scoreDiff": 23.62343978881836,
+        "bestHarvest": {
+          "evaluationTime": 0.7498706,
+          "optionType": "HARVEST",
+          "resourceType": "HERB",
+          "nodeId": "Node_11",
+          "sourceCityId": null,
+          "destCityId": "City_2",
+          "profit": 180.37489318847656,
+          "totalTime": 9.07418441772461,
+          "workIncentive": 0.0,
+          "score": 19.8778076171875
+        },
+        "bestTrade": {
+          "evaluationTime": 0.7498706,
+          "optionType": "TRADE",
+          "resourceType": "RAW",
+          "nodeId": null,
+          "sourceCityId": "City_1",
+          "destCityId": "City_2",
+          "profit": -58.558502197265625,
+          "totalTime": 15.633808135986328,
+          "workIncentive": 0.0,
+          "score": -3.7456326484680176
+        }
+      }
     }
   ]
 }

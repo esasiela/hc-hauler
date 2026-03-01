@@ -123,8 +123,8 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
   @Getter private int worldWidthPx;
   @Getter private int worldHeightPx;
 
-  @Getter private double simulationTime;
-  @Getter private double simulationDelta;
+  @Getter private float simulationTime;
+  @Getter private float simulationDelta;
   @Getter private int simulationTick;
 
   @Override
@@ -866,9 +866,10 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
   }
 
   private void dumpWorld() {
-    // WorldSnapshot snapshot = buildSnapshot();
-    WorldSnapshot snapshot = WorldSnapshotBuilder.build(this);
     try {
+      System.out.println("Dumping world...");
+      WorldSnapshot snapshot = WorldSnapshotBuilder.build(this);
+
       String json = mapper.writeValueAsString(snapshot);
 
       // Copy to clipboard

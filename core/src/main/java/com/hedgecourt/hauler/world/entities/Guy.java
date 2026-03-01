@@ -245,7 +245,7 @@ public class Guy extends WorldEntity implements Selectable {
               C.clip(opt.node.getName(), NODE_W),
               C.clip(opt.destCity.getName(), CITY_W),
               opt.profit,
-              opt.penalty,
+              opt.totalTime,
               opt.workIncentive,
               opt.score));
     }
@@ -261,7 +261,7 @@ public class Guy extends WorldEntity implements Selectable {
               C.clip(opt.sourceCity.getName(), NODE_W),
               C.clip(opt.destCity.getName(), CITY_W),
               opt.profit,
-              opt.penalty,
+              opt.totalTime,
               opt.workIncentive,
               opt.score,
               opt.resourceType));
@@ -699,6 +699,7 @@ public class Guy extends WorldEntity implements Selectable {
         if (closestCity == null) continue;
 
         PlanOption option = new PlanOption();
+        option.evaluationTime = world.getSimulationTime();
         option.optionType = OptionType.HARVEST;
         option.resourceType = type;
         option.node = node;
@@ -719,22 +720,10 @@ public class Guy extends WorldEntity implements Selectable {
         float profitPerSecond = profit / totalTime;
 
         option.profit = profit;
-        // TODO rename option.penalty to option.totalTime
-        option.penalty = totalTime; // optional, useful for debugging
+        option.totalTime = totalTime; // optional, useful for debugging
         option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
 
         option.score = profitPerSecond + option.workIncentive;
-
-        /*
-        float harvestableAmount = Math.min(res.amount, capacityRemaining());
-        float fullnessRatio = harvestableAmount / carryCapacity;
-
-        option.profit = (closestCity.getBuyPrice(type) - C.harvestCost) * fullnessRatio;
-        option.penalty = travelPenalty(distanceTo(node) + node.distanceTo(closestCity));
-        option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
-
-        option.score = option.profit - option.penalty + option.workIncentive;
-         */
 
         options.add(option);
       }
@@ -754,6 +743,7 @@ public class Guy extends WorldEntity implements Selectable {
           if (srcCity.getInventory(type) <= 0f) continue;
 
           PlanOption option = new PlanOption();
+          option.evaluationTime = world.getSimulationTime();
           option.optionType = OptionType.TRADE;
           option.resourceType = type;
           option.sourceCity = srcCity;
@@ -777,19 +767,10 @@ public class Guy extends WorldEntity implements Selectable {
           float profitPerSecond = profit / totalTime;
 
           option.profit = profit;
-          option.penalty = totalTime; // rename later to totalTime if you want
+          option.totalTime = totalTime; // rename later to totalTime if you want
           option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
 
           option.score = profitPerSecond + option.workIncentive;
-
-          /*
-          option.profit = dstCity.getBuyPrice(type) - srcCity.getSellPrice(type);
-          option.penalty = travelPenalty(distanceTo(srcCity) + srcCity.distanceTo(dstCity));
-          option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
-
-          option.score = option.profit - option.penalty + option.workIncentive;
-
-           */
 
           options.add(option);
         }
@@ -916,6 +897,8 @@ public class Guy extends WorldEntity implements Selectable {
       TRADE
     }
 
+    public float evaluationTime;
+
     public OptionType optionType;
 
     public ResourceType resourceType;
@@ -925,7 +908,7 @@ public class Guy extends WorldEntity implements Selectable {
     public City destCity;
 
     public float profit;
-    public float penalty;
+    public float totalTime;
     public float workIncentive;
     public float score;
   }
