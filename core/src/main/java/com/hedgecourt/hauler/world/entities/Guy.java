@@ -405,7 +405,7 @@ public class Guy extends WorldEntity implements Selectable {
   }
 
   private void updateBuying(float delta) {
-    if (buyTarget == null || distanceTo(buyTarget) > C.DELIVERY_RANGE) {
+    if (buyTarget == null || distanceTo(buyTarget) > C.DELIVER_RANGE) {
       finishCurrentPlan();
       return;
     }
@@ -414,7 +414,9 @@ public class Guy extends WorldEntity implements Selectable {
   }
 
   private void performBuyTick(float delta) {
-    float requestQty = Math.min(C.DELIVER_RATE * delta, capacityRemaining());
+    float requestQty =
+        Math.min(
+            buyTarget.getMarketOutputRate(currentPlan.resourceType) * delta, capacityRemaining());
     float buyQty = buyTarget.requestWithdraw(currentPlan.resourceType, requestQty);
     adjustCarriedType(currentPlan.resourceType);
     adjustCarriedAmount(buyQty);
@@ -430,7 +432,7 @@ public class Guy extends WorldEntity implements Selectable {
   }
 
   private void updateDelivering(float delta) {
-    if (deliverTarget == null || distanceTo(deliverTarget) > C.DELIVERY_RANGE) {
+    if (deliverTarget == null || distanceTo(deliverTarget) > C.DELIVER_RANGE) {
       finishCurrentPlan();
       return;
     }
@@ -439,7 +441,9 @@ public class Guy extends WorldEntity implements Selectable {
   }
 
   private void performDeliverTick(float delta) {
-    float requestQty = Math.min(C.DELIVER_RATE * delta, carriedAmount);
+    float requestQty =
+        Math.min(
+            deliverTarget.getMarketIntakeRate(currentPlan.resourceType) * delta, carriedAmount);
     float deliverQty = deliverTarget.requestDelivery(currentPlan.resourceType, requestQty);
     adjustCarriedAmount(-deliverQty);
   }
@@ -549,9 +553,9 @@ public class Guy extends WorldEntity implements Selectable {
 
     if (harvestTarget != null && distanceTo(harvestTarget) < C.HARVEST_RANGE) {
       startHarvesting(harvestTarget);
-    } else if (deliverTarget != null && distanceTo(deliverTarget) < C.DELIVERY_RANGE) {
+    } else if (deliverTarget != null && distanceTo(deliverTarget) < C.DELIVER_RANGE) {
       startDelivering(deliverTarget);
-    } else if (buyTarget != null && distanceTo(buyTarget) < C.DELIVERY_RANGE) {
+    } else if (buyTarget != null && distanceTo(buyTarget) < C.DELIVER_RANGE) {
       startBuying(buyTarget);
     } else {
       finishCurrentPlan();

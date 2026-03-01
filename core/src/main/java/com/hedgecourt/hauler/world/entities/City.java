@@ -122,7 +122,7 @@ public class City extends WorldEntity implements Selectable {
   }
 
   public float computeBuyPressure(ResourceType type) {
-    float shortage = 1f - (getInventory(type) / C.cityTargetInventory);
+    float shortage = 1f - (getInventory(type) / getInventoryTarget(type));
     shortage = Math.max(0f, Math.min(1f, shortage));
 
     if (type == ResourceType.RAW) {
@@ -150,7 +150,7 @@ public class City extends WorldEntity implements Selectable {
   }
 
   public float computeTargetSellPrice(ResourceType type) {
-    float inventoryRatio = getInventory(type) / C.cityTargetInventory;
+    float inventoryRatio = getInventory(type) / getInventoryTarget(type);
     float deviation = inventoryRatio - 1f;
     float spreadScale = (float) Math.exp(-3f * deviation);
     float dynamicSpread = C.cityMinSpread * spreadScale;
@@ -297,6 +297,10 @@ public class City extends WorldEntity implements Selectable {
     return getResource(type).inventory;
   }
 
+  public float getInventoryTarget(ResourceType type) {
+    return getResource(type).inventoryTarget;
+  }
+
   public float getBuyPrice(ResourceType type) {
     return getResource(type).buyPrice;
   }
@@ -315,6 +319,14 @@ public class City extends WorldEntity implements Selectable {
 
   public float getSellPriceVelocity(ResourceType type) {
     return getResource(type).sellPriceVelocity;
+  }
+
+  public float getMarketOutputRate(ResourceType type) {
+    return getResource(type).marketOutputRate;
+  }
+
+  public float getMarketIntakeRate(ResourceType type) {
+    return getResource(type).marketIntakeRate;
   }
 
   public void initializeResource(ResourceType type, CityResourceInitConfig cfg) {

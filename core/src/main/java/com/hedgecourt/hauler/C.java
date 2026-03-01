@@ -13,7 +13,6 @@ public class C {
   @WorldSnapshotConst public static float harvestCost = 5.2f;
   @WorldSnapshotConst public static float inventoryVelocitySensitivity = 2.0f;
   @WorldSnapshotConst public static float inventoryScarcityExponent = 2f;
-  @WorldSnapshotConst public static float cityTargetInventory = 100f;
   @WorldSnapshotConst public static float cityPriceAdjustRate = 0.02f * 1.25f;
   @WorldSnapshotConst public static float cityMinBuyPrice = 0.1f;
   @WorldSnapshotConst public static float cityDefaultBuyPrice = 10f;
@@ -50,9 +49,7 @@ public class C {
   public static final int WINDOW_WIDTH = MAP_COLS * MAP_TILE_WIDTH_PX;
   public static final int WINDOW_HEIGHT = MAP_ROWS * MAP_TILE_HEIGHT_PX;
 
-  public static final float DELIVER_RATE = 20f; // units per second
-  public static final float DELIVERY_RANGE = 20f;
-
+  public static final float DELIVER_RANGE = 20f;
   public static final float HARVEST_RANGE = 20f;
 
   public static final float GUY_TARGET_DISTANCE_THRESHOLD = 1f;

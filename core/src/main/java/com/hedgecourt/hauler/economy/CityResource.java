@@ -21,15 +21,20 @@ public class CityResource {
   public float consumeRate;
   public float craftRate;
 
-  public float deliverRate;
-  public float buyRate;
+  public float marketIntakeRate;
+  public float marketOutputRate;
 
   public void initialize(CityResourceInitConfig cfg) {
+    float inventoryTarget = cfg.inventoryTarget != null ? cfg.inventoryTarget : 0f;
     float inventory = cfg.inventory != null ? cfg.inventory : 0f;
     float buy = cfg.buy != null ? cfg.buy : C.cityDefaultBuyPrice;
     float sell = cfg.sell != null ? cfg.sell : buy + C.cityMinSpread;
     float consumeRate = cfg.consumeRate != null ? cfg.consumeRate : 0f;
     float craftRate = cfg.craftRate != null ? cfg.craftRate : 0f;
+    float marketIntakeRate = cfg.marketIntakeRate != null ? cfg.marketIntakeRate : 20f;
+    float marketOutputRate = cfg.marketOutputRate != null ? cfg.marketOutputRate : 20f;
+
+    this.inventoryTarget = inventoryTarget;
 
     // TODO call adjuster to enforce "business logic"
     this.inventory = inventory;
@@ -44,6 +49,9 @@ public class CityResource {
 
     this.consumeRate = consumeRate;
     this.craftRate = craftRate;
+
+    this.marketIntakeRate = marketIntakeRate;
+    this.marketOutputRate = marketOutputRate;
   }
 
   public void applyConsumption(float delta) {
@@ -64,10 +72,13 @@ public class CityResource {
   }
 
   public static class CityResourceInitConfig {
+    public Float inventoryTarget;
     public Float inventory;
     public Float buy;
     public Float sell;
     public Float consumeRate;
     public Float craftRate;
+    public Float marketIntakeRate;
+    public Float marketOutputRate;
   }
 }

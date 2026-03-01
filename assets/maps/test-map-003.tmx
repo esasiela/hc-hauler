@@ -31,6 +31,7 @@
     <property name="alliance" value="Pacific"/>
     <property name="resourcesJson">{
   &quot;RAW&quot;: {
+    &quot;inventoryTarget&quot;: 100,
     &quot;inventory&quot;: 100,
     &quot;buy&quot;: 10,
     &quot;sell&quot;: 13,
@@ -38,6 +39,7 @@
     &quot;craftRate&quot;: 0
   },
   &quot;REFINED&quot;: {
+    &quot;inventoryTarget&quot;: 100,
     &quot;inventory&quot;: 0,
     &quot;buy&quot;: 8,
     &quot;sell&quot;: 11,
@@ -55,6 +57,7 @@
     <property name="craftsRefined" type="bool" value="true"/>
     <property name="resourcesJson">{
   &quot;RAW&quot;: {
+    &quot;inventoryTarget&quot;: 100,
     &quot;inventory&quot;: 100,
     &quot;buy&quot;: 10,
     &quot;sell&quot;: 13,
@@ -62,6 +65,7 @@
     &quot;craftRate&quot;: 0
   },
   &quot;REFINED&quot;: {
+    &quot;inventoryTarget&quot;: 100,
     &quot;inventory&quot;: 50,
     &quot;buy&quot;: 8,
     &quot;sell&quot;: 11,
@@ -69,7 +73,10 @@
     &quot;craftRate&quot;: 2.0
   },
   &quot;HERB&quot;: {
-    &quot;buy&quot;: 9
+    &quot;inventoryTarget&quot;: 200,
+    &quot;buy&quot;: 9,
+    &quot;marketIntakeRate&quot;: 5,
+    &quot;marketOutputRate&quot;: 5
   }
 }</property>
    </properties>

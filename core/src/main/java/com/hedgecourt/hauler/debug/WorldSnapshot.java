@@ -111,13 +111,16 @@ public class WorldSnapshot {
     public double consumeRate;
     public double craftRate;
 
+    public double marketIntakeRate;
+    public double marketOutputRate;
+
     public Map<String, Float> cityArbitrageOpportunity = new HashMap<>();
 
     public static CityResourceSnapshot from(
         HaulerMain world, City city, ResourceType t, CityResource r) {
       CityResourceSnapshot snap = new CityResourceSnapshot();
       snap.inventory = r.inventory;
-      snap.inventoryTarget = C.cityTargetInventory;
+      snap.inventoryTarget = r.inventoryTarget;
       snap.inventoryRatio = snap.inventoryTarget > 0 ? r.inventory / snap.inventoryTarget : 0f;
       snap.inventoryDeviation = r.inventory - snap.inventoryTarget;
       snap.inventoryVelocity = r.inventoryVelocity;
@@ -129,12 +132,21 @@ public class WorldSnapshot {
       snap.buyPriceVelocity = r.buyPriceVelocity;
       snap.sellPriceVelocity = r.sellPriceVelocity;
 
-      snap.buyPressure = city.computeBuyPressure(t);
-      snap.targetSellPrice = city.computeTargetSellPrice(t);
-      snap.dynamicSpread = snap.targetSellPrice - snap.buyPrice;
+      if (r.inventoryTarget > 0f) {
+        snap.buyPressure = city.computeBuyPressure(t);
+        snap.targetSellPrice = city.computeTargetSellPrice(t);
+        snap.dynamicSpread = snap.targetSellPrice - snap.buyPrice;
+      } else {
+        snap.buyPressure = 0f;
+        snap.targetSellPrice = snap.buyPrice + C.cityMinSpread;
+        snap.dynamicSpread = C.cityMinSpread;
+      }
 
       snap.consumeRate = r.consumeRate;
       snap.craftRate = r.craftRate;
+
+      snap.marketIntakeRate = r.marketIntakeRate;
+      snap.marketOutputRate = r.marketOutputRate;
 
       snap.cityArbitrageOpportunity =
           world.getCities().stream()
