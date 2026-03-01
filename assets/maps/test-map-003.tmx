@@ -95,13 +95,15 @@
 }</property>
    </properties>
   </object>
-  <object id="11" name="enBot" type="Node" gid="878" x="800" y="320" width="32" height="32">
+  <object id="11" name="enBot" type="Node" gid="944" x="800" y="320" width="32" height="32">
    <properties>
     <property name="resourcesJson">{
   &quot;HERB&quot;: {
     &quot;amountMax&quot;: 40
   }
 }</property>
+    <property name="spriteIdEmpty" type="int" value="951"/>
+    <property name="spriteIdFull" type="int" value="943"/>
    </properties>
   </object>
   <object id="7" name="slow1" type="Guy" gid="1028" x="128" y="224" width="32" height="32">

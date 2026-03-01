@@ -27,6 +27,9 @@ public class Node extends WorldEntity implements Selectable {
   private TextureRegion fullSprite;
   private TextureRegion emptySprite;
 
+  private int spriteIdEmpty;
+  private int spriteIdFull;
+
   private final ResourceContainer<NodeResource> nodeResources = new ResourceContainer<>();
 
   {
@@ -132,11 +135,8 @@ public class Node extends WorldEntity implements Selectable {
         TextureRegion.split(texture, C.MAP_TILE_WIDTH_PX, C.MAP_TILE_HEIGHT_PX);
 
     // empty basket = 876, strawberry basket = 877
-    int basketEmptyId = 876;
-    int basketStrawberryId = 877;
-
-    emptySprite = baseTiles[basketEmptyId / 8][basketEmptyId % 8];
-    fullSprite = baseTiles[basketStrawberryId / 8][basketStrawberryId % 8];
+    emptySprite = baseTiles[spriteIdEmpty / 8][spriteIdEmpty % 8];
+    fullSprite = baseTiles[spriteIdFull / 8][spriteIdFull % 8];
   }
 
   public float requestHarvest(ResourceType type, float qtyRequested) {

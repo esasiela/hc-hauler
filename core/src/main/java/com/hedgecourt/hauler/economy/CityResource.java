@@ -7,6 +7,8 @@ public class CityResource {
   private float lastFrameDelta;
   private float lastFrameInventory;
 
+  public float inventoryTarget;
+
   public float inventory;
   public float inventoryVelocity;
 
@@ -18,6 +20,9 @@ public class CityResource {
 
   public float consumeRate;
   public float craftRate;
+
+  public float deliverRate;
+  public float buyRate;
 
   public void initialize(CityResourceInitConfig cfg) {
     float inventory = cfg.inventory != null ? cfg.inventory : 0f;

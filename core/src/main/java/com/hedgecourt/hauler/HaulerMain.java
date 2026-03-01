@@ -352,6 +352,8 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
             .name(r.getMapObjectName())
             .worldX(r.f("x", 0f))
             .worldY(r.f("y", 0f))
+            .spriteIdEmpty(r.i("spriteIdEmpty", 876))
+            .spriteIdFull(r.i("spriteIdFull", 877))
             .build();
 
     try {

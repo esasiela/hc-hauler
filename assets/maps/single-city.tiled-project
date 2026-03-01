@@ -112,6 +112,16 @@
                     "name": "resourcesJson",
                     "type": "string",
                     "value": ""
+                },
+                {
+                    "name": "spriteIdEmpty",
+                    "type": "int",
+                    "value": 876
+                },
+                {
+                    "name": "spriteIdFull",
+                    "type": "int",
+                    "value": 877
                 }
             ],
             "name": "Node",

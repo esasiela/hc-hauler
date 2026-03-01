@@ -23,7 +23,8 @@ public class CityAmountLabelLayer implements WorldRenderLayer {
     for (City city : citiesSupplier.get()) {
       String text =
           String.format(
-              "%d/%d",
+              "%d/%d/%d",
+              Math.round(city.getInventory(ResourceType.HERB)),
               Math.round(city.getInventory(ResourceType.RAW)),
               Math.round(city.getInventory(ResourceType.REFINED)));
 
