@@ -4,8 +4,9 @@ import com.hedgecourt.hauler.C;
 
 public class CityResource {
 
-  private float lastFrameDelta;
   private float lastFrameInventory;
+  private float lastFrameBuyPrice;
+  private float lastFrameSellPrice;
 
   public float inventoryTarget;
 
@@ -59,11 +60,20 @@ public class CityResource {
     adjustInventory(-consumeRate * delta);
   }
 
-  public void updateInventoryVelocity(float delta) {
-    if (lastFrameDelta > 0f) inventoryVelocity = (inventory - lastFrameInventory) / lastFrameDelta;
-    else inventoryVelocity = 0f;
+  public void updateVelocities(float delta) {
+    if (delta > 0f) {
+      inventoryVelocity = (inventory - lastFrameInventory) / delta;
+      buyPriceVelocity = (buyPrice - lastFrameBuyPrice) / delta;
+      sellPriceVelocity = (sellPrice - lastFrameSellPrice) / delta;
+    } else {
+      inventoryVelocity = 0f;
+      buyPriceVelocity = 0f;
+      sellPriceVelocity = 0f;
+    }
+
     lastFrameInventory = inventory;
-    lastFrameDelta = delta;
+    lastFrameBuyPrice = buyPrice;
+    lastFrameSellPrice = sellPrice;
   }
 
   public void adjustInventory(float amount) {

@@ -47,18 +47,15 @@ public class City extends WorldEntity implements Selectable {
 
   @Override
   public void update(float delta) {
-    for (ResourceType type : ResourceType.values()) {
-      getResource(type).updateInventoryVelocity(delta);
-    }
-
     craft(delta);
 
-    // TODO move consume() logic into resource-specific loop
-    consume(delta);
-
     for (ResourceType type : ResourceType.values()) {
+      getResource(type).applyConsumption(delta);
+
       updateBuyPrice(type, delta);
       updateSellPrice(type, delta);
+
+      getResource(type).updateVelocities(delta);
     }
   }
 
@@ -79,34 +76,20 @@ public class City extends WorldEntity implements Selectable {
     refined.inventory += available;
   }
 
-  private void consume(float delta) {
-    for (ResourceType type : ResourceType.values()) {
-      getResource(type).applyConsumption(delta);
-    }
-  }
-
   public void adjustBuyPrice(ResourceType type, float amount) {
-    float oldPrice = getBuyPrice(type);
-
-    float newPrice = oldPrice + amount;
-    if (!(0f < newPrice && newPrice < getSellPrice(ResourceType.RAW))) return;
+    float newPrice = getBuyPrice(type) + amount;
+    if (!(0f < newPrice && newPrice < getSellPrice(type))) return;
 
     // TODO move adjustBuyPrice logic to CityResource
     getResource(type).buyPrice = newPrice;
-    // TODO make buyPriceVelocity an actual velocity
-    getResource(type).buyPriceVelocity = newPrice - oldPrice;
   }
 
   public void adjustSellPrice(ResourceType type, float amount) {
-    float oldPrice = getSellPrice(type);
-
-    float newPrice = oldPrice + amount;
+    float newPrice = getSellPrice(type) + amount;
     if (!(0f < newPrice && getBuyPrice(type) < newPrice)) return;
 
     // TODO move adjustSellPrice logic to CityResource
     getResource(type).sellPrice = newPrice;
-    // TODO make sellPriceVelocity an actual velocity
-    getResource(type).sellPriceVelocity = newPrice - oldPrice;
   }
 
   private void updateBuyPrice(ResourceType type, float delta) {
