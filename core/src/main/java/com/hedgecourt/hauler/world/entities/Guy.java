@@ -427,7 +427,10 @@ public class Guy extends WorldEntity implements Selectable {
     if (capacityRemaining() <= 0 || buyTarget.getInventory(ResourceType.RAW) <= 0) {
       // TODO change the buying exit strategy to see if request to buy received zero
       lastInteractionCity = buyTarget;
-      finishCurrentPlan();
+      // finishCurrentPlan();
+
+      // now we have a full bag of stuff, move to the next city on the plan
+      moveToDeliver(currentPlan.destCity);
     }
   }
 
@@ -688,8 +691,10 @@ public class Guy extends WorldEntity implements Selectable {
         ResourceType type = entry.getKey();
         NodeResource res = entry.getValue();
 
+        // Only consider nodes that have stuff available
         if (res.amount <= 0f) continue;
 
+        // TODO remove the restriction on harvest deliveries to closest city
         City closestCity = node.getClosest(world.getCities());
         if (closestCity == null) continue;
 
@@ -699,6 +704,28 @@ public class Guy extends WorldEntity implements Selectable {
         option.node = node;
         option.destCity = closestCity;
 
+        float amount = Math.min(res.amount, carryCapacity);
+
+        float sellPrice = closestCity.getBuyPrice(type);
+        float profit = amount * sellPrice;
+
+        float travelToNodeTime = distanceTo(node) / moveSpeed;
+        float harvestTime = amount / res.harvestRate;
+        float travelToCityTime = node.distanceTo(closestCity) / moveSpeed;
+        float unloadTime = amount / closestCity.getMarketIntakeRate(type);
+
+        float totalTime = travelToNodeTime + harvestTime + travelToCityTime + unloadTime;
+
+        float profitPerSecond = profit / totalTime;
+
+        option.profit = profit;
+        // TODO rename option.penalty to option.totalTime
+        option.penalty = totalTime; // optional, useful for debugging
+        option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
+
+        option.score = profitPerSecond + option.workIncentive;
+
+        /*
         float harvestableAmount = Math.min(res.amount, capacityRemaining());
         float fullnessRatio = harvestableAmount / carryCapacity;
 
@@ -707,6 +734,7 @@ public class Guy extends WorldEntity implements Selectable {
         option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
 
         option.score = option.profit - option.penalty + option.workIncentive;
+         */
 
         options.add(option);
       }
@@ -731,11 +759,37 @@ public class Guy extends WorldEntity implements Selectable {
           option.sourceCity = srcCity;
           option.destCity = dstCity;
 
+          float amount = Math.min(srcCity.getInventory(type), carryCapacity);
+
+          float srcSellPrice = srcCity.getSellPrice(type);
+          float dstBuyPrice = dstCity.getBuyPrice(type);
+
+          float priceDiff = dstBuyPrice - srcSellPrice;
+          float profit = amount * priceDiff;
+
+          float travelToSourceTime = distanceTo(srcCity) / moveSpeed;
+          float loadTime = amount / srcCity.getMarketOutputRate(type);
+          float travelToDestTime = srcCity.distanceTo(dstCity) / moveSpeed;
+          float unloadTime = amount / dstCity.getMarketIntakeRate(type);
+
+          float totalTime = travelToSourceTime + loadTime + travelToDestTime + unloadTime;
+
+          float profitPerSecond = profit / totalTime;
+
+          option.profit = profit;
+          option.penalty = totalTime; // rename later to totalTime if you want
+          option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
+
+          option.score = profitPerSecond + option.workIncentive;
+
+          /*
           option.profit = dstCity.getBuyPrice(type) - srcCity.getSellPrice(type);
           option.penalty = travelPenalty(distanceTo(srcCity) + srcCity.distanceTo(dstCity));
           option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
 
           option.score = option.profit - option.penalty + option.workIncentive;
+
+           */
 
           options.add(option);
         }
