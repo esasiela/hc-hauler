@@ -6,11 +6,11 @@ import com.hedgecourt.hauler.world.entities.City;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class CityAmountTextLayer extends WorldTextOverlayLayer<City> {
+public class CityInventoryTextLayer extends WorldTextOverlayLayer<City> {
 
   private final Supplier<List<City>> citiesSupplier;
 
-  public CityAmountTextLayer(Supplier<List<City>> citiesSupplier, BitmapFont font) {
+  public CityInventoryTextLayer(Supplier<List<City>> citiesSupplier, BitmapFont font) {
     super(font);
     this.citiesSupplier = citiesSupplier;
   }

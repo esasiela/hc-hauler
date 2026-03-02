@@ -52,7 +52,7 @@ import com.hedgecourt.hauler.world.entities.City;
 import com.hedgecourt.hauler.world.entities.Guy;
 import com.hedgecourt.hauler.world.entities.Guy.BehaviorModel;
 import com.hedgecourt.hauler.world.entities.Node;
-import com.hedgecourt.hauler.world.layers.CityAmountTextLayer;
+import com.hedgecourt.hauler.world.layers.CityInventoryTextLayer;
 import com.hedgecourt.hauler.world.layers.GuyCargoTextLayer;
 import com.hedgecourt.hauler.world.layers.GuyStateTextLayer;
 import com.hedgecourt.hauler.world.layers.GuyTargetLinesLayer;
@@ -260,7 +260,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     worldOverLayers.add(new ProgressBarsLayer(() -> nodes, () -> guys));
     worldOverLayers.add(new GuyStateTextLayer(() -> guys, worldLabelFont));
     worldOverLayers.add(new GuyCargoTextLayer(() -> guys, worldLabelFont));
-    worldOverLayers.add(new CityAmountTextLayer(() -> cities, worldLabelFont));
+    worldOverLayers.add(new CityInventoryTextLayer(() -> cities, worldLabelFont));
     worldOverLayers.add(new NodeAmountTextLayer(() -> nodes, worldLabelFont));
 
     /* ****
@@ -683,58 +683,11 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     }
 
     /* ****
-     * Tau - City Distance Penalty
-     * Plus, Equals, Minus
-     */
-    if (Gdx.input.isKeyJustPressed(Keys.PLUS) || Gdx.input.isKeyJustPressed(Keys.EQUALS)) {
-      C.distancePenalty += (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 0.1f : 0.01f);
-    }
-
-    if (Gdx.input.isKeyJustPressed(Keys.MINUS)) {
-      C.distancePenalty -= (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 0.1f : 0.01f);
-      if (C.distancePenalty < 0f) {
-        C.distancePenalty = 0f;
-      }
-    }
-
-    /* ****
-     * Harvest Cost Per Unit
-     * Square braces []
-     */
-    if (Gdx.input.isKeyJustPressed(Keys.LEFT_BRACKET)) {
-      C.harvestCost -= (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 1f : 0.1f);
-      if (C.harvestCost < 0f) {
-        C.harvestCost = 0f;
-      }
-    }
-    if (Gdx.input.isKeyJustPressed(Keys.RIGHT_BRACKET)) {
-      C.harvestCost += (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 1f : 0.1f);
-    }
-
-    /* ****
      * Adjust City Prices
      * B = buy price decrease
      * N = buy price increase
      * S = sell price decrease
      * D = sell price increase
-     */
-    /*
-    City priceChangeCity = null;
-    if (selectedEntity != null && selectedEntity instanceof City selectedCity) {
-      priceChangeCity = selectedCity;
-    } else if (marketBoardVisible) {
-      priceChangeCity = marketBoard.getSelectedCity();
-    }
-    if (priceChangeCity != null) {
-      float step = Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 1f : 0.1f;
-
-      if (Gdx.input.isKeyJustPressed(Keys.B)) priceChangeCity.adjustBuyPrice(-step);
-      if (Gdx.input.isKeyJustPressed(Keys.N)) priceChangeCity.adjustBuyPrice(step);
-
-      if (Gdx.input.isKeyJustPressed(Keys.S)) priceChangeCity.adjustSellPrice(-step);
-      if (Gdx.input.isKeyJustPressed(Keys.D)) priceChangeCity.adjustSellPrice(step);
-    }
-
      */
     if (Gdx.input.isKeyJustPressed(Keys.LEFT)) {
       if (marketBoardVisible) {
@@ -773,9 +726,9 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     }
 
     /* ****
-     * Dump World to console
+     * Dump World to console (Keys.SYM is mac CMD)
      */
-    if (Gdx.input.isKeyJustPressed(Keys.K)) {
+    if (Gdx.input.isKeyJustPressed(Keys.C) && Gdx.input.isKeyPressed(Keys.SYM)) {
       dumpWorld();
     }
   }
