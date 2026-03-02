@@ -53,6 +53,7 @@ import com.hedgecourt.hauler.world.entities.Guy;
 import com.hedgecourt.hauler.world.entities.Guy.BehaviorModel;
 import com.hedgecourt.hauler.world.entities.Node;
 import com.hedgecourt.hauler.world.layers.CityAmountLabelLayer;
+import com.hedgecourt.hauler.world.layers.GuyBagLabelLayer;
 import com.hedgecourt.hauler.world.layers.GuyStateTextLayer;
 import com.hedgecourt.hauler.world.layers.GuyTargetLinesLayer;
 import com.hedgecourt.hauler.world.layers.NodeAmountLabelLayer;
@@ -258,6 +259,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     worldOverLayers.add(new GuyTargetLinesLayer(() -> guys));
     worldOverLayers.add(new ProgressBarsLayer(() -> nodes, () -> guys));
     worldOverLayers.add(new GuyStateTextLayer(() -> guys, worldLabelFont, glyphLayout));
+    worldOverLayers.add(new GuyBagLabelLayer(() -> guys, worldLabelFont, glyphLayout));
     worldOverLayers.add(new CityAmountLabelLayer(() -> cities, worldLabelFont));
     worldOverLayers.add(new NodeAmountLabelLayer(() -> nodes, worldLabelFont));
 

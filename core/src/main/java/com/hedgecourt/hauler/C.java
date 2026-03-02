@@ -49,7 +49,7 @@ public class C {
   public static final int WINDOW_WIDTH = MAP_COLS * MAP_TILE_WIDTH_PX;
   public static final int WINDOW_HEIGHT = MAP_ROWS * MAP_TILE_HEIGHT_PX;
 
-  public static final float DELIVER_RANGE = 20f;
+  public static final float DELIVER_RANGE = 50f;
   public static final float HARVEST_RANGE = 20f;
 
   public static final float GUY_TARGET_DISTANCE_THRESHOLD = 1f;

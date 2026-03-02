@@ -45,6 +45,10 @@
     &quot;sell&quot;: 11,
     &quot;consumeRate&quot;: 0,
     &quot;craftRate&quot;: 0
+  },
+  &quot;HERB&quot;: {
+    &quot;inventoryTarget&quot;: 100,
+    &quot;consumeRate&quot;: 0.1
   }
 }</property>
    </properties>
@@ -76,7 +80,8 @@
     &quot;inventoryTarget&quot;: 200,
     &quot;buy&quot;: 9,
     &quot;marketIntakeRate&quot;: 5,
-    &quot;marketOutputRate&quot;: 5
+    &quot;marketOutputRate&quot;: 5,
+    &quot;consumeRate&quot;: 0.1
   }
 }</property>
    </properties>
