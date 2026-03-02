@@ -60,9 +60,71 @@ public class CityResource {
     adjustInventory(-consumeRate * delta);
   }
 
+  public void updateBuyPrice(float delta) {
+    float pressure = computeBuyPressure();
+    float priceDelta = C.cityPriceAdjustRate * pressure * delta;
+
+    float newPrice = buyPrice + priceDelta;
+    if (newPrice < C.cityMinBuyPrice) newPrice = C.cityMinBuyPrice;
+    else if (newPrice >= sellPrice) newPrice = sellPrice - C.cityMinBuyPrice;
+
+    buyPrice = newPrice;
+  }
+
+  public float computeBuyPressure() {
+    // PASS-THROUGH RESOURCE (no inventory target)
+    if (inventoryTarget <= 0f) {
+      return -inventoryVelocity * C.buyPriceInventoryVelocitySensitivity;
+    }
+
+    float shortage = 1f - (inventory / inventoryTarget);
+    shortage = Math.max(0f, Math.min(1f, shortage));
+    float scarcityBoost = (float) Math.pow(shortage, C.buyPriceInventoryScarcityExponent);
+    float velocityTerm =
+        C.buyPriceInventoryVelocitySensitivity * (1f - shortage) * (-inventoryVelocity);
+
+    // panic when inventory is almost empty
+    float panic =
+        (inventory <= C.buyPriceInventoryPanicThreshold)
+            ? C.buyPriceInventoryPanicMultiplier
+            : 1.0f;
+
+    return (scarcityBoost + velocityTerm) * panic;
+  }
+
+  public void updateSellPrice(float delta) {
+    float targetSell = computeTargetSellPrice();
+
+    float diff = targetSell - sellPrice;
+    float adjustment = diff * C.citySellSmoothingRate * delta;
+
+    float newPrice = sellPrice + adjustment;
+    if (newPrice < buyPrice) return;
+    sellPrice = newPrice;
+  }
+
+  public float computeTargetSellPrice() {
+    float inventoryRatio = inventory / inventoryTarget;
+    float deviation = inventoryRatio - 1f;
+    float spreadScale = (float) Math.exp(-3f * deviation);
+    float dynamicSpread = C.cityMinSpread * spreadScale;
+    float minAllowedSpread = C.cityMinSpread * 0.3f;
+    float maxAllowedSpread = C.cityMinSpread * 2.0f;
+
+    dynamicSpread = Math.max(minAllowedSpread, dynamicSpread);
+    dynamicSpread = Math.min(maxAllowedSpread, dynamicSpread);
+
+    return buyPrice + dynamicSpread;
+  }
+
   public void updateInventoryVelocity(float delta) {
-    if (delta > 0f) inventoryVelocity = (inventory - lastFrameInventory) / delta;
-    else inventoryVelocity = 0f;
+    float measuredVelocity;
+    if (delta > 0f) measuredVelocity = (inventory - lastFrameInventory) / delta;
+    else measuredVelocity = 0f;
+
+    inventoryVelocity =
+        inventoryVelocity * (1f - C.inventoryVelocitySmoothing)
+            + measuredVelocity * C.inventoryVelocitySmoothing;
 
     lastFrameInventory = inventory;
   }

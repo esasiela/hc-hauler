@@ -11,10 +11,11 @@ public class C {
    * ****/
   @WorldSnapshotConst public static float distancePenalty = 0.20f * 1.15f;
   @WorldSnapshotConst public static float harvestCost = 5.2f;
-  @WorldSnapshotConst public static float inventoryVelocitySensitivity = 0.5f;
-  @WorldSnapshotConst public static float inventoryScarcityExponent = 4f;
-  @WorldSnapshotConst public static float inventoryPanicThreshold = 0.01f;
-  @WorldSnapshotConst public static float inventoryPanicMultiplier = 2.5f;
+  @WorldSnapshotConst public static float inventoryVelocitySmoothing = 0.9f;
+  @WorldSnapshotConst public static float buyPriceInventoryVelocitySensitivity = 0.5f;
+  @WorldSnapshotConst public static float buyPriceInventoryScarcityExponent = 4f;
+  @WorldSnapshotConst public static float buyPriceInventoryPanicThreshold = 0.01f;
+  @WorldSnapshotConst public static float buyPriceInventoryPanicMultiplier = 2.5f;
   @WorldSnapshotConst public static float cityPriceAdjustRate = 0.15f;
   @WorldSnapshotConst public static float cityMinBuyPrice = 0.1f;
   @WorldSnapshotConst public static float cityDefaultBuyPrice = 10f;

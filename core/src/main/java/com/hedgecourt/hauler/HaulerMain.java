@@ -724,6 +724,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
      * S = sell price decrease
      * D = sell price increase
      */
+    /*
     if (Gdx.input.isKeyJustPressed(Keys.LEFT)) {
       if (marketBoardVisible) {
         City city = marketBoard.getHighlightCity();
@@ -742,6 +743,8 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         else city.adjustSellPrice(ResourceType.ORE, increment);
       }
     }
+
+     */
 
     /* ****
      * Market Board visibility toggle

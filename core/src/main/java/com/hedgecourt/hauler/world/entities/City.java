@@ -51,6 +51,10 @@ public class City extends WorldEntity implements Selectable {
   public void update(float delta) {
     priceUpdateTimer += delta;
 
+    for (ResourceType type : ResourceType.values()) {
+      getResource(type).applyConsumption(delta);
+    }
+
     craft(delta);
 
     boolean timeToUpdatePrices = (priceUpdateTimer >= C.priceUpdateInterval);
@@ -58,13 +62,11 @@ public class City extends WorldEntity implements Selectable {
     for (ResourceType type : ResourceType.values()) {
       CityResource resource = getResource(type);
 
-      resource.applyConsumption(delta);
-
       if (timeToUpdatePrices) {
         resource.updateInventoryVelocity(priceUpdateTimer);
 
-        updateBuyPrice(type, priceUpdateTimer);
-        updateSellPrice(type, priceUpdateTimer);
+        resource.updateBuyPrice(priceUpdateTimer);
+        resource.updateSellPrice(priceUpdateTimer);
 
         resource.updateBuyPriceVelocity(priceUpdateTimer);
         resource.updateSellPriceVelocity(priceUpdateTimer);
@@ -95,78 +97,6 @@ public class City extends WorldEntity implements Selectable {
       herb.inventory -= available;
       spice.inventory += available;
     }
-  }
-
-  public void adjustBuyPrice(ResourceType type, float amount) {
-    float newPrice = getBuyPrice(type) + amount;
-    if (!(0f < newPrice && newPrice < getSellPrice(type))) return;
-
-    // TODO move adjustBuyPrice logic to CityResource
-    getResource(type).buyPrice = newPrice;
-  }
-
-  public void adjustSellPrice(ResourceType type, float amount) {
-    float newPrice = getSellPrice(type) + amount;
-    if (!(0f < newPrice && getBuyPrice(type) < newPrice)) return;
-
-    // TODO move adjustSellPrice logic to CityResource
-    getResource(type).sellPrice = newPrice;
-  }
-
-  private void updateBuyPrice(ResourceType type, float delta) {
-    float pressure = computeBuyPressure(type);
-    float priceDelta = C.cityPriceAdjustRate * pressure * delta;
-
-    float desired = getBuyPrice(type) + priceDelta;
-    if (desired < C.cityMinBuyPrice) {
-      priceDelta = C.cityMinBuyPrice - getBuyPrice(type);
-    }
-
-    adjustBuyPrice(type, priceDelta);
-  }
-
-  public float computeBuyPressure(ResourceType type) {
-    float inventory = getInventory(type);
-    float target = getInventoryTarget(type);
-    float velocity = getResource(type).inventoryVelocity;
-
-    // PASS-THROUGH RESOURCE (no inventory target)
-    if (target <= 0f) {
-      return -velocity * C.inventoryVelocitySensitivity;
-    }
-
-    float shortage = 1f - (inventory / target);
-    shortage = Math.max(0f, Math.min(1f, shortage));
-    float scarcityBoost = (float) Math.pow(shortage, C.inventoryScarcityExponent);
-    float velocityTerm = C.inventoryVelocitySensitivity * (1f - shortage) * (-velocity);
-
-    // panic when inventory is almost empty
-    float panic = (inventory <= C.inventoryPanicThreshold) ? C.inventoryPanicMultiplier : 1.0f;
-
-    return (scarcityBoost + velocityTerm) * panic;
-  }
-
-  private void updateSellPrice(ResourceType type, float delta) {
-    float targetSell = computeTargetSellPrice(type);
-
-    float diff = targetSell - getSellPrice(type);
-    float adjustment = diff * C.citySellSmoothingRate * delta;
-
-    adjustSellPrice(type, adjustment);
-  }
-
-  public float computeTargetSellPrice(ResourceType type) {
-    float inventoryRatio = getInventory(type) / getInventoryTarget(type);
-    float deviation = inventoryRatio - 1f;
-    float spreadScale = (float) Math.exp(-3f * deviation);
-    float dynamicSpread = C.cityMinSpread * spreadScale;
-    float minAllowedSpread = C.cityMinSpread * 0.3f;
-    float maxAllowedSpread = C.cityMinSpread * 2.0f;
-
-    dynamicSpread = Math.max(minAllowedSpread, dynamicSpread);
-    dynamicSpread = Math.min(maxAllowedSpread, dynamicSpread);
-
-    return getBuyPrice(type) + dynamicSpread;
   }
 
   @Override

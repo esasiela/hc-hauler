@@ -130,8 +130,8 @@ public class WorldSnapshot {
       snap.sellPriceVelocity = r.sellPriceVelocity;
 
       if (r.inventoryTarget > 0f) {
-        snap.buyPressure = city.computeBuyPressure(t);
-        snap.targetSellPrice = city.computeTargetSellPrice(t);
+        snap.buyPressure = r.computeBuyPressure();
+        snap.targetSellPrice = r.computeTargetSellPrice();
         snap.dynamicSpread = snap.targetSellPrice - snap.buyPrice;
       } else {
         snap.buyPressure = 0f;
