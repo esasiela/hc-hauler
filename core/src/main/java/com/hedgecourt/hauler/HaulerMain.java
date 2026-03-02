@@ -240,23 +240,48 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     snapshotCopiedUiElement = new SnapshotCopiedUiElement(snapshotCopiedFont, glyphLayout);
     uiElements.add(snapshotCopiedUiElement);
 
+    float marketBoardOffset = 376f;
+    float marketBoardX1 = 6f;
+    float marketBoardX2 = marketBoardX1 + marketBoardOffset;
+    float marketBoardX3 = marketBoardX2 + marketBoardOffset;
+    float marketBoardX4 = marketBoardX3 + marketBoardOffset;
+
     marketBoard =
         new MarketBoardUiElement(
-            ResourceType.HERB, inspectorFont, glyphLayout, this, () -> marketBoardVisible, 20f);
-    uiElements.add(marketBoard);
-
-    uiElements.add(
-        new MarketBoardUiElement(
-            ResourceType.RAW, inspectorFont, glyphLayout, this, () -> marketBoardVisible, 410f));
-
-    uiElements.add(
-        new MarketBoardUiElement(
-            ResourceType.REFINED,
+            ResourceType.HERB,
             inspectorFont,
             glyphLayout,
             this,
             () -> marketBoardVisible,
-            410f + 390f));
+            marketBoardX1);
+    uiElements.add(marketBoard);
+
+    uiElements.add(
+        new MarketBoardUiElement(
+            ResourceType.SPICE,
+            inspectorFont,
+            glyphLayout,
+            this,
+            () -> marketBoardVisible,
+            marketBoardX2));
+
+    uiElements.add(
+        new MarketBoardUiElement(
+            ResourceType.ORE,
+            inspectorFont,
+            glyphLayout,
+            this,
+            () -> marketBoardVisible,
+            marketBoardX3));
+
+    uiElements.add(
+        new MarketBoardUiElement(
+            ResourceType.BAR,
+            inspectorFont,
+            glyphLayout,
+            this,
+            () -> marketBoardVisible,
+            marketBoardX4));
 
     /* ****
      * Setup world UNDER layers
@@ -704,8 +729,8 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         City city = marketBoard.getHighlightCity();
         boolean isBuy = marketBoard.isHighlightFieldBuy();
         float increment = -1 * (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 1f : 0.1f);
-        if (isBuy) city.adjustBuyPrice(ResourceType.RAW, increment);
-        else city.adjustSellPrice(ResourceType.RAW, increment);
+        if (isBuy) city.adjustBuyPrice(ResourceType.ORE, increment);
+        else city.adjustSellPrice(ResourceType.ORE, increment);
       }
     }
     if (Gdx.input.isKeyJustPressed(Keys.RIGHT)) {
@@ -713,8 +738,8 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         City city = marketBoard.getHighlightCity();
         boolean isBuy = marketBoard.isHighlightFieldBuy();
         float increment = Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 1f : 0.1f;
-        if (isBuy) city.adjustBuyPrice(ResourceType.RAW, increment);
-        else city.adjustSellPrice(ResourceType.RAW, increment);
+        if (isBuy) city.adjustBuyPrice(ResourceType.ORE, increment);
+        else city.adjustSellPrice(ResourceType.ORE, increment);
       }
     }
 

@@ -8,13 +8,16 @@
     "cityDefaultBuyPrice": 10.0,
     "cityMinBuyPrice": 0.1,
     "cityMinSpread": 3.0,
-    "cityPriceAdjustRate": 0.024999999,
+    "cityPriceAdjustRate": 0.15,
     "citySellSmoothingRate": 0.05,
     "distancePenalty": 0.23,
+    "guyMinTradeProfit": 1.0,
     "guyWorkIncentiveWeight": 0.02,
     "harvestCost": 5.2,
-    "inventoryScarcityExponent": 2.0,
-    "inventoryVelocitySensitivity": 2.0
+    "inventoryPanicMultiplier": 2.5,
+    "inventoryPanicThreshold": 0.01,
+    "inventoryScarcityExponent": 4.0,
+    "inventoryVelocitySensitivity": 0.5
   },
   "map": {
     "tilesWide": 40,
@@ -36,69 +39,113 @@
       "centerY": 432,
       "resources": {
         "RAW": {
-          "inventory": 100.0,
-          "inventoryTarget": 100.0,
-          "inventoryRatio": 1.0,
+          "inventory": 0.0,
+          "inventoryTarget": 0.0,
+          "inventoryRatio": 0.0,
           "inventoryDeviation": 0.0,
           "inventoryVelocity": 0.0,
-          "buyPrice": 10.0,
-          "sellPrice": 13.0,
-          "priceSpread": 3.0,
+          "buyPrice": 0.0,
+          "sellPrice": 0.0,
+          "priceSpread": 0.0,
           "buyPriceVelocity": 0.0,
           "sellPriceVelocity": 0.0,
           "buyPressure": 0.0,
-          "targetSellPrice": 13.0,
+          "targetSellPrice": 3.0,
           "dynamicSpread": 3.0,
           "consumeRate": 0.0,
           "craftRate": 0.0,
-          "marketIntakeRate": 20.0,
-          "marketOutputRate": 20.0,
+          "marketIntakeRate": 0.0,
+          "marketOutputRate": 0.0,
           "cityArbitrageOpportunity": {
-            "City_2": -3.0
+            "City_2": 0.0
           }
         },
         "REFINED": {
           "inventory": 0.0,
-          "inventoryTarget": 100.0,
+          "inventoryTarget": 0.0,
           "inventoryRatio": 0.0,
-          "inventoryDeviation": -100.0,
+          "inventoryDeviation": 0.0,
           "inventoryVelocity": 0.0,
-          "buyPrice": 8.0,
-          "sellPrice": 11.0,
-          "priceSpread": 3.0,
+          "buyPrice": 0.0,
+          "sellPrice": 0.0,
+          "priceSpread": 0.0,
           "buyPriceVelocity": 0.0,
           "sellPriceVelocity": 0.0,
-          "buyPressure": 1.0,
-          "targetSellPrice": 14.0,
-          "dynamicSpread": 6.0,
+          "buyPressure": 0.0,
+          "targetSellPrice": 3.0,
+          "dynamicSpread": 3.0,
           "consumeRate": 0.0,
           "craftRate": 0.0,
-          "marketIntakeRate": 20.0,
-          "marketOutputRate": 20.0,
+          "marketIntakeRate": 0.0,
+          "marketOutputRate": 0.0,
           "cityArbitrageOpportunity": {
-            "City_2": -3.0
+            "City_2": 0.0
           }
         },
         "HERB": {
           "inventory": 0.0,
-          "inventoryTarget": 100.0,
+          "inventoryTarget": 0.0,
           "inventoryRatio": 0.0,
-          "inventoryDeviation": -100.0,
+          "inventoryDeviation": 0.0,
           "inventoryVelocity": 0.0,
-          "buyPrice": 10.0,
-          "sellPrice": 13.0,
-          "priceSpread": 3.0,
+          "buyPrice": 0.0,
+          "sellPrice": 0.0,
+          "priceSpread": 0.0,
           "buyPriceVelocity": 0.0,
           "sellPriceVelocity": 0.0,
-          "buyPressure": 1.0,
-          "targetSellPrice": 16.0,
-          "dynamicSpread": 6.0,
-          "consumeRate": 0.10000000149011612,
+          "buyPressure": 0.0,
+          "targetSellPrice": 3.0,
+          "dynamicSpread": 3.0,
+          "consumeRate": 0.0,
           "craftRate": 0.0,
-          "marketIntakeRate": 20.0,
-          "marketOutputRate": 20.0,
+          "marketIntakeRate": 0.0,
+          "marketOutputRate": 0.0,
           "cityArbitrageOpportunity": {
-            "City_2": -4.0
+            "City_2": 0.0
+          }
+        },
+        "SPICE": {
+          "inventory": 0.0,
+          "inventoryTarget": 0.0,
+          "inventoryRatio": 0.0,
+          "inventoryDeviation": 0.0,
+          "inventoryVelocity": 0.0,
+          "buyPrice": 0.0,
+          "sellPrice": 0.0,
+          "priceSpread": 0.0,
+          "buyPriceVelocity": 0.0,
+          "sellPriceVelocity": 0.0,
+          "buyPressure": 0.0,
+          "targetSellPrice": 3.0,
+          "dynamicSpread": 3.0,
+          "consumeRate": 0.0,
+          "craftRate": 0.0,
+          "marketIntakeRate": 0.0,
+          "marketOutputRate": 0.0,
+          "cityArbitrageOpportunity": {
+            "City_2": 0.0
+          }
+        },
+        "DUMMY": {
+          "inventory": 0.0,
+          "inventoryTarget": 0.0,
+          "inventoryRatio": 0.0,
+          "inventoryDeviation": 0.0,
+          "inventoryVelocity": 0.0,
+          "buyPrice": 0.0,
+          "sellPrice": 0.0,
+          "priceSpread": 0.0,
+          "buyPriceVelocity": 0.0,
+          "sellPriceVelocity": 0.0,
+          "buyPressure": 0.0,
+          "targetSellPrice": 3.0,
+          "dynamicSpread": 3.0,
+          "consumeRate": 0.0,
+          "craftRate": 0.0,
+          "marketIntakeRate": 0.0,
+          "marketOutputRate": 0.0,
+          "cityArbitrageOpportunity": {
+            "City_2": 0.0
           }
         }
       }
@@ -114,69 +161,113 @@
       "centerY": 432,
       "resources": {
         "RAW": {
-          "inventory": 100.0,
-          "inventoryTarget": 100.0,
-          "inventoryRatio": 1.0,
+          "inventory": 0.0,
+          "inventoryTarget": 0.0,
+          "inventoryRatio": 0.0,
           "inventoryDeviation": 0.0,
           "inventoryVelocity": 0.0,
-          "buyPrice": 10.0,
-          "sellPrice": 13.0,
-          "priceSpread": 3.0,
+          "buyPrice": 0.0,
+          "sellPrice": 0.0,
+          "priceSpread": 0.0,
           "buyPriceVelocity": 0.0,
           "sellPriceVelocity": 0.0,
           "buyPressure": 0.0,
-          "targetSellPrice": 13.0,
+          "targetSellPrice": 3.0,
           "dynamicSpread": 3.0,
           "consumeRate": 0.0,
           "craftRate": 0.0,
-          "marketIntakeRate": 20.0,
-          "marketOutputRate": 20.0,
+          "marketIntakeRate": 0.0,
+          "marketOutputRate": 0.0,
           "cityArbitrageOpportunity": {
-            "City_1": -3.0
+            "City_1": 0.0
           }
         },
         "REFINED": {
-          "inventory": 50.0,
-          "inventoryTarget": 100.0,
-          "inventoryRatio": 0.5,
-          "inventoryDeviation": -50.0,
+          "inventory": 0.0,
+          "inventoryTarget": 0.0,
+          "inventoryRatio": 0.0,
+          "inventoryDeviation": 0.0,
           "inventoryVelocity": 0.0,
-          "buyPrice": 8.0,
-          "sellPrice": 11.0,
-          "priceSpread": 3.0,
+          "buyPrice": 0.0,
+          "sellPrice": 0.0,
+          "priceSpread": 0.0,
           "buyPriceVelocity": 0.0,
           "sellPriceVelocity": 0.0,
-          "buyPressure": 0.5,
-          "targetSellPrice": 14.0,
-          "dynamicSpread": 6.0,
-          "consumeRate": 1.5,
-          "craftRate": 2.0,
-          "marketIntakeRate": 20.0,
-          "marketOutputRate": 20.0,
+          "buyPressure": 0.0,
+          "targetSellPrice": 3.0,
+          "dynamicSpread": 3.0,
+          "consumeRate": 0.0,
+          "craftRate": 0.0,
+          "marketIntakeRate": 0.0,
+          "marketOutputRate": 0.0,
           "cityArbitrageOpportunity": {
-            "City_1": -3.0
+            "City_1": 0.0
           }
         },
         "HERB": {
           "inventory": 0.0,
-          "inventoryTarget": 200.0,
+          "inventoryTarget": 0.0,
           "inventoryRatio": 0.0,
-          "inventoryDeviation": -200.0,
+          "inventoryDeviation": 0.0,
           "inventoryVelocity": 0.0,
-          "buyPrice": 9.0,
-          "sellPrice": 12.0,
-          "priceSpread": 3.0,
+          "buyPrice": 0.0,
+          "sellPrice": 0.0,
+          "priceSpread": 0.0,
           "buyPriceVelocity": 0.0,
           "sellPriceVelocity": 0.0,
-          "buyPressure": 1.0,
-          "targetSellPrice": 15.0,
-          "dynamicSpread": 6.0,
-          "consumeRate": 0.10000000149011612,
+          "buyPressure": 0.0,
+          "targetSellPrice": 3.0,
+          "dynamicSpread": 3.0,
+          "consumeRate": 0.0,
           "craftRate": 0.0,
-          "marketIntakeRate": 5.0,
-          "marketOutputRate": 5.0,
+          "marketIntakeRate": 0.0,
+          "marketOutputRate": 0.0,
           "cityArbitrageOpportunity": {
-            "City_1": -2.0
+            "City_1": 0.0
+          }
+        },
+        "SPICE": {
+          "inventory": 0.0,
+          "inventoryTarget": 0.0,
+          "inventoryRatio": 0.0,
+          "inventoryDeviation": 0.0,
+          "inventoryVelocity": 0.0,
+          "buyPrice": 0.0,
+          "sellPrice": 0.0,
+          "priceSpread": 0.0,
+          "buyPriceVelocity": 0.0,
+          "sellPriceVelocity": 0.0,
+          "buyPressure": 0.0,
+          "targetSellPrice": 3.0,
+          "dynamicSpread": 3.0,
+          "consumeRate": 0.0,
+          "craftRate": 0.0,
+          "marketIntakeRate": 0.0,
+          "marketOutputRate": 0.0,
+          "cityArbitrageOpportunity": {
+            "City_1": 0.0
+          }
+        },
+        "DUMMY": {
+          "inventory": 0.0,
+          "inventoryTarget": 0.0,
+          "inventoryRatio": 0.0,
+          "inventoryDeviation": 0.0,
+          "inventoryVelocity": 0.0,
+          "buyPrice": 0.0,
+          "sellPrice": 0.0,
+          "priceSpread": 0.0,
+          "buyPriceVelocity": 0.0,
+          "sellPriceVelocity": 0.0,
+          "buyPressure": 0.0,
+          "targetSellPrice": 3.0,
+          "dynamicSpread": 3.0,
+          "consumeRate": 0.0,
+          "craftRate": 0.0,
+          "marketIntakeRate": 0.0,
+          "marketOutputRate": 0.0,
+          "cityArbitrageOpportunity": {
+            "City_1": 0.0
           }
         }
       }
@@ -208,12 +299,78 @@
           "harvestRate": 0.0
         },
         "HERB": {
-          "amount": 40.0,
-          "amountMax": 40.0,
+          "amount": 50.0,
+          "amountMax": 50.0,
           "regenRate": 1.649999976158142,
           "regenDelay": 5.0,
           "regenCooldownTimer": 0.0,
           "harvestRate": 20.0
+        },
+        "SPICE": {
+          "amount": 0.0,
+          "amountMax": 0.0,
+          "regenRate": 0.0,
+          "regenDelay": 0.0,
+          "regenCooldownTimer": 0.0,
+          "harvestRate": 0.0
+        },
+        "DUMMY": {
+          "amount": 0.0,
+          "amountMax": 0.0,
+          "regenRate": 0.0,
+          "regenDelay": 0.0,
+          "regenCooldownTimer": 0.0,
+          "harvestRate": 0.0
+        }
+      }
+    },
+    {
+      "id": "Node_12",
+      "name": "enTop",
+      "worldX": 896,
+      "worldY": 544,
+      "centerX": 912,
+      "centerY": 560,
+      "resources": {
+        "RAW": {
+          "amount": 0.0,
+          "amountMax": 0.0,
+          "regenRate": 0.0,
+          "regenDelay": 0.0,
+          "regenCooldownTimer": 0.0,
+          "harvestRate": 0.0
+        },
+        "REFINED": {
+          "amount": 0.0,
+          "amountMax": 0.0,
+          "regenRate": 0.0,
+          "regenDelay": 0.0,
+          "regenCooldownTimer": 0.0,
+          "harvestRate": 0.0
+        },
+        "HERB": {
+          "amount": 50.0,
+          "amountMax": 50.0,
+          "regenRate": 1.649999976158142,
+          "regenDelay": 5.0,
+          "regenCooldownTimer": 0.0,
+          "harvestRate": 20.0
+        },
+        "SPICE": {
+          "amount": 0.0,
+          "amountMax": 0.0,
+          "regenRate": 0.0,
+          "regenDelay": 0.0,
+          "regenCooldownTimer": 0.0,
+          "harvestRate": 0.0
+        },
+        "DUMMY": {
+          "amount": 0.0,
+          "amountMax": 0.0,
+          "regenRate": 0.0,
+          "regenDelay": 0.0,
+          "regenCooldownTimer": 0.0,
+          "harvestRate": 0.0
         }
       }
     },
@@ -242,6 +399,22 @@
           "harvestRate": 0.0
         },
         "HERB": {
+          "amount": 0.0,
+          "amountMax": 0.0,
+          "regenRate": 0.0,
+          "regenDelay": 0.0,
+          "regenCooldownTimer": 0.0,
+          "harvestRate": 0.0
+        },
+        "SPICE": {
+          "amount": 0.0,
+          "amountMax": 0.0,
+          "regenRate": 0.0,
+          "regenDelay": 0.0,
+          "regenCooldownTimer": 0.0,
+          "harvestRate": 0.0
+        },
+        "DUMMY": {
           "amount": 0.0,
           "amountMax": 0.0,
           "regenRate": 0.0,
@@ -282,6 +455,22 @@
           "regenDelay": 0.0,
           "regenCooldownTimer": 0.0,
           "harvestRate": 0.0
+        },
+        "SPICE": {
+          "amount": 0.0,
+          "amountMax": 0.0,
+          "regenRate": 0.0,
+          "regenDelay": 0.0,
+          "regenCooldownTimer": 0.0,
+          "harvestRate": 0.0
+        },
+        "DUMMY": {
+          "amount": 0.0,
+          "amountMax": 0.0,
+          "regenRate": 0.0,
+          "regenDelay": 0.0,
+          "regenCooldownTimer": 0.0,
+          "harvestRate": 0.0
         }
       }
     }
@@ -309,8 +498,8 @@
       },
       "currentPlan": null,
       "decisionContext": {
-        "bestScoreOverall": 30.515865325927734,
-        "scoreDiff": 32.76053237915039,
+        "bestScoreOverall": 0.0,
+        "scoreDiff": null,
         "bestHarvest": {
           "evaluationTime": 0.0,
           "optionType": "HARVEST",
@@ -318,23 +507,12 @@
           "nodeId": "Node_3",
           "sourceCityId": null,
           "destCityId": "City_1",
-          "profit": 200.0,
-          "totalTime": 6.5539679527282715,
+          "profit": 0.0,
+          "totalTime": "Infinity",
           "workIncentive": 0.0,
-          "score": 30.515865325927734
+          "score": 0.0
         },
-        "bestTrade": {
-          "evaluationTime": 0.0,
-          "optionType": "TRADE",
-          "resourceType": "RAW",
-          "nodeId": null,
-          "sourceCityId": "City_2",
-          "destCityId": "City_1",
-          "profit": -60.0,
-          "totalTime": 26.73001480102539,
-          "workIncentive": 0.0,
-          "score": -2.2446677684783936
-        }
+        "bestTrade": null
       }
     },
     {
@@ -359,8 +537,8 @@
       },
       "currentPlan": null,
       "decisionContext": {
-        "bestScoreOverall": 25.357215881347656,
-        "scoreDiff": 27.607215881347656,
+        "bestScoreOverall": 0.0,
+        "scoreDiff": null,
         "bestHarvest": {
           "evaluationTime": 0.0,
           "optionType": "HARVEST",
@@ -368,23 +546,12 @@
           "nodeId": "Node_3",
           "sourceCityId": null,
           "destCityId": "City_1",
-          "profit": 200.0,
-          "totalTime": 7.887301445007324,
+          "profit": 0.0,
+          "totalTime": "Infinity",
           "workIncentive": 0.0,
-          "score": 25.357215881347656
+          "score": 0.0
         },
-        "bestTrade": {
-          "evaluationTime": 0.0,
-          "optionType": "TRADE",
-          "resourceType": "RAW",
-          "nodeId": null,
-          "sourceCityId": "City_2",
-          "destCityId": "City_1",
-          "profit": -60.0,
-          "totalTime": 26.666667938232422,
-          "workIncentive": 0.0,
-          "score": -2.25
-        }
+        "bestTrade": null
       }
     },
     {
@@ -409,8 +576,8 @@
       },
       "currentPlan": null,
       "decisionContext": {
-        "bestScoreOverall": 29.769651412963867,
-        "scoreDiff": 32.56034851074219,
+        "bestScoreOverall": 0.0,
+        "scoreDiff": null,
         "bestHarvest": {
           "evaluationTime": 0.0,
           "optionType": "HARVEST",
@@ -418,23 +585,12 @@
           "nodeId": "Node_3",
           "sourceCityId": null,
           "destCityId": "City_1",
-          "profit": 200.0,
-          "totalTime": 6.7182512283325195,
+          "profit": 0.0,
+          "totalTime": "Infinity",
           "workIncentive": 0.0,
-          "score": 29.769651412963867
+          "score": 0.0
         },
-        "bestTrade": {
-          "evaluationTime": 0.0,
-          "optionType": "TRADE",
-          "resourceType": "RAW",
-          "nodeId": null,
-          "sourceCityId": "City_2",
-          "destCityId": "City_1",
-          "profit": -60.0,
-          "totalTime": 21.5,
-          "workIncentive": 0.0,
-          "score": -2.7906975746154785
-        }
+        "bestTrade": null
       }
     },
     {
@@ -459,32 +615,21 @@
       },
       "currentPlan": null,
       "decisionContext": {
-        "bestScoreOverall": 18.36625099182129,
-        "scoreDiff": 22.03972053527832,
+        "bestScoreOverall": 0.0,
+        "scoreDiff": null,
         "bestHarvest": {
           "evaluationTime": 0.0,
           "optionType": "HARVEST",
-          "resourceType": "HERB",
-          "nodeId": "Node_11",
-          "sourceCityId": null,
-          "destCityId": "City_2",
-          "profit": 180.0,
-          "totalTime": 9.80058479309082,
-          "workIncentive": 0.0,
-          "score": 18.36625099182129
-        },
-        "bestTrade": {
-          "evaluationTime": 0.0,
-          "optionType": "TRADE",
           "resourceType": "RAW",
-          "nodeId": null,
-          "sourceCityId": "City_1",
-          "destCityId": "City_2",
-          "profit": -60.0,
-          "totalTime": 16.33333396911621,
+          "nodeId": "Node_3",
+          "sourceCityId": null,
+          "destCityId": "City_1",
+          "profit": 0.0,
+          "totalTime": "Infinity",
           "workIncentive": 0.0,
-          "score": -3.673469305038452
-        }
+          "score": 0.0
+        },
+        "bestTrade": null
       }
     }
   ]

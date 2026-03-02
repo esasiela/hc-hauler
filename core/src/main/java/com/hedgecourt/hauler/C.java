@@ -11,14 +11,18 @@ public class C {
    * ****/
   @WorldSnapshotConst public static float distancePenalty = 0.20f * 1.15f;
   @WorldSnapshotConst public static float harvestCost = 5.2f;
-  @WorldSnapshotConst public static float inventoryVelocitySensitivity = 2.0f;
-  @WorldSnapshotConst public static float inventoryScarcityExponent = 2f;
-  @WorldSnapshotConst public static float cityPriceAdjustRate = 0.02f * 1.25f;
+  @WorldSnapshotConst public static float inventoryVelocitySensitivity = 0.5f;
+  @WorldSnapshotConst public static float inventoryScarcityExponent = 4f;
+  @WorldSnapshotConst public static float inventoryPanicThreshold = 0.01f;
+  @WorldSnapshotConst public static float inventoryPanicMultiplier = 2.5f;
+  @WorldSnapshotConst public static float cityPriceAdjustRate = 0.15f;
   @WorldSnapshotConst public static float cityMinBuyPrice = 0.1f;
   @WorldSnapshotConst public static float cityDefaultBuyPrice = 10f;
   @WorldSnapshotConst public static float citySellSmoothingRate = 0.05f; // start small
   @WorldSnapshotConst public static float cityMinSpread = 3.0f; // keep some margin
   @WorldSnapshotConst public static float guyWorkIncentiveWeight = 0.02f;
+  @WorldSnapshotConst public static float guyMinTradeProfit = 1.0f;
+  @WorldSnapshotConst public static float priceUpdateInterval = 0.5f;
 
   public static InspectorTab inspectorTab = InspectorTab.TRADE;
 

@@ -60,19 +60,24 @@ public class CityResource {
     adjustInventory(-consumeRate * delta);
   }
 
-  public void updateVelocities(float delta) {
-    if (delta > 0f) {
-      inventoryVelocity = (inventory - lastFrameInventory) / delta;
-      buyPriceVelocity = (buyPrice - lastFrameBuyPrice) / delta;
-      sellPriceVelocity = (sellPrice - lastFrameSellPrice) / delta;
-    } else {
-      inventoryVelocity = 0f;
-      buyPriceVelocity = 0f;
-      sellPriceVelocity = 0f;
-    }
+  public void updateInventoryVelocity(float delta) {
+    if (delta > 0f) inventoryVelocity = (inventory - lastFrameInventory) / delta;
+    else inventoryVelocity = 0f;
 
     lastFrameInventory = inventory;
+  }
+
+  public void updateBuyPriceVelocity(float delta) {
+    if (delta > 0f) buyPriceVelocity = (buyPrice - lastFrameBuyPrice) / delta;
+    else buyPriceVelocity = 0f;
+
     lastFrameBuyPrice = buyPrice;
+  }
+
+  public void updateSellPriceVelocity(float delta) {
+    if (delta > 0f) sellPriceVelocity = (sellPrice - lastFrameSellPrice) / delta;
+    else sellPriceVelocity = 0f;
+
     lastFrameSellPrice = sellPrice;
   }
 

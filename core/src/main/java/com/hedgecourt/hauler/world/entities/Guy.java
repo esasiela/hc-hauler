@@ -424,7 +424,7 @@ public class Guy extends WorldEntity implements Selectable {
 
   private void resolveBuyResults() {
     // we shall stop buying when our bag is full or the city is dry
-    if (capacityRemaining() <= 0 || buyTarget.getInventory(ResourceType.RAW) <= 0) {
+    if (capacityRemaining() <= 0 || buyTarget.getInventory(ResourceType.ORE) <= 0) {
       // TODO change the buying exit strategy to see if request to buy received zero
       lastInteractionCity = buyTarget;
       // finishCurrentPlan();
@@ -601,7 +601,12 @@ public class Guy extends WorldEntity implements Selectable {
 
       List<PlanOption> allOptions = new ArrayList<>();
       allOptions.addAll(harvestOptions);
-      allOptions.addAll(tradeOptions);
+
+      for (PlanOption option : tradeOptions) {
+        if (option.profit > C.guyMinTradeProfit) {
+          allOptions.add(option);
+        }
+      }
 
       PlanOption best = null;
       for (PlanOption opt : allOptions) {

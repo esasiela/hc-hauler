@@ -35,6 +35,8 @@ public class City extends WorldEntity implements Selectable {
     }
   }
 
+  float priceUpdateTimer;
+
   @Override
   public float getWidth() {
     return C.MAP_TILE_WIDTH_PX;
@@ -47,33 +49,52 @@ public class City extends WorldEntity implements Selectable {
 
   @Override
   public void update(float delta) {
+    priceUpdateTimer += delta;
+
     craft(delta);
 
+    boolean timeToUpdatePrices = (priceUpdateTimer >= C.priceUpdateInterval);
+
     for (ResourceType type : ResourceType.values()) {
-      getResource(type).applyConsumption(delta);
+      CityResource resource = getResource(type);
 
-      updateBuyPrice(type, delta);
-      updateSellPrice(type, delta);
+      resource.applyConsumption(delta);
 
-      getResource(type).updateVelocities(delta);
+      if (timeToUpdatePrices) {
+        resource.updateInventoryVelocity(priceUpdateTimer);
+
+        updateBuyPrice(type, priceUpdateTimer);
+        updateSellPrice(type, priceUpdateTimer);
+
+        resource.updateBuyPriceVelocity(priceUpdateTimer);
+        resource.updateSellPriceVelocity(priceUpdateTimer);
+      }
     }
+
+    if (timeToUpdatePrices) priceUpdateTimer = 0;
   }
 
   private void craft(float delta) {
-    CityResource raw = getResource(ResourceType.RAW);
-    CityResource refined = getResource(ResourceType.REFINED);
+    CityResource raw = getResource(ResourceType.ORE);
+    CityResource refined = getResource(ResourceType.BAR);
+    CityResource herb = getResource(ResourceType.HERB);
+    CityResource spice = getResource(ResourceType.SPICE);
 
-    float rate = refined.craftRate;
-    if (rate <= 0f) return;
+    if (refined.craftRate > 0) {
+      float amount = refined.craftRate * delta;
+      // TODO use requestWithdraw()
+      float available = Math.min(amount, raw.inventory);
+      // TODO implement an adjustInventory method on ResourceState
+      raw.inventory -= available;
+      refined.inventory += available;
+    }
 
-    float amount = rate * delta;
-
-    // TODO use requestWithdraw()
-    float available = Math.min(amount, raw.inventory);
-
-    // TODO implement an adjustInventory method on ResourceState
-    raw.inventory -= available;
-    refined.inventory += available;
+    if (spice.craftRate > 0) {
+      float amount = spice.craftRate * delta;
+      float available = Math.min(amount, herb.inventory);
+      herb.inventory -= available;
+      spice.inventory += available;
+    }
   }
 
   public void adjustBuyPrice(ResourceType type, float amount) {
@@ -105,22 +126,24 @@ public class City extends WorldEntity implements Selectable {
   }
 
   public float computeBuyPressure(ResourceType type) {
-    float shortage = 1f - (getInventory(type) / getInventoryTarget(type));
+    float inventory = getInventory(type);
+    float target = getInventoryTarget(type);
+    float velocity = getResource(type).inventoryVelocity;
+
+    // PASS-THROUGH RESOURCE (no inventory target)
+    if (target <= 0f) {
+      return -velocity * C.inventoryVelocitySensitivity;
+    }
+
+    float shortage = 1f - (inventory / target);
     shortage = Math.max(0f, Math.min(1f, shortage));
+    float scarcityBoost = (float) Math.pow(shortage, C.inventoryScarcityExponent);
+    float velocityTerm = C.inventoryVelocitySensitivity * (1f - shortage) * (-velocity);
 
-    if (type == ResourceType.RAW) {
-      float scarcityBoost = (float) Math.pow(shortage, C.inventoryScarcityExponent);
-      float proximity = 1f - shortage;
-      float velocity = getResource(type).inventoryVelocity;
+    // panic when inventory is almost empty
+    float panic = (inventory <= C.inventoryPanicThreshold) ? C.inventoryPanicMultiplier : 1.0f;
 
-      return scarcityBoost + (C.inventoryVelocitySensitivity * proximity * (-velocity));
-    }
-
-    if (type == ResourceType.REFINED) {
-      return shortage;
-    }
-
-    return shortage; // safe fallback
+    return (scarcityBoost + velocityTerm) * panic;
   }
 
   private void updateSellPrice(ResourceType type, float delta) {
@@ -170,25 +193,23 @@ public class City extends WorldEntity implements Selectable {
                     (int) (worldX / C.MAP_TILE_WIDTH_PX), (int) (worldY / C.MAP_TILE_HEIGHT_PX)),
                 "Alliance: " + alliance,
                 "",
-                "RAW Qty: " + Math.round(getInventory(ResourceType.RAW)),
-                "REF Qty: " + Math.round(getInventory(ResourceType.REFINED)),
+                "RAW Qty: " + Math.round(getInventory(ResourceType.ORE)),
+                "REF Qty: " + Math.round(getInventory(ResourceType.BAR)),
                 String.format(
                     "RAW Inventory Velocity: %+.2f",
-                    getResource(ResourceType.RAW).inventoryVelocity),
+                    getResource(ResourceType.ORE).inventoryVelocity),
                 String.format(
                     "REF Inventory Velocity: %+.2f",
-                    getResource(ResourceType.REFINED).inventoryVelocity),
+                    getResource(ResourceType.BAR).inventoryVelocity),
                 "",
-                String.format("Raw Buy Price : %.1f", getBuyPrice(ResourceType.RAW)),
-                String.format("Raw Sell Price: %.1f", getSellPrice(ResourceType.REFINED)),
-                String.format("Raw Buy Price Vel : %.2f", getBuyPriceVelocity(ResourceType.RAW)),
-                String.format("Raw Sell Price Vel: %.2f", getSellPriceVelocity(ResourceType.RAW)),
-                String.format("Ref Buy Price : %.1f", getBuyPrice(ResourceType.REFINED)),
-                String.format("Ref Sell Price: %.1f", getSellPrice(ResourceType.REFINED)),
-                String.format(
-                    "Ref Buy Price Vel : %.2f", getBuyPriceVelocity(ResourceType.REFINED)),
-                String.format(
-                    "Ref Sell Price Vel: %.2f", getSellPriceVelocity(ResourceType.REFINED)),
+                String.format("Raw Buy Price : %.1f", getBuyPrice(ResourceType.ORE)),
+                String.format("Raw Sell Price: %.1f", getSellPrice(ResourceType.BAR)),
+                String.format("Raw Buy Price Vel : %.2f", getBuyPriceVelocity(ResourceType.ORE)),
+                String.format("Raw Sell Price Vel: %.2f", getSellPriceVelocity(ResourceType.ORE)),
+                String.format("Ref Buy Price : %.1f", getBuyPrice(ResourceType.BAR)),
+                String.format("Ref Sell Price: %.1f", getSellPrice(ResourceType.BAR)),
+                String.format("Ref Buy Price Vel : %.2f", getBuyPriceVelocity(ResourceType.BAR)),
+                String.format("Ref Sell Price Vel: %.2f", getSellPriceVelocity(ResourceType.BAR)),
                 "",
                 "TODO: inspector for crafting"));
 
@@ -203,21 +224,21 @@ public class City extends WorldEntity implements Selectable {
           String.format(
               "%s: %.1f / %.1f",
               city.getName(),
-              city.getBuyPrice(ResourceType.RAW),
-              city.getSellPrice(ResourceType.RAW)));
+              city.getBuyPrice(ResourceType.ORE),
+              city.getSellPrice(ResourceType.ORE)));
     }
     lines.add("");
     lines.add("== Trade Opportunities ==");
     lines.add("Buy here.......Sell there");
     for (City city : world.getCities()) {
       if (city == this) continue;
-      float spread = city.getBuyPrice(ResourceType.RAW) - this.getSellPrice(ResourceType.RAW);
+      float spread = city.getBuyPrice(ResourceType.ORE) - this.getSellPrice(ResourceType.ORE);
       lines.add(city.getName() + ":");
       lines.add(
           String.format(
               "Out@%.1f In@%.1f Spread=%s%.1f",
-              this.getSellPrice(ResourceType.RAW),
-              city.getBuyPrice(ResourceType.RAW),
+              this.getSellPrice(ResourceType.ORE),
+              city.getBuyPrice(ResourceType.ORE),
               spread >= 0f ? "+" : "",
               spread));
     }

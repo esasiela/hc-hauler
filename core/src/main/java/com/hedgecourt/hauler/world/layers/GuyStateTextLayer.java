@@ -3,6 +3,7 @@ package com.hedgecourt.hauler.world.layers;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.hedgecourt.hauler.world.entities.Guy;
+import com.hedgecourt.hauler.world.entities.Guy.PlanOption;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -26,7 +27,8 @@ public class GuyStateTextLayer extends WorldTextOverlayLayer<Guy> {
 
   @Override
   public String buildText(Guy guy) {
-    return "[" + guy.getState() + "]";
+    PlanOption p = guy.getCurrentPlan();
+    return "[" + guy.getState() + "]" + (p != null ? "\n" + p.optionType : "");
   }
 
   @Override
