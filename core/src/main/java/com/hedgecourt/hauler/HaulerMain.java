@@ -43,6 +43,7 @@ import com.hedgecourt.hauler.ui.elements.InspectorPanelUiElement;
 import com.hedgecourt.hauler.ui.elements.MarketBoardUiElement;
 import com.hedgecourt.hauler.ui.elements.PauseButtonUiElement;
 import com.hedgecourt.hauler.ui.elements.PauseIndicatorUiElement;
+import com.hedgecourt.hauler.ui.elements.SnapshotCopiedUiElement;
 import com.hedgecourt.hauler.ui.elements.StatusBarUiElement;
 import com.hedgecourt.hauler.world.WorldEntity;
 import com.hedgecourt.hauler.world.WorldRenderLayer;
@@ -117,6 +118,8 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
   private boolean marketBoardVisible = true;
   private MarketBoardUiElement marketBoard;
 
+  private SnapshotCopiedUiElement snapshotCopiedUiElement;
+
   @Getter private int mapWidthTiles;
   @Getter private int mapHeightTiles;
   @Getter private int tileWidthPx;
@@ -171,6 +174,10 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     BitmapFont pauseButtonFont = new BitmapFont();
     pauseButtonFont.setColor(C.UI_PAUSE_BUTTON_FG_COLOR);
     pauseButtonFont.getData().setScale(2.0f);
+
+    BitmapFont snapshotCopiedFont = new BitmapFont();
+    snapshotCopiedFont.setColor(Color.WHITE);
+    snapshotCopiedFont.getData().setScale(2.0f);
 
     statusBarFont = new BitmapFont();
     statusBarFont.setColor(Color.BLACK);
@@ -229,6 +236,9 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         new HeaderStatsUiElement(
             statusBarFont, glyphLayout, () -> cities, () -> nodes, () -> guys));
     uiElements.add(new StatusBarUiElement(statusBarFont, this::getStatusBarString));
+
+    snapshotCopiedUiElement = new SnapshotCopiedUiElement(snapshotCopiedFont, glyphLayout);
+    uiElements.add(snapshotCopiedUiElement);
 
     marketBoard =
         new MarketBoardUiElement(
@@ -730,6 +740,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
      */
     if (Gdx.input.isKeyJustPressed(Keys.C) && Gdx.input.isKeyPressed(Keys.SYM)) {
       dumpWorld();
+      snapshotCopiedUiElement.trigger();
     }
   }
 
