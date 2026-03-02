@@ -5,11 +5,11 @@ import com.hedgecourt.hauler.world.entities.Node;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class NodeAmountLabelLayer extends WorldTextOverlayLayer<Node> {
+public class NodeAmountTextLayer extends WorldTextOverlayLayer<Node> {
 
   private final Supplier<List<Node>> nodesSupplier;
 
-  public NodeAmountLabelLayer(Supplier<List<Node>> nodesSupplier, BitmapFont font) {
+  public NodeAmountTextLayer(Supplier<List<Node>> nodesSupplier, BitmapFont font) {
     super(font);
     this.nodesSupplier = nodesSupplier;
   }
