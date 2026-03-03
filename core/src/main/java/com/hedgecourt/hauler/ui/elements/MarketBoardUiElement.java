@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class MarketBoardUiElement implements UiElement {
+public class MarketBoardUiElement extends BaseUiElement implements UiElement {
   private static final float PRICE_DECIMAL_PADDING = 2f;
   private static final float PRICE_HIGHLIGHT_WIDTH = 60f; // tweak visually
   private static final float PRICE_DECIMAL_WIDTH_ESTIMATE = 20f + 2 * PRICE_DECIMAL_PADDING;

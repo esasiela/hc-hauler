@@ -10,7 +10,7 @@ import com.hedgecourt.hauler.C;
 import com.hedgecourt.hauler.ui.UiElement;
 import java.util.function.Supplier;
 
-public class PauseIndicatorUiElement implements UiElement {
+public class PauseIndicatorUiElement extends BaseUiElement implements UiElement {
   private final BitmapFont font;
   private final GlyphLayout glyphLayout;
 

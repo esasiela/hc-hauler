@@ -1,6 +1,5 @@
 package com.hedgecourt.hauler.ui.elements;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -9,7 +8,7 @@ import com.hedgecourt.hauler.C;
 import com.hedgecourt.hauler.ui.UiElement;
 import java.util.function.Supplier;
 
-public class ElapsedTimeUiElement implements UiElement {
+public class ElapsedTimeUiElement extends BaseUiElement implements UiElement {
   private final BitmapFont font;
   private final Supplier<Float> elapsedSupplier;
 
@@ -21,7 +20,8 @@ public class ElapsedTimeUiElement implements UiElement {
   }
 
   private Rectangle getBounds() {
-    bounds.y = Gdx.graphics.getHeight() - 100f; // 50px below pause button
+    //bounds.y = Gdx.graphics.getHeight() - 100f; // 50px below pause button
+    bounds.y = uiHeight - 4f - 48f - bounds.height;
     return bounds;
   }
 

@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.hedgecourt.hauler.ui.UiElement;
 import java.util.function.Supplier;
 
-public class StatusBarUiElement implements UiElement {
+public class StatusBarUiElement extends BaseUiElement implements UiElement {
 
   private final BitmapFont font;
   private final Supplier<String> textSupplier;

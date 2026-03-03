@@ -37,6 +37,7 @@ import com.hedgecourt.hauler.economy.NodeResource.NodeResourceInitConfig;
 import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.ui.UiElement;
 import com.hedgecourt.hauler.ui.UiRenderer;
+import com.hedgecourt.hauler.ui.elements.ElapsedTimeUiElement;
 import com.hedgecourt.hauler.ui.elements.HeaderStatsUiElement;
 import com.hedgecourt.hauler.ui.elements.HoverTooltipUiElement;
 import com.hedgecourt.hauler.ui.elements.InspectorPanelUiElement;
@@ -216,7 +217,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         new HoverTooltipUiElement(
             hoverTooltipFont, glyphLayout, () -> hoveredEntity, this::getMouseUiPosition));
     uiElements.add(new PauseButtonUiElement(pauseButtonFont, () -> paused, () -> paused = !paused));
-    // uiElements.add(new ElapsedTimeUiElement(pauseButtonFont, () -> simulationTime));
+    uiElements.add(new ElapsedTimeUiElement(pauseButtonFont, () -> simulationTime));
     uiElements.add(new PauseIndicatorUiElement(pauseIndicatorFont, glyphLayout, () -> paused));
     uiElements.add(
         new InspectorPanelUiElement(
@@ -745,7 +746,11 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
 
   public void updateUi(float delta) {
     inspectorAlpha = MathUtils.lerp(inspectorAlpha, inspectorAlphaLerp, 8f * delta);
-    uiElements.forEach(e -> e.update(delta));
+    uiElements.forEach(
+        e -> {
+          e.setUiDimensions(uiViewport.getWorldWidth(), uiViewport.getWorldHeight());
+          e.update(delta);
+        });
   }
 
   private void beginWorldAlpha() {

@@ -1,6 +1,5 @@
 package com.hedgecourt.hauler.ui.elements;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -10,7 +9,7 @@ import com.hedgecourt.hauler.C;
 import com.hedgecourt.hauler.ui.UiElement;
 import java.util.function.Supplier;
 
-public class PauseButtonUiElement implements UiElement {
+public class PauseButtonUiElement extends BaseUiElement implements UiElement {
 
   private final BitmapFont font;
   private final Supplier<Boolean> pausedSupplier;
@@ -27,8 +26,10 @@ public class PauseButtonUiElement implements UiElement {
 
   private Rectangle getBounds() {
     // bounds.y = Gdx.graphics.getHeight() - 50f;
-    bounds.y = Gdx.graphics.getHeight() - 50f - bounds.height;
+    //bounds.y = Gdx.graphics.getHeight() - 50f - bounds.height;
     // bounds.y = uiCamera.viewportHeight - 50f - bounds.height;
+
+    bounds.y = uiHeight - 2f - bounds.height;
     return bounds;
   }
 

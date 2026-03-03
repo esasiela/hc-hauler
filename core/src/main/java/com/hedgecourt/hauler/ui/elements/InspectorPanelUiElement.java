@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class InspectorPanelUiElement implements UiElement {
+public class InspectorPanelUiElement extends BaseUiElement implements UiElement {
 
   private final BitmapFont font;
   private final Supplier<WorldEntity> selectedSupplier;

@@ -13,7 +13,7 @@ import com.hedgecourt.hauler.ui.UiElement;
 import com.hedgecourt.hauler.world.WorldEntity;
 import java.util.function.Supplier;
 
-public class HoverTooltipUiElement implements UiElement {
+public class HoverTooltipUiElement extends BaseUiElement implements UiElement {
 
   private final BitmapFont font;
   private final GlyphLayout glyphLayout;

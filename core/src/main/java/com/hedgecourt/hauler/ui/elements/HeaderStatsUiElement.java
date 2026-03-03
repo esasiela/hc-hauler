@@ -11,7 +11,7 @@ import com.hedgecourt.hauler.world.entities.Node;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class HeaderStatsUiElement implements UiElement {
+public class HeaderStatsUiElement extends BaseUiElement implements UiElement {
 
   private final BitmapFont font;
   private final GlyphLayout glyphLayout;

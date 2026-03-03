@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.hedgecourt.hauler.ui.UiElement;
 
-public class SnapshotCopiedUiElement implements UiElement {
+public class SnapshotCopiedUiElement extends BaseUiElement implements UiElement {
 
   private static final float GROW_TIME = 0.25f;
   private static final float HOLD_TIME = 1.00f;
