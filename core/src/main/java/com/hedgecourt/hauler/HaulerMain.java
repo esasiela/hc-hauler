@@ -4,7 +4,6 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -24,12 +23,12 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.hedgecourt.hauler.C.InspectorTab;
+import com.hedgecourt.hauler.camera.CameraController;
+import com.hedgecourt.hauler.camera.GameCamera;
 import com.hedgecourt.hauler.debug.WorldSnapshot;
 import com.hedgecourt.hauler.debug.WorldSnapshotBuilder;
 import com.hedgecourt.hauler.economy.CityResource.CityResourceInitConfig;
@@ -73,25 +72,10 @@ import lombok.Getter;
 public class HaulerMain extends ApplicationAdapter implements WorldView {
   private final ObjectMapper mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
 
-  private OrthographicCamera camera;
+  private GameCamera gameCamera;
+  private CameraController cameraController;
+
   private OrthographicCamera uiCamera;
-  private Viewport viewport;
-
-  private float mouseScrollAmount = 0f;
-  private float mouseLastX;
-  private float mouseLastY;
-  private float mouseDownX;
-  private float mouseDownY;
-  private boolean mouseDragging = false;
-  private boolean mouseRightDown = false;
-  private boolean mouseRightDragged = false;
-  private static final int MOUSE_EDGE_SCROLL_ZONE = 20; // pixels
-  private float mouseEdgeScrollSpeed = 800f; // pixels per second
-
-  private static final float DRAG_THRESHOLD = 6f;
-  private float cameraPanSpeed = 600f;
-  private float cameraMinZoom = 0.2f;
-  private float cameraMaxZoom = 1f;
 
   private TiledMap map;
   private OrthogonalTiledMapRenderer mapRenderer;
@@ -156,8 +140,6 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     nodes = new ArrayList<>();
     cities = new ArrayList<>();
 
-    // Camera size matches viewport (number of tiles visible times tile size)
-    // camera = new OrthographicCamera();
     shapeRenderer = new ShapeRenderer();
     batch = new SpriteBatch();
 
@@ -206,7 +188,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     mapRenderer = new OrthogonalTiledMapRenderer(map);
 
     /* ****
-     * Setup Camera from map properties
+     * Load some map properties
      **** */
     MapProperties props = map.getProperties();
     mapWidthTiles = props.get("width", Integer.class);
@@ -216,38 +198,19 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     worldWidthPx = mapWidthTiles * tileWidthPx;
     worldHeightPx = mapHeightTiles * tileHeightPx;
 
-    // camera.setToOrtho(false, C.WINDOW_WIDTH, C.WINDOW_HEIGHT);
-
-    /*
-    camera = new OrthographicCamera(worldWidthPx, worldHeightPx);
-    camera.position.set(worldWidthPx / 2f, worldHeightPx / 2f, 0);
-    camera.update();
-
+    /* ****
+     * Initialize game camera and controller
      */
-    camera = new OrthographicCamera();
-    viewport = new FitViewport(worldWidthPx, worldHeightPx, camera);
-    viewport.apply();
-    camera.position.set(worldWidthPx / 2f, worldHeightPx / 2f, 0);
-    camera.update();
+    gameCamera = new GameCamera(worldWidthPx, worldHeightPx);
+    cameraController = new CameraController(gameCamera);
+    Gdx.input.setInputProcessor(cameraController);
 
-    cameraMaxZoom =
-        Math.max(worldWidthPx / camera.viewportWidth, worldHeightPx / camera.viewportHeight);
-
+    /* ****
+     * Initialize UI camera
+     */
     uiCamera = new OrthographicCamera();
     uiCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     uiCamera.update();
-
-    /* ****
-     * Mouse scroll input
-     */
-    Gdx.input.setInputProcessor(
-        new InputAdapter() {
-          @Override
-          public boolean scrolled(float amountX, float amountY) {
-            mouseScrollAmount += amountY;
-            return true;
-          }
-        });
 
     /* ****
      * Setup UiElements
@@ -537,6 +500,8 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     float delta = Gdx.graphics.getDeltaTime();
     stepCooldown -= delta;
 
+    cameraController.update(delta);
+
     handleInput(delta);
 
     if (!paused || stepOneFrame) {
@@ -553,7 +518,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     // update camera here:
     // after handling input - in case input was to control the camera
     // after updating world - in case camera-follows-guy and he moved
-    camera.update();
+    gameCamera.update();
 
     uiElements.forEach(e -> e.update(delta));
 
@@ -589,75 +554,20 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
   private Vector3 getMouseWorldPosition() {
     // TODO reuse a vector for mouse position, avoiding allocation
     Vector3 worldPos = getMouseScreenPosition();
-    // camera.unproject(worldPos);
-    viewport.unproject(worldPos);
+    gameCamera.getViewport().unproject(worldPos);
     return worldPos;
   }
 
   private void handleInput(float delta) {
-    if (Gdx.input.isButtonJustPressed(Buttons.RIGHT)) {
-
-      mouseRightDown = true;
-      mouseRightDragged = false;
-
-      mouseDownX = Gdx.input.getX();
-      mouseDownY = Gdx.input.getY();
-    }
-    if (mouseRightDown && Gdx.input.isButtonPressed(Buttons.RIGHT)) {
-
-      float dx = Math.abs(Gdx.input.getX() - mouseDownX);
-      float dy = Math.abs(Gdx.input.getY() - mouseDownY);
-
-      if (dx > DRAG_THRESHOLD || dy > DRAG_THRESHOLD) {
-        mouseRightDragged = true;
-      }
-    }
-    if (mouseRightDown && !Gdx.input.isButtonPressed(Buttons.RIGHT)) {
-
-      mouseRightDown = false;
-
-      if (!mouseRightDragged) {
-        handleRightClick();
-      }
-    }
-    if (Gdx.input.isButtonPressed(Buttons.RIGHT)) {
-
-      if (!mouseDragging) {
-        mouseDragging = true;
-        mouseLastX = Gdx.input.getX();
-        mouseLastY = Gdx.input.getY();
-      }
-
-    } else {
-      mouseDragging = false;
-    }
-    if (mouseDragging) {
-
-      float mouseX = Gdx.input.getX();
-      float mouseY = Gdx.input.getY();
-
-      float dx = mouseLastX - mouseX;
-      float dy = mouseY - mouseLastY;
-
-      camera.position.add(dx * camera.zoom, dy * camera.zoom, 0);
-
-      mouseLastX = mouseX;
-      mouseLastY = mouseY;
-    }
-    /* ***
-     * Handle various forms of input
-     */
     hoveredEntity = findTopEntityAt(getMouseWorldPosition());
 
     if (Gdx.input.isButtonJustPressed(Buttons.LEFT)) {
       handleLeftClick();
     }
 
-    /*
-    if (Gdx.input.isButtonJustPressed(Buttons.RIGHT)) {
+    if (cameraController.consumeRightClickCommand()) {
       handleRightClick();
     }
-     */
 
     // the 'isJustPressed' logic goes inside handleKeyboardInput()
     handleKeyboardInput(delta);
@@ -802,53 +712,11 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     }
 
     /* ****
-     * Adjust City Prices
-     * B = buy price decrease
-     * N = buy price increase
-     * S = sell price decrease
-     * D = sell price increase
-     */
-    /*
-    if (Gdx.input.isKeyJustPressed(Keys.LEFT)) {
-      if (marketBoardVisible) {
-        City city = marketBoard.getHighlightCity();
-        boolean isBuy = marketBoard.isHighlightFieldBuy();
-        float increment = -1 * (Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 1f : 0.1f);
-        if (isBuy) city.adjustBuyPrice(ResourceType.ORE, increment);
-        else city.adjustSellPrice(ResourceType.ORE, increment);
-      }
-    }
-    if (Gdx.input.isKeyJustPressed(Keys.RIGHT)) {
-      if (marketBoardVisible) {
-        City city = marketBoard.getHighlightCity();
-        boolean isBuy = marketBoard.isHighlightFieldBuy();
-        float increment = Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 1f : 0.1f;
-        if (isBuy) city.adjustBuyPrice(ResourceType.ORE, increment);
-        else city.adjustSellPrice(ResourceType.ORE, increment);
-      }
-    }
-
-     */
-
-    /* ****
      * Market Board visibility toggle
      */
     if (Gdx.input.isKeyJustPressed(Keys.M)) {
       marketBoardVisible = !marketBoardVisible;
     }
-
-    /* ****
-     * Market Board - up/down arrows
-     */
-    /*
-    if (marketBoardVisible && Gdx.input.isKeyJustPressed(Keys.UP)) {
-      marketBoard.selectPreviousField();
-    }
-    if (marketBoardVisible && Gdx.input.isKeyJustPressed(Keys.DOWN)) {
-      marketBoard.selectNextField();
-    }
-
-     */
 
     /* ****
      * Dump World to console (Keys.SYM is mac CMD)
@@ -857,113 +725,6 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
       dumpWorld();
       snapshotCopiedUiElement.trigger();
     }
-
-    /* ***
-     * Camera zoom
-     */
-    if (Gdx.input.isKeyPressed(Keys.G) || Gdx.input.isKeyPressed(Keys.H)) {
-
-      // world position before zoom
-      Vector3 before = getMouseWorldPosition().cpy();
-
-      if (Gdx.input.isKeyPressed(Keys.G)) {
-        camera.zoom -= 0.02f;
-      }
-
-      if (Gdx.input.isKeyPressed(Keys.H)) {
-        camera.zoom += 0.02f;
-      }
-
-      camera.zoom = MathUtils.clamp(camera.zoom, cameraMinZoom, cameraMaxZoom);
-
-      camera.update();
-
-      // world position after zoom
-      Vector3 after = getMouseWorldPosition();
-
-      // move camera to compensate
-      camera.position.add(before.x - after.x, before.y - after.y, 0);
-    }
-
-    if (Math.abs(mouseScrollAmount) > 0.1f) {
-
-      Vector3 before = getMouseWorldPosition().cpy();
-
-      camera.zoom += mouseScrollAmount * 0.1f;
-
-      camera.zoom = MathUtils.clamp(camera.zoom, cameraMinZoom, cameraMaxZoom);
-
-      camera.update();
-
-      Vector3 after = getMouseWorldPosition();
-
-      camera.position.add(before.x - after.x, before.y - after.y, 0);
-
-      mouseScrollAmount = 0;
-    }
-    /* ***
-     * Camera pan
-     */
-    float camMove = cameraPanSpeed * delta;
-
-    if (Gdx.input.isKeyPressed(Keys.LEFT)) {
-      camera.position.x -= camMove;
-    }
-
-    if (Gdx.input.isKeyPressed(Keys.RIGHT)) {
-      camera.position.x += camMove;
-    }
-
-    if (Gdx.input.isKeyPressed(Keys.UP)) {
-      camera.position.y += camMove;
-    }
-
-    if (Gdx.input.isKeyPressed(Keys.DOWN)) {
-      camera.position.y -= camMove;
-    }
-
-    float halfViewportWidth = camera.viewportWidth * camera.zoom * 0.5f;
-    float halfViewportHeight = camera.viewportHeight * camera.zoom * 0.5f;
-
-    camera.position.x =
-        MathUtils.clamp(camera.position.x, halfViewportWidth, worldWidthPx - halfViewportWidth);
-
-    camera.position.y =
-        MathUtils.clamp(camera.position.y, halfViewportHeight, worldHeightPx - halfViewportHeight);
-
-    /* ***
-     * Camera move when mouse near edge of screen
-     */
-    float mouseX = Gdx.input.getX();
-    float mouseY = Gdx.input.getY();
-
-    int screenWidth = Gdx.graphics.getWidth();
-    int screenHeight = Gdx.graphics.getHeight();
-
-    float move = mouseEdgeScrollSpeed * delta;
-    // TODO: consider scaling edge scroll speed by zoom // move *= camera.zoom;
-
-    if (mouseX < MOUSE_EDGE_SCROLL_ZONE) {
-      camera.position.x -= move;
-    }
-
-    if (mouseX > screenWidth - MOUSE_EDGE_SCROLL_ZONE) {
-      camera.position.x += move;
-    }
-
-    if (mouseY < MOUSE_EDGE_SCROLL_ZONE) {
-      camera.position.y += move;
-    }
-
-    if (mouseY > screenHeight - MOUSE_EDGE_SCROLL_ZONE) {
-      camera.position.y -= move;
-    }
-
-    float halfWidth = camera.viewportWidth * camera.zoom / 2f;
-    float halfHeight = camera.viewportHeight * camera.zoom / 2f;
-
-    camera.position.x = MathUtils.clamp(camera.position.x, halfWidth, worldWidthPx - halfWidth);
-    camera.position.y = MathUtils.clamp(camera.position.y, halfHeight, worldHeightPx - halfHeight);
   }
 
   /**
@@ -989,10 +750,10 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
   }
 
   public void drawWorld() {
-    mapRenderer.setView(camera);
+    mapRenderer.setView(gameCamera.getCamera());
 
-    shapeRenderer.setProjectionMatrix(camera.combined);
-    batch.setProjectionMatrix(camera.combined);
+    shapeRenderer.setProjectionMatrix(gameCamera.getCamera().combined);
+    batch.setProjectionMatrix(gameCamera.getCamera().combined);
 
     drawWorldMap();
 
@@ -1086,7 +847,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
 
   @Override
   public void resize(int width, int height) {
-    viewport.update(width, height);
+    gameCamera.getViewport().update(width, height);
 
     uiCamera.setToOrtho(false, width, height);
     uiCamera.update();
