@@ -26,7 +26,9 @@ public class PauseButtonUiElement implements UiElement {
   }
 
   private Rectangle getBounds() {
-    bounds.y = Gdx.graphics.getHeight() - 50f;
+    // bounds.y = Gdx.graphics.getHeight() - 50f;
+    bounds.y = Gdx.graphics.getHeight() - 50f - bounds.height;
+    // bounds.y = uiCamera.viewportHeight - 50f - bounds.height;
     return bounds;
   }
 
@@ -44,6 +46,21 @@ public class PauseButtonUiElement implements UiElement {
 
     sr.setColor(C.UI_PAUSE_BUTTON_FG_COLOR);
     sr.rect(b.x, b.y, b.width, b.height);
+
+    /* ****
+     * TEMP DEBUG
+     */
+    /*
+    sr.setColor(1, 0, 0, 1); // bright red
+    sr.rect(b.x, b.y, b.width, b.height);
+
+    sr.setColor(0, 1, 0, 1); // green horizontal guide
+    sr.line(0, b.y, 400, b.y);
+
+    sr.setColor(0, 0, 1, 1); // blue top guide
+    sr.line(0, b.y + b.height, 400, b.y + b.height);
+
+     */
   }
 
   @Override
@@ -57,7 +74,7 @@ public class PauseButtonUiElement implements UiElement {
   @Override
   public boolean handleLeftClick(Vector3 screenClick) {
     Rectangle b = getBounds();
-
+    System.out.println("Button bounds: " + b);
     if (b.contains(screenClick.x, screenClick.y)) {
       onClick.run();
       return true;

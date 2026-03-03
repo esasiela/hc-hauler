@@ -2,7 +2,7 @@ package com.hedgecourt.hauler.camera;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class GameCamera {
@@ -13,8 +13,8 @@ public class GameCamera {
   private final float worldWidth;
   private final float worldHeight;
 
-  private float minZoom = 0.2f;
-  private float maxZoom = 1f;
+  private float minZoom = 0.5f;
+  private float maxZoom = 4f;
 
   public GameCamera(float worldWidth, float worldHeight) {
 
@@ -22,14 +22,12 @@ public class GameCamera {
     this.worldHeight = worldHeight;
 
     camera = new OrthographicCamera();
-    viewport = new FitViewport(worldWidth, worldHeight, camera);
 
-    viewport.apply();
+    viewport = new ScreenViewport(camera);
 
-    camera.position.set(worldWidth / 2f, worldHeight / 2f, 0);
-    camera.update();
+    // DO NOT call viewport.apply() here
 
-    maxZoom = Math.max(worldWidth / camera.viewportWidth, worldHeight / camera.viewportHeight);
+    // Let resize() handle sizing
   }
 
   public OrthographicCamera getCamera() {
@@ -45,14 +43,36 @@ public class GameCamera {
     camera.update();
   }
 
+  public void updateZoomLimits() {
+    /*
+    maxZoom = Math.min(worldWidth / camera.viewportWidth, worldHeight / camera.viewportHeight);
+
+    // Prevent negative or weird cases
+    maxZoom = Math.max(maxZoom, minZoom);
+
+     */
+  }
+
+  public void centerOnWorld() {
+    camera.position.set(worldWidth / 2f, worldHeight / 2f, 0);
+  }
+
   private void clampToWorld() {
 
     float halfWidth = camera.viewportWidth * camera.zoom / 2f;
     float halfHeight = camera.viewportHeight * camera.zoom / 2f;
 
-    camera.position.x = MathUtils.clamp(camera.position.x, halfWidth, worldWidth - halfWidth);
+    if (camera.viewportWidth * camera.zoom >= worldWidth) {
+      camera.position.x = worldWidth / 2f;
+    } else {
+      camera.position.x = MathUtils.clamp(camera.position.x, halfWidth, worldWidth - halfWidth);
+    }
 
-    camera.position.y = MathUtils.clamp(camera.position.y, halfHeight, worldHeight - halfHeight);
+    if (camera.viewportHeight * camera.zoom >= worldHeight) {
+      camera.position.y = worldHeight / 2f;
+    } else {
+      camera.position.y = MathUtils.clamp(camera.position.y, halfHeight, worldHeight - halfHeight);
+    }
   }
 
   public void clampZoom() {

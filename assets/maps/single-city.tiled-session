@@ -34,6 +34,17 @@
                 "y": 366.6666666666667
             }
         },
+        "test-map-003.tmx": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 0.597,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 643.2160804020101,
+                "y": 375.20938023450594
+            }
+        },
         "test-tutorial.tmx": {
             "expandedObjectLayers": [
                 3
@@ -47,7 +58,7 @@
         }
     },
     "map.lastUsedFormat": "tmx",
-    "map.width": 40,
+    "map.width": 60,
     "openFiles": [
         "single-city.tmx",
         "test-tutorial.tmx",

@@ -21,8 +21,9 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -36,7 +37,6 @@ import com.hedgecourt.hauler.economy.NodeResource.NodeResourceInitConfig;
 import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.ui.UiElement;
 import com.hedgecourt.hauler.ui.UiRenderer;
-import com.hedgecourt.hauler.ui.elements.ElapsedTimeUiElement;
 import com.hedgecourt.hauler.ui.elements.HeaderStatsUiElement;
 import com.hedgecourt.hauler.ui.elements.HoverTooltipUiElement;
 import com.hedgecourt.hauler.ui.elements.InspectorPanelUiElement;
@@ -76,11 +76,11 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
   private CameraController cameraController;
 
   private OrthographicCamera uiCamera;
+  private Viewport uiViewport;
 
   private TiledMap map;
   private OrthogonalTiledMapRenderer mapRenderer;
   private ShapeRenderer shapeRenderer;
-  private Matrix4 uiMatrix;
   private SpriteBatch batch;
 
   private FreeTypeFontGenerator freeTypeFontGenerator;
@@ -146,9 +146,6 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     worldRenderer = new WorldRenderer(shapeRenderer, batch);
     uiRenderer = new UiRenderer(shapeRenderer, batch);
 
-    // matrix for UI rendering
-    uiMatrix = new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
     freeTypeFontGenerator =
         new FreeTypeFontGenerator(Gdx.files.internal("fonts/JetBrainsMono-Regular.ttf"));
 
@@ -209,8 +206,8 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
      * Initialize UI camera
      */
     uiCamera = new OrthographicCamera();
-    uiCamera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-    uiCamera.update();
+    uiViewport = new ScreenViewport(uiCamera);
+    uiViewport.apply();
 
     /* ****
      * Setup UiElements
@@ -219,7 +216,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         new HoverTooltipUiElement(
             hoverTooltipFont, glyphLayout, () -> hoveredEntity, this::getMouseUiPosition));
     uiElements.add(new PauseButtonUiElement(pauseButtonFont, () -> paused, () -> paused = !paused));
-    uiElements.add(new ElapsedTimeUiElement(pauseButtonFont, () -> simulationTime));
+    // uiElements.add(new ElapsedTimeUiElement(pauseButtonFont, () -> simulationTime));
     uiElements.add(new PauseIndicatorUiElement(pauseIndicatorFont, glyphLayout, () -> paused));
     uiElements.add(
         new InspectorPanelUiElement(
@@ -500,6 +497,10 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     float delta = Gdx.graphics.getDeltaTime();
     stepCooldown -= delta;
 
+    // grey out any areas outside of the world
+    Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1f); // grey background
+    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
     cameraController.update(delta);
 
     handleInput(delta);
@@ -513,14 +514,12 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
       stepOneFrame = false;
     }
 
-    inspectorAlpha = MathUtils.lerp(inspectorAlpha, inspectorAlphaLerp, 8f * delta);
-
     // update camera here:
     // after handling input - in case input was to control the camera
     // after updating world - in case camera-follows-guy and he moved
     gameCamera.update();
 
-    uiElements.forEach(e -> e.update(delta));
+    updateUi(delta);
 
     drawWorld();
     drawUi();
@@ -543,7 +542,10 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
    */
   private Vector3 getMouseUiPosition() {
     // TODO reuse a vector for mouse position, avoiding allocation
-    return new Vector3(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY(), 0);
+    // return new Vector3(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY(), 0);
+    Vector3 v = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+    uiViewport.unproject(v);
+    return v;
   }
 
   /**
@@ -575,6 +577,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
 
   public void handleLeftClick() {
     Vector3 uiClick = getMouseUiPosition();
+
     if (handleUiLeftClick(uiClick)) return;
 
     Vector3 worldClick = getMouseWorldPosition();
@@ -740,6 +743,11 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     }
   }
 
+  public void updateUi(float delta) {
+    inspectorAlpha = MathUtils.lerp(inspectorAlpha, inspectorAlphaLerp, 8f * delta);
+    uiElements.forEach(e -> e.update(delta));
+  }
+
   private void beginWorldAlpha() {
     Gdx.gl.glEnable(GL20.GL_BLEND);
     Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -750,6 +758,14 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
   }
 
   public void drawWorld() {
+    /* drawWorld()
+     * Origin: bottom-left (0,0)
+     * X grows right (0 → gameCamera.getWorldWidth())
+     * Y grows up   (0 → gameCamera.getWorldHeight())
+     * Units: world pixels (tile-sized units)
+     */
+    gameCamera.getViewport().apply();
+
     mapRenderer.setView(gameCamera.getCamera());
 
     shapeRenderer.setProjectionMatrix(gameCamera.getCamera().combined);
@@ -766,6 +782,13 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     worldRenderer.render(worldOverLayers);
 
     endWorldAlpha();
+
+    /*
+    gameCamera.getViewport().apply();
+    mapRenderer.setView(gameCamera.getCamera());
+    mapRenderer.render();
+
+     */
   }
 
   private void drawWorldMap() {
@@ -783,14 +806,19 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
   }
 
   public void drawUi() {
-    shapeRenderer.setProjectionMatrix(uiMatrix);
-    // batch.setProjectionMatrix(uiMatrix);
+    /* drawUi()
+     * Origin: bottom-left (0,0)
+     * X grows right (0 → uiCamera.viewportWidth)
+     * Y grows up   (0 → uiCamera.viewportHeight)
+     * Units: 1 UI unit = 1 screen pixel
+     */
+    uiViewport.apply();
+
+    shapeRenderer.setProjectionMatrix(uiCamera.combined);
     batch.setProjectionMatrix(uiCamera.combined);
 
     beginWorldAlpha();
-
     uiRenderer.render(uiElements);
-
     endWorldAlpha();
   }
 
@@ -847,10 +875,11 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
 
   @Override
   public void resize(int width, int height) {
-    gameCamera.getViewport().update(width, height);
+    gameCamera.getViewport().update(width, height, true);
+    gameCamera.centerOnWorld();
+    gameCamera.updateZoomLimits();
 
-    uiCamera.setToOrtho(false, width, height);
-    uiCamera.update();
+    uiViewport.update(width, height, true);
   }
 
   @Override
