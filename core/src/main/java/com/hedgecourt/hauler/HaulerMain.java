@@ -42,6 +42,7 @@ import com.hedgecourt.hauler.ui.elements.HeaderStatsUiElement;
 import com.hedgecourt.hauler.ui.elements.HoverTooltipUiElement;
 import com.hedgecourt.hauler.ui.elements.InspectorPanelUiElement;
 import com.hedgecourt.hauler.ui.elements.MarketBoardUiElement;
+import com.hedgecourt.hauler.ui.elements.MiniMapUiElement;
 import com.hedgecourt.hauler.ui.elements.PauseButtonUiElement;
 import com.hedgecourt.hauler.ui.elements.PauseIndicatorUiElement;
 import com.hedgecourt.hauler.ui.elements.SnapshotCopiedUiElement;
@@ -233,6 +234,10 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
 
     snapshotCopiedUiElement = new SnapshotCopiedUiElement(snapshotCopiedFont, glyphLayout);
     uiElements.add(snapshotCopiedUiElement);
+
+    uiElements.add(
+        new MiniMapUiElement(
+            () -> (float) worldWidthPx, () -> (float) worldHeightPx, () -> gameCamera.getCamera()));
 
     float marketBoardOffset = 376f;
     float marketBoardX1 = 6f;
