@@ -237,7 +237,10 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
 
     uiElements.add(
         new MiniMapUiElement(
-            () -> (float) worldWidthPx, () -> (float) worldHeightPx, () -> gameCamera.getCamera()));
+            () -> (float) worldWidthPx,
+            () -> (float) worldHeightPx,
+            () -> gameCamera.getCamera(),
+            this::getMouseUiPosition));
 
     float marketBoardOffset = 376f;
     float marketBoardX1 = 6f;
