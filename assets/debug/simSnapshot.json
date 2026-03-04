@@ -33,8 +33,7 @@
       "id": "spice_recipe",
       "craftRate": 2.0,
       "inputs": {
-        "HERB": 1.0,
-        "ORE": 2.0
+        "HERB": 1.0
       },
       "outputs": {
         "SPICE": 1.0
@@ -132,7 +131,7 @@
           "buyPressure": 0.0,
           "targetSellPrice": 11.0,
           "dynamicSpread": 3.0,
-          "consumeRate": 0.0,
+          "consumeRate": 3.0,
           "marketIntakeRate": 20.0,
           "marketOutputRate": 20.0,
           "cityArbitrageOpportunity": {
