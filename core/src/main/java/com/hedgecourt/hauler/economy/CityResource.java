@@ -20,7 +20,6 @@ public class CityResource {
   public float sellPriceVelocity;
 
   public float consumeRate;
-  public float craftRate;
 
   public float marketIntakeRate;
   public float marketOutputRate;
@@ -31,7 +30,6 @@ public class CityResource {
     float buy = cfg.buy != null ? cfg.buy : C.cityDefaultBuyPrice;
     float sell = cfg.sell != null ? cfg.sell : buy + C.cityMinSpread;
     float consumeRate = cfg.consumeRate != null ? cfg.consumeRate : 0f;
-    float craftRate = cfg.craftRate != null ? cfg.craftRate : 0f;
     float marketIntakeRate = cfg.marketIntakeRate != null ? cfg.marketIntakeRate : 20f;
     float marketOutputRate = cfg.marketOutputRate != null ? cfg.marketOutputRate : 20f;
 
@@ -49,7 +47,6 @@ public class CityResource {
     this.sellPriceVelocity = 0f;
 
     this.consumeRate = consumeRate;
-    this.craftRate = craftRate;
 
     this.marketIntakeRate = marketIntakeRate;
     this.marketOutputRate = marketOutputRate;
@@ -154,7 +151,6 @@ public class CityResource {
     public Float buy;
     public Float sell;
     public Float consumeRate;
-    public Float craftRate;
     public Float marketIntakeRate;
     public Float marketOutputRate;
   }

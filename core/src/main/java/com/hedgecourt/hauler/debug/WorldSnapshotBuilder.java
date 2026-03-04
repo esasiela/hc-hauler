@@ -6,6 +6,7 @@ import com.hedgecourt.hauler.debug.WorldSnapshot.CitySnapshot;
 import com.hedgecourt.hauler.debug.WorldSnapshot.MapInfoSnapshot;
 import com.hedgecourt.hauler.debug.WorldSnapshot.NodeSnapshot;
 import com.hedgecourt.hauler.debug.WorldSnapshot.SimulationSnapshot;
+import com.hedgecourt.hauler.economy.Recipe;
 import com.hedgecourt.hauler.world.entities.City;
 import com.hedgecourt.hauler.world.entities.Guy;
 import com.hedgecourt.hauler.world.entities.Node;
@@ -23,6 +24,7 @@ public final class WorldSnapshotBuilder {
     s.simulation = buildSimulation(world);
     s.constants = buildConstants();
     s.map = buildMap(world);
+    s.recipes = buildRecipes(world);
 
     s.cities = buildCities(world);
     s.nodes = buildNodes(world);
@@ -72,6 +74,16 @@ public final class WorldSnapshotBuilder {
     map.worldHeightPx = world.getWorldHeightPx();
 
     return map;
+  }
+
+  private static Map<String, RecipeSnapshot> buildRecipes(HaulerMain world) {
+    Map<String, RecipeSnapshot> recipes = new TreeMap<>();
+
+    for (Recipe recipe : world.getRecipes()) {
+      recipes.put(recipe.getId(), RecipeSnapshot.from(recipe));
+    }
+
+    return recipes;
   }
 
   private static List<CitySnapshot> buildCities(HaulerMain world) {

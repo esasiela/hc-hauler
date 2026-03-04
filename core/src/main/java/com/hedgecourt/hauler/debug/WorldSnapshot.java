@@ -5,15 +5,18 @@ import com.hedgecourt.hauler.HaulerMain;
 import com.hedgecourt.hauler.debug.WorldSnapshot.CityResourceSnapshot;
 import com.hedgecourt.hauler.economy.CityResource;
 import com.hedgecourt.hauler.economy.NodeResource;
+import com.hedgecourt.hauler.economy.Recipe;
 import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.world.entities.City;
 import com.hedgecourt.hauler.world.entities.Node;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public class WorldSnapshot {
@@ -22,6 +25,8 @@ public class WorldSnapshot {
   public Map<String, Object> constants;
 
   public MapInfoSnapshot map;
+
+  public Map<String, RecipeSnapshot> recipes;
 
   // TODO add global supply and consumption aggregate metrics
 
@@ -59,6 +64,9 @@ public class WorldSnapshot {
     public EnumMap<ResourceType, CityResourceSnapshot> resources =
         new EnumMap<>(ResourceType.class);
 
+    public List<String> recipes = new ArrayList<>();
+    public Map<String, Float> craftRates = new TreeMap<>();
+
     public static CitySnapshot from(HaulerMain world, City city) {
 
       CitySnapshot s = new CitySnapshot();
@@ -82,6 +90,14 @@ public class WorldSnapshot {
         CityResource r = entry.getValue();
 
         s.resources.put(t, CityResourceSnapshot.from(world, city, t, r));
+      }
+
+      for (Recipe recipe : city.getRecipes()) {
+        s.recipes.add(recipe.getId());
+      }
+
+      for (Recipe recipe : city.getRecipes()) {
+        s.craftRates.put(recipe.getId(), recipe.getCraftRate());
       }
 
       return s;
@@ -108,7 +124,6 @@ public class WorldSnapshot {
     public double dynamicSpread;
 
     public double consumeRate;
-    public double craftRate;
 
     public double marketIntakeRate;
     public double marketOutputRate;
@@ -142,7 +157,6 @@ public class WorldSnapshot {
       }
 
       snap.consumeRate = r.consumeRate;
-      snap.craftRate = r.craftRate;
 
       snap.marketIntakeRate = r.marketIntakeRate;
       snap.marketOutputRate = r.marketOutputRate;

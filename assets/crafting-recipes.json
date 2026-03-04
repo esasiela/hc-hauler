@@ -3,7 +3,8 @@
     "id": "spice_recipe",
     "craftRate": 2.0,
     "inputs": {
-      "HERB": 1
+      "HERB": 1,
+      "ORE": 2
     },
     "outputs": {
       "SPICE": 1

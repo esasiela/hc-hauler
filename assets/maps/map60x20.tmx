@@ -79,16 +79,14 @@
     &quot;inventory&quot;: 50,
     &quot;buy&quot;: 10,
     &quot;sell&quot;: 13,
-    &quot;consumeRate&quot;: 1.0,
-    &quot;craftRate&quot;: 0
+    &quot;consumeRate&quot;: 1.0
   },
   &quot;SPICE&quot;: {
     &quot;inventoryTarget&quot;: 50,
     &quot;inventory&quot;: 50,
     &quot;buy&quot;: 8,
     &quot;sell&quot;: 11,
-    &quot;consumeRate&quot;: 1.0,
-    &quot;craftRate&quot;: 0.0
+    &quot;consumeRate&quot;: 1.0
   }
 }</property>
    </properties>
@@ -140,16 +138,14 @@
     &quot;inventory&quot;: 30,
     &quot;buy&quot;: 10,
     &quot;sell&quot;: 13,
-    &quot;consumeRate&quot;: 0,
-    &quot;craftRate&quot;: 0
+    &quot;consumeRate&quot;: 0
   },
   &quot;SPICE&quot;: {
     &quot;inventoryTarget&quot;: 100,
     &quot;inventory&quot;: 100,
     &quot;buy&quot;: 8,
     &quot;sell&quot;: 11,
-    &quot;consumeRate&quot;: 3.0,
-    &quot;craftRate&quot;: 0.0
+    &quot;consumeRate&quot;: 3.0
   }
 }</property>
    </properties>

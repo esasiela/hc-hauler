@@ -954,6 +954,11 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
   }
 
   @Override
+  public List<Recipe> getRecipes() {
+    return recipes;
+  }
+
+  @Override
   public List<Node> getNodes() {
     return nodes;
   }
