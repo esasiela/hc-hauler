@@ -123,64 +123,102 @@ public class City extends WorldEntity implements Selectable {
   }
 
   private List<String> buildInspectorLinesSummary(WorldEntity hoveredEntity) {
-    List<String> lines =
-        new ArrayList<>(
-            List.of(
-                String.format("World : %d, %d", (int) worldX, (int) worldY),
-                String.format(
-                    "Map row/col: %d, %d",
-                    (int) (worldX / C.MAP_TILE_WIDTH_PX), (int) (worldY / C.MAP_TILE_HEIGHT_PX)),
-                "Alliance: " + alliance,
-                "",
-                "RAW Qty: " + Math.round(getInventory(ResourceType.ORE)),
-                "REF Qty: " + Math.round(getInventory(ResourceType.BAR)),
-                String.format(
-                    "RAW Inventory Velocity: %+.2f",
-                    getResource(ResourceType.ORE).inventoryVelocity),
-                String.format(
-                    "REF Inventory Velocity: %+.2f",
-                    getResource(ResourceType.BAR).inventoryVelocity),
-                "",
-                String.format("Raw Buy Price : %.1f", getBuyPrice(ResourceType.ORE)),
-                String.format("Raw Sell Price: %.1f", getSellPrice(ResourceType.BAR)),
-                String.format("Raw Buy Price Vel : %.2f", getBuyPriceVelocity(ResourceType.ORE)),
-                String.format("Raw Sell Price Vel: %.2f", getSellPriceVelocity(ResourceType.ORE)),
-                String.format("Ref Buy Price : %.1f", getBuyPrice(ResourceType.BAR)),
-                String.format("Ref Sell Price: %.1f", getSellPrice(ResourceType.BAR)),
-                String.format("Ref Buy Price Vel : %.2f", getBuyPriceVelocity(ResourceType.BAR)),
-                String.format("Ref Sell Price Vel: %.2f", getSellPriceVelocity(ResourceType.BAR)),
-                "",
-                "TODO: inspector for crafting"));
+
+    List<String> lines = new ArrayList<>();
+
+    lines.add("City: " + name);
+    lines.add("Alliance: " + alliance);
+    lines.add(String.format("World: %d,%d", (int) worldX, (int) worldY));
+    lines.add("");
+
+    lines.add("== Inventory ==");
+
+    for (ResourceType type : ResourceType.values()) {
+
+      CityResource r = getResource(type);
+
+      if (r.inventory == 0f && r.inventoryTarget == 0f && r.consumeRate == 0f) continue;
+
+      lines.add(
+          String.format(
+              "%-5s %4.0f/%4.0f  vel %+.2f",
+              type.name(), r.inventory, r.inventoryTarget, r.inventoryVelocity));
+    }
+
+    lines.add("");
+
+    lines.add("== Consumption ==");
+
+    for (ResourceType type : ResourceType.values()) {
+
+      CityResource r = getResource(type);
+
+      if (r.consumeRate > 0f) {
+        lines.add(String.format("%-5s %.2f/sec", type.name(), r.consumeRate));
+      }
+    }
+
+    lines.add("");
+
+    if (!recipes.isEmpty()) {
+
+      lines.add("== Crafting ==");
+
+      for (Recipe recipe : recipes) {
+
+        lines.add(String.format("%s  %.2f/sec", recipe.getId(), recipe.getCraftRate()));
+
+        StringBuilder flow = new StringBuilder();
+
+        boolean first = true;
+
+        for (var e : recipe.getInputs().entrySet()) {
+          if (!first) flow.append(" + ");
+          flow.append(e.getKey().name()).append("(").append(Math.round(e.getValue())).append(")");
+          first = false;
+        }
+
+        flow.append(" -> ");
+
+        first = true;
+
+        for (var e : recipe.getOutputs().entrySet()) {
+          if (!first) flow.append(" + ");
+          flow.append(e.getKey().name()).append("(").append(Math.round(e.getValue())).append(")");
+          first = false;
+        }
+
+        lines.add(flow.toString());
+      }
+    }
 
     return lines;
   }
 
   private List<String> buildInspectorLinesTrade(WorldEntity hoveredEntity) {
+
     List<String> lines = new ArrayList<>();
-    lines.add("== Prices: buy / sell ==");
-    for (City city : world.getCities()) {
-      lines.add(
-          String.format(
-              "%s: %.1f / %.1f",
-              city.getName(),
-              city.getBuyPrice(ResourceType.ORE),
-              city.getSellPrice(ResourceType.ORE)));
-    }
+
+    lines.add("== Market Signals ==");
     lines.add("");
-    lines.add("== Trade Opportunities ==");
-    lines.add("Buy here.......Sell there");
-    for (City city : world.getCities()) {
-      if (city == this) continue;
-      float spread = city.getBuyPrice(ResourceType.ORE) - this.getSellPrice(ResourceType.ORE);
-      lines.add(city.getName() + ":");
-      lines.add(
-          String.format(
-              "Out@%.1f In@%.1f Spread=%s%.1f",
-              this.getSellPrice(ResourceType.ORE),
-              city.getBuyPrice(ResourceType.ORE),
-              spread >= 0f ? "+" : "",
-              spread));
+
+    for (ResourceType type : ResourceType.values()) {
+
+      CityResource r = getResource(type);
+
+      if (r.inventory == 0f && r.inventoryTarget == 0f) continue;
+
+      lines.add(type.name());
+
+      lines.add(String.format("inv %.0f / %.0f", r.inventory, r.inventoryTarget));
+
+      lines.add(String.format("buy  %.2f  vel %+.2f", r.buyPrice, r.buyPriceVelocity));
+
+      lines.add(String.format("sell %.2f  vel %+.2f", r.sellPrice, r.sellPriceVelocity));
+
+      lines.add("");
     }
+
     return lines;
   }
 
