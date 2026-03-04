@@ -9,8 +9,9 @@ public class C {
   /* ****
    * Live-editable (non-final) values at the top
    * ****/
-  @WorldSnapshotConst public static float distancePenalty = 0.20f * 1.15f;
+  @WorldSnapshotConst public static float distancePenalty = 0f; // 0.20f * 1.15f;
   @WorldSnapshotConst public static float harvestCost = 5.2f;
+  @WorldSnapshotConst public static float harvestDeliveryRadiusMultiplier = 15.5f;
   @WorldSnapshotConst public static float inventoryVelocitySmoothing = 0.9f;
   @WorldSnapshotConst public static float buyPriceInventoryVelocitySensitivity = 0.5f;
   @WorldSnapshotConst public static float buyPriceInventoryScarcityExponent = 4f;

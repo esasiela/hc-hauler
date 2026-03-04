@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="3" nextobjectid="1">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="23">
  <tileset firstgid="1" source="[Base]BaseChip_pipo.tsx"/>
- <layer id="1" name="Tile Layer 1" width="60" height="20">
+ <layer id="1" name="Ground" width="60" height="20">
   <data encoding="csv">
 117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,
 117,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,117,
@@ -9,7 +9,7 @@
 117,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,117,
 117,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,117,
 117,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,117,
-117,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,117,
+117,3,3,3,3,3,3,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,292,3,3,3,3,3,3,3,3,3,3,3,117,
 117,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,117,
 117,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,117,
 117,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,117,
@@ -25,5 +25,209 @@
 117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117
 </data>
  </layer>
- <objectgroup id="2" name="Entities"/>
+ <layer id="4" name="Decor" width="60" height="20">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,1,1,1,1,1,1,1,0,0,0,50,0,0,0,0,50,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,
+0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,
+0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,159,0,0,0,173,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,
+0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,53,54,0,0,0,0,159,0,0,0,0,0,173,0,0,0,0,0,0,0,0,0,0,54,0,0,0,0,0,0,0,0,53,0,1,1,1,1,1,1,0,
+0,1,1,0,0,0,0,0,236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,159,0,0,0,173,0,0,0,0,0,56,56,0,0,0,0,0,0,0,0,0,236,0,0,0,0,53,1,1,1,1,1,1,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,55,0,0,0,0,1,1,1,1,1,0,
+0,0,0,0,0,0,0,0,0,0,0,49,0,0,0,49,49,0,0,0,0,0,158,0,0,0,0,0,238,0,0,0,0,0,0,0,0,0,0,0,0,54,0,0,0,0,49,0,0,0,0,0,0,0,1,1,1,1,1,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,174,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,53,0,0,0,0,1,1,1,1,1,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,51,0,0,0,51,0,0,0,51,0,0,0,0,51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,53,0,0,1,1,1,1,1,0,
+0,0,0,0,0,0,0,0,51,51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,
+0,1,0,0,0,0,0,0,0,51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,
+0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,
+0,1,1,1,1,0,0,0,0,0,0,0,0,0,50,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,
+0,1,1,1,1,1,0,0,0,0,0,0,0,50,0,50,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,
+0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,
+0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,1,0,58,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,
+0,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,49,0,0,0,0,0,49,0,0,1,1,1,1,1,1,1,1,1,0,58,0,58,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,
+0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="2" name="Entities">
+  <object id="1" name="ny" type="City" gid="665" x="1536" y="224" width="32" height="32">
+   <properties>
+    <property name="resourcesJson">{
+  &quot;HERB&quot;: {
+    &quot;inventoryTarget&quot;: 100,
+    &quot;inventory&quot;: 100,
+    &quot;buy&quot;: 10,
+    &quot;sell&quot;: 13,
+    &quot;consumeRate&quot;: 0,
+    &quot;craftRate&quot;: 0
+  },
+  &quot;SPICE&quot;: {
+    &quot;inventoryTarget&quot;: 100,
+    &quot;inventory&quot;: 50,
+    &quot;buy&quot;: 8,
+    &quot;sell&quot;: 11,
+    &quot;consumeRate&quot;: 0.2,
+    &quot;craftRate&quot;: 1.0
+  }
+}</property>
+   </properties>
+  </object>
+  <object id="3" name="ch" type="City" gid="665" x="896" y="160" width="32" height="32">
+   <properties>
+    <property name="resourcesJson">{
+  &quot;HERB&quot;: {
+    &quot;inventoryTarget&quot;: 100,
+    &quot;inventory&quot;: 100,
+    &quot;buy&quot;: 10,
+    &quot;sell&quot;: 13,
+    &quot;consumeRate&quot;: 0,
+    &quot;craftRate&quot;: 0
+  },
+  &quot;SPICE&quot;: {
+    &quot;inventoryTarget&quot;: 100,
+    &quot;inventory&quot;: 100,
+    &quot;buy&quot;: 8,
+    &quot;sell&quot;: 11,
+    &quot;consumeRate&quot;: 0.0,
+    &quot;craftRate&quot;: 0.0
+  }
+}</property>
+   </properties>
+  </object>
+  <object id="5" name="wn3" type="Node" gid="944" x="256" y="288" width="32" height="32">
+   <properties>
+    <property name="resourcesJson">{
+  &quot;HERB&quot;: {
+    &quot;amountMax&quot;: 100,
+    &quot;amount&quot;: 10,
+    &quot;regenRate&quot;: 5
+  }
+}</property>
+    <property name="spriteIdEmpty" type="int" value="951"/>
+    <property name="spriteIdFull" type="int" value="943"/>
+   </properties>
+  </object>
+  <object id="6" name="wn1" type="Node" gid="944" x="128" y="192" width="32" height="32">
+   <properties>
+    <property name="resourcesJson">{
+  &quot;HERB&quot;: {
+    &quot;amountMax&quot;: 100,
+    &quot;amount&quot;: 10,
+    &quot;regenRate&quot;: 5
+  }
+}</property>
+    <property name="spriteIdEmpty" type="int" value="951"/>
+    <property name="spriteIdFull" type="int" value="943"/>
+   </properties>
+  </object>
+  <object id="7" name="wn2" type="Node" gid="944" x="160" y="288" width="32" height="32">
+   <properties>
+    <property name="resourcesJson">{
+  &quot;HERB&quot;: {
+    &quot;amountMax&quot;: 100,
+    &quot;amount&quot;: 10,
+    &quot;regenRate&quot;: 5
+  }
+}</property>
+    <property name="spriteIdEmpty" type="int" value="951"/>
+    <property name="spriteIdFull" type="int" value="943"/>
+   </properties>
+  </object>
+  <object id="12" name="sf" type="City" gid="665" x="192" y="224" width="32" height="32">
+   <properties>
+    <property name="resourcesJson">{
+  &quot;HERB&quot;: {
+    &quot;inventoryTarget&quot;: 100,
+    &quot;inventory&quot;: 100,
+    &quot;buy&quot;: 10,
+    &quot;sell&quot;: 13,
+    &quot;consumeRate&quot;: 0,
+    &quot;craftRate&quot;: 0
+  },
+  &quot;SPICE&quot;: {
+    &quot;inventoryTarget&quot;: 100,
+    &quot;inventory&quot;: 10,
+    &quot;buy&quot;: 8,
+    &quot;sell&quot;: 11,
+    &quot;consumeRate&quot;: 0.0,
+    &quot;craftRate&quot;: 0.0
+  }
+}</property>
+   </properties>
+  </object>
+  <object id="13" name="fast2" type="Guy" gid="1028" x="896" y="224" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="true"/>
+    <property name="moveSpeed" type="float" value="96"/>
+    <property name="spriteDir" value="characters/hcr/"/>
+    <property name="spriteFilename" value="pinkeye-02.png"/>
+   </properties>
+  </object>
+  <object id="14" name="fast1" type="Guy" gid="1028" x="1472" y="224" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="true"/>
+    <property name="moveSpeed" type="float" value="96"/>
+    <property name="spriteDir" value="characters/hcr/"/>
+    <property name="spriteFilename" value="pinkeye-02.png"/>
+   </properties>
+  </object>
+  <object id="15" name="vslow1" type="Guy" gid="1028" x="192" y="96" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="true"/>
+    <property name="carryCapacity" type="float" value="20"/>
+    <property name="idleDelay" type="float" value="0.4"/>
+    <property name="moveSpeed" type="float" value="32"/>
+    <property name="spriteFilename" value="Animal/Cat-01-2r.png"/>
+   </properties>
+  </object>
+  <object id="16" name="slow2" type="Guy" gid="1028" x="64" y="224" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="true"/>
+    <property name="spriteFilename" value="Enemy/Enemy 15-1.png"/>
+   </properties>
+  </object>
+  <object id="17" name="vslow2" type="Guy" gid="1028" x="192" y="352" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="true"/>
+    <property name="carryCapacity" type="float" value="20"/>
+    <property name="idleDelay" type="float" value="0.4"/>
+    <property name="moveSpeed" type="float" value="32"/>
+    <property name="spriteFilename" value="Animal/Cat-01-2r.png"/>
+   </properties>
+  </object>
+  <object id="18" name="mid3" type="Guy" gid="1028" x="512" y="288" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="true"/>
+    <property name="moveSpeed" type="float" value="64"/>
+    <property name="spriteFilename" value="Female/Female 10-1.png"/>
+   </properties>
+  </object>
+  <object id="19" name="mid1" type="Guy" gid="1028" x="512" y="160" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="true"/>
+    <property name="moveSpeed" type="float" value="64"/>
+    <property name="spriteFilename" value="Female/Female 10-1.png"/>
+   </properties>
+  </object>
+  <object id="20" name="mid2" type="Guy" gid="1028" x="512" y="224" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="true"/>
+    <property name="moveSpeed" type="float" value="64"/>
+    <property name="spriteFilename" value="Female/Female 10-1.png"/>
+   </properties>
+  </object>
+  <object id="21" name="slow1" type="Guy" gid="1028" x="96" y="160" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="true"/>
+    <property name="carryCapacity" type="float" value="20"/>
+    <property name="spriteFilename" value="Enemy/Enemy 15-1.png"/>
+   </properties>
+  </object>
+  <object id="22" name="slow3" type="Guy" gid="1028" x="96" y="288" width="32" height="32">
+   <properties>
+    <property name="autonomyEnabled" type="bool" value="true"/>
+    <property name="spriteFilename" value="Enemy/Enemy 15-1.png"/>
+   </properties>
+  </object>
+ </objectgroup>
 </map>

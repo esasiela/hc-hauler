@@ -267,6 +267,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
             () -> marketBoardVisible,
             marketBoardX2));
 
+    /*
     uiElements.add(
         new MarketBoardUiElement(
             ResourceType.ORE,
@@ -284,6 +285,8 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
             this,
             () -> marketBoardVisible,
             marketBoardX4));
+
+     */
 
     /* ****
      * Setup world UNDER layers
@@ -701,6 +704,16 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         stepOneFrame = true;
         stepCooldown = 0.08f;
       }
+    }
+
+    /* ****
+     * -+ constant changes
+     */
+    float constDelta = Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 1.0f : 0.1f;
+    if (Gdx.input.isKeyJustPressed(Keys.MINUS)) {
+      C.harvestDeliveryRadiusMultiplier -= constDelta;
+    } else if (Gdx.input.isKeyJustPressed(Keys.EQUALS)) {
+      C.harvestDeliveryRadiusMultiplier += constDelta;
     }
 
     /* ****

@@ -57,7 +57,7 @@
                 {
                     "name": "autonomyEnabled",
                     "type": "bool",
-                    "value": false
+                    "value": true
                 },
                 {
                     "name": "behaviorModel",
@@ -67,12 +67,12 @@
                 {
                     "name": "carryCapacity",
                     "type": "float",
-                    "value": 0
+                    "value": 20
                 },
                 {
                     "name": "idleDelay",
                     "type": "float",
-                    "value": 0
+                    "value": 0.4
                 },
                 {
                     "name": "idleDelayJitter",
@@ -82,17 +82,17 @@
                 {
                     "name": "moveSpeed",
                     "type": "float",
-                    "value": 0
+                    "value": 48
                 },
                 {
                     "name": "spriteDir",
                     "type": "string",
-                    "value": ""
+                    "value": "characters/pipoya/Female/"
                 },
                 {
                     "name": "spriteFilename",
                     "type": "string",
-                    "value": ""
+                    "value": "Female 01-1.png"
                 }
             ],
             "name": "Guy",

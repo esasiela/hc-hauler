@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "test-map-001.tmx",
+    "activeFile": "map60x20.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -12,6 +12,17 @@
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
+        "map60x20.tmx": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 1.1902,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 411.275415896488,
+                "y": 333.55738531339273
+            }
+        },
         "single-city.tmx": {
             "expandedObjectLayers": [
                 2
@@ -19,7 +30,7 @@
             "scale": 0.61,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 480.327868852459,
+                "x": 479.5081967213115,
                 "y": 309.8360655737705
             }
         },
@@ -41,8 +52,8 @@
             "scale": 0.597,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 643.2160804020101,
-                "y": 375.20938023450594
+                "x": 640.7035175879398,
+                "y": 319.9329983249582
             }
         },
         "test-tutorial.tmx": {
@@ -52,7 +63,7 @@
             "scale": 0.6135416666666667,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 479.1850594227503,
+                "x": 480,
                 "y": 319.4567062818336
             }
         }
@@ -62,13 +73,16 @@
     "openFiles": [
         "single-city.tmx",
         "test-tutorial.tmx",
-        "test-map-001.tmx"
+        "test-map-003.tmx",
+        "map60x20.tmx"
     ],
     "project": "single-city.tiled-project",
     "property.type": "int",
     "recentFiles": [
         "single-city.tmx",
         "test-tutorial.tmx",
+        "test-map-003.tmx",
+        "map60x20.tmx",
         "test-map-001.tmx",
         "[Base]BaseChip_pipo.tsx"
     ]

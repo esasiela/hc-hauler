@@ -97,6 +97,26 @@ public class City extends WorldEntity implements Selectable {
       herb.inventory -= available;
       spice.inventory += available;
     }
+
+    /* to generalize beyond 1:1...
+    executions = craftRate * delta
+    maxExecutionsFromHerb = herb.inventory / 2f
+    actualExecutions = min(executions, maxExecutionsFromHerb)
+    herb.inventory -= actualExecutions * 2f
+    spice.inventory += actualExecutions * 1f
+
+    2 HERB + 1 GRINDER → 1 SPICE
+    herb.inventory / 2
+    grinder.inventory / 1
+    maxExecutions = min(
+      herb.inventory / 2f,
+      grinder.inventory / 1f
+    )
+    actualExecutions = min(executions, maxExecutions)
+    herb.inventory -= actualExecutions * 2f
+    grinder.inventory -= actualExecutions * 1f
+    spice.inventory += actualExecutions * 1f
+     */
   }
 
   @Override

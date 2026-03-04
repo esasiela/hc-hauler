@@ -316,7 +316,8 @@ public class MarketBoardUiElement extends BaseUiElement implements UiElement {
     /* ****
      * Arbitrage Matrix
      */
-    float matrixHeaderY = matrixBounds.y + matrixBounds.height;
+    float matrixHeaderY =
+        matrixBounds.y + matrixBounds.height + (font.getLineHeight() + ROW_SPACING) - 10f;
 
     // Title row
     font.draw(batch, "=== Arbitrage Matrix ===", matrixBounds.x, matrixHeaderY);

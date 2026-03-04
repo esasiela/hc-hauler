@@ -61,12 +61,11 @@ public class InspectorPanelUiElement extends BaseUiElement implements UiElement 
     List<String> lines = new ArrayList<>();
     lines.add(
         String.format(
-            " %s%s%s p=%2.2f h=%2.2f",
+            " %s%s%s const=%2.2f",
             C.inspectorTab == InspectorTab.SUMMARY ? "[SUMMARY]" : " SUMMARY ",
             C.inspectorTab == InspectorTab.TRADE ? "[TRADE]" : " TRADE ",
             C.inspectorTab == InspectorTab.DEBUG ? "[DEBUG]" : " DEBUG ",
-            C.distancePenalty,
-            C.harvestCost));
+            C.harvestDeliveryRadiusMultiplier));
     lines.add("");
     if (selected == null) {
       lines.add("No Selection");

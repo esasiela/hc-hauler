@@ -214,7 +214,7 @@ public class Guy extends WorldEntity implements Selectable {
       } else {
         lines.add(
             String.format(
-                "%sTrade   wins : %.2f",
+                "%sTrade   wins : %+.2f",
                 (hoveredEntity == bestTrade.sourceCity) ? " >" : "  ", bestTrade.score));
         lines.add(
             String.format(
@@ -424,7 +424,7 @@ public class Guy extends WorldEntity implements Selectable {
 
   private void resolveBuyResults() {
     // we shall stop buying when our bag is full or the city is dry
-    if (capacityRemaining() <= 0 || buyTarget.getInventory(ResourceType.ORE) <= 0) {
+    if (capacityRemaining() <= 0 || buyTarget.getInventory(currentPlan.resourceType) <= 0) {
       // TODO change the buying exit strategy to see if request to buy received zero
       lastInteractionCity = buyTarget;
       // finishCurrentPlan();
@@ -703,34 +703,42 @@ public class Guy extends WorldEntity implements Selectable {
         City closestCity = node.getClosest(world.getCities());
         if (closestCity == null) continue;
 
-        PlanOption option = new PlanOption();
-        option.evaluationTime = world.getSimulationTime();
-        option.optionType = OptionType.HARVEST;
-        option.resourceType = type;
-        option.node = node;
-        option.destCity = closestCity;
+        float closestDistance = node.distanceTo(closestCity);
+        float maxDistance = closestDistance * C.harvestDeliveryRadiusMultiplier;
 
-        float amount = Math.min(res.amount, carryCapacity);
+        for (City city : world.getCities()) {
 
-        float sellPrice = closestCity.getBuyPrice(type);
-        float profit = amount * sellPrice;
+          float distanceToCity = node.distanceTo(city);
+          if (distanceToCity > maxDistance) continue;
 
-        float travelToNodeTime = distanceTo(node) / moveSpeed;
-        float harvestTime = amount / res.harvestRate;
-        float travelToCityTime = node.distanceTo(closestCity) / moveSpeed;
-        float unloadTime = amount / closestCity.getMarketIntakeRate(type);
+          PlanOption option = new PlanOption();
+          option.evaluationTime = world.getSimulationTime();
+          option.optionType = OptionType.HARVEST;
+          option.resourceType = type;
+          option.node = node;
+          option.destCity = city;
 
-        float totalTime = travelToNodeTime + harvestTime + travelToCityTime + unloadTime;
+          float amount = Math.min(res.amount, carryCapacity);
 
-        float profitPerSecond = profit / totalTime;
+          float sellPrice = city.getBuyPrice(type);
+          float profit = amount * sellPrice;
 
-        option.profit = profit;
-        option.totalTime = totalTime; // optional, useful for debugging
-        option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
+          float travelToNodeTime = distanceTo(node) / moveSpeed;
+          float harvestTime = amount / res.harvestRate;
+          float travelToCityTime = distanceToCity / moveSpeed;
+          float unloadTime = amount / city.getMarketIntakeRate(type);
 
-        option.score = profitPerSecond + option.workIncentive;
+          float totalTime = travelToNodeTime + harvestTime + travelToCityTime + unloadTime;
 
-        options.add(option);
+          float profitPerSecond = profit / totalTime;
+
+          option.profit = profit;
+          option.totalTime = totalTime;
+          option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
+          option.score = profitPerSecond + option.workIncentive;
+
+          options.add(option);
+        }
       }
     }
 
