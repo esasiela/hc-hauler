@@ -23,6 +23,8 @@ public class WorldSnapshot {
 
   public MapInfoSnapshot map;
 
+  // TODO add global supply and consumption aggregate metrics
+
   public List<CitySnapshot> cities;
   public List<NodeSnapshot> nodes;
   public List<GuySnapshot> guys;

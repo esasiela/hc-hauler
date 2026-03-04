@@ -856,7 +856,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     int mapRow = (int) (worldMousePos.y / C.MAP_TILE_HEIGHT_PX);
 
     return String.format(
-        "w=%d h=%d Screen=%d,%d World=%d,%d Tile=%d,%d p=%.2f",
+        "w=%d h=%d Screen=%d,%d World=%d,%d Tile=%d,%d",
         Gdx.graphics.getWidth(),
         Gdx.graphics.getWidth(),
         (int) screenMousePos.x,
@@ -864,8 +864,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         (int) worldMousePos.x,
         (int) worldMousePos.y,
         mapCol,
-        mapRow,
-        C.distancePenalty);
+        mapRow);
   }
 
   private void dumpWorld() {

@@ -63,11 +63,11 @@
   },
   &quot;SPICE&quot;: {
     &quot;inventoryTarget&quot;: 100,
-    &quot;inventory&quot;: 50,
+    &quot;inventory&quot;: 100,
     &quot;buy&quot;: 8,
     &quot;sell&quot;: 11,
-    &quot;consumeRate&quot;: 0.2,
-    &quot;craftRate&quot;: 1.0
+    &quot;consumeRate&quot;: 3.0,
+    &quot;craftRate&quot;: 7.0
   }
 }</property>
    </properties>
@@ -76,19 +76,19 @@
    <properties>
     <property name="resourcesJson">{
   &quot;HERB&quot;: {
-    &quot;inventoryTarget&quot;: 100,
-    &quot;inventory&quot;: 100,
+    &quot;inventoryTarget&quot;: 50,
+    &quot;inventory&quot;: 50,
     &quot;buy&quot;: 10,
     &quot;sell&quot;: 13,
-    &quot;consumeRate&quot;: 0,
+    &quot;consumeRate&quot;: 1.0,
     &quot;craftRate&quot;: 0
   },
   &quot;SPICE&quot;: {
-    &quot;inventoryTarget&quot;: 100,
-    &quot;inventory&quot;: 100,
+    &quot;inventoryTarget&quot;: 50,
+    &quot;inventory&quot;: 50,
     &quot;buy&quot;: 8,
     &quot;sell&quot;: 11,
-    &quot;consumeRate&quot;: 0.0,
+    &quot;consumeRate&quot;: 1.0,
     &quot;craftRate&quot;: 0.0
   }
 }</property>
@@ -98,9 +98,9 @@
    <properties>
     <property name="resourcesJson">{
   &quot;HERB&quot;: {
-    &quot;amountMax&quot;: 100,
-    &quot;amount&quot;: 10,
-    &quot;regenRate&quot;: 5
+    &quot;amountMax&quot;: 50,
+    &quot;amount&quot;: 50,
+    &quot;regenRate&quot;: 3
   }
 }</property>
     <property name="spriteIdEmpty" type="int" value="951"/>
@@ -111,9 +111,9 @@
    <properties>
     <property name="resourcesJson">{
   &quot;HERB&quot;: {
-    &quot;amountMax&quot;: 100,
-    &quot;amount&quot;: 10,
-    &quot;regenRate&quot;: 5
+    &quot;amountMax&quot;: 50,
+    &quot;amount&quot;: 50,
+    &quot;regenRate&quot;: 3
   }
 }</property>
     <property name="spriteIdEmpty" type="int" value="951"/>
@@ -124,9 +124,9 @@
    <properties>
     <property name="resourcesJson">{
   &quot;HERB&quot;: {
-    &quot;amountMax&quot;: 100,
-    &quot;amount&quot;: 10,
-    &quot;regenRate&quot;: 5
+    &quot;amountMax&quot;: 50,
+    &quot;amount&quot;: 50,
+    &quot;regenRate&quot;: 3
   }
 }</property>
     <property name="spriteIdEmpty" type="int" value="951"/>
@@ -138,7 +138,7 @@
     <property name="resourcesJson">{
   &quot;HERB&quot;: {
     &quot;inventoryTarget&quot;: 100,
-    &quot;inventory&quot;: 100,
+    &quot;inventory&quot;: 30,
     &quot;buy&quot;: 10,
     &quot;sell&quot;: 13,
     &quot;consumeRate&quot;: 0,
@@ -146,10 +146,10 @@
   },
   &quot;SPICE&quot;: {
     &quot;inventoryTarget&quot;: 100,
-    &quot;inventory&quot;: 10,
+    &quot;inventory&quot;: 100,
     &quot;buy&quot;: 8,
     &quot;sell&quot;: 11,
-    &quot;consumeRate&quot;: 0.0,
+    &quot;consumeRate&quot;: 3.0,
     &quot;craftRate&quot;: 0.0
   }
 }</property>

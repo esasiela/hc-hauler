@@ -22,7 +22,7 @@ public class GuySnapshot {
 
   public CurrentPlanSnapshot currentPlan;
 
-  public DecisionContextSnapshot decisionContext;
+  public DecisionContextSnapshot currentMarketEvaluation;
 
   public static GuySnapshot from(Guy g) {
     GuySnapshot gs = new GuySnapshot();
@@ -60,16 +60,19 @@ public class GuySnapshot {
     PlanOption bestTrade =
         tradeOptions.stream().max(Comparator.comparingDouble(opt -> opt.score)).orElse(null);
 
-    gs.decisionContext = new DecisionContextSnapshot();
-    gs.decisionContext.bestHarvest = EvaluatedPlanSnapshot.from(bestHarvest);
-    gs.decisionContext.bestTrade = EvaluatedPlanSnapshot.from(bestTrade);
+    gs.currentMarketEvaluation = new DecisionContextSnapshot();
+    gs.currentMarketEvaluation.bestHarvest = EvaluatedPlanSnapshot.from(bestHarvest);
+    gs.currentMarketEvaluation.bestTrade = EvaluatedPlanSnapshot.from(bestTrade);
 
     if (bestHarvest != null && bestTrade != null) {
-      gs.decisionContext.scoreDiff = (double) (bestHarvest.score - bestTrade.score);
-      gs.decisionContext.bestScoreOverall = (double) Math.max(bestHarvest.score, bestTrade.score);
+      gs.currentMarketEvaluation.scoreDiff = (double) (bestHarvest.score - bestTrade.score);
+      gs.currentMarketEvaluation.bestScoreOverall =
+          (double) Math.max(bestHarvest.score, bestTrade.score);
     } else {
-      if (bestHarvest != null) gs.decisionContext.bestScoreOverall = (double) bestHarvest.score;
-      else if (bestTrade != null) gs.decisionContext.bestScoreOverall = (double) bestTrade.score;
+      if (bestHarvest != null)
+        gs.currentMarketEvaluation.bestScoreOverall = (double) bestHarvest.score;
+      else if (bestTrade != null)
+        gs.currentMarketEvaluation.bestScoreOverall = (double) bestTrade.score;
     }
 
     return gs;

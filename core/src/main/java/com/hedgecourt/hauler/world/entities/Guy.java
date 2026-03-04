@@ -399,7 +399,7 @@ public class Guy extends WorldEntity implements Selectable {
       moveToDeliver(loopDeliverCity);
     } else {
       // finishCurrentPlan();
-      moveToDeliver(harvestTarget.getClosest(world.getCities()));
+      moveToDeliver(currentPlan.destCity);
       harvestTarget = null;
     }
   }
@@ -554,7 +554,14 @@ public class Guy extends WorldEntity implements Selectable {
   private void onArrival() {
     snapTargetToWorld();
 
-    if (harvestTarget != null && distanceTo(harvestTarget) < C.HARVEST_RANGE) {
+    if (currentPlan != null
+        && harvestTarget != null
+        && distanceTo(harvestTarget) < C.HARVEST_RANGE) {
+      // node might have been emptied by other guys
+      if (harvestTarget.getAmount(currentPlan.resourceType) <= 0f && carriedAmount <= 0f) {
+        finishCurrentPlan();
+        return;
+      }
       startHarvesting(harvestTarget);
     } else if (deliverTarget != null && distanceTo(deliverTarget) < C.DELIVER_RANGE) {
       startDelivering(deliverTarget);
@@ -630,34 +637,6 @@ public class Guy extends WorldEntity implements Selectable {
         return;
       }
     }
-    /*
-    if (carriedAmount <= 0) {
-      // if I have zero inventory: find the closest...
-      // city with positive inventory, that i didnt just buy from
-      // node with positive inventory
-      City nearestCity =
-          world.getCities().stream()
-              .filter(c -> c != lastInteractionCity)
-              .filter(city -> city.getStoredAmount() > 0)
-              .min(Comparator.comparingDouble(this::distanceTo))
-              .orElse(null);
-      Node nearestNode =
-          world.getNodes().stream()
-              .filter(node -> node.getResourceAmount() > 0)
-              .min(Comparator.comparingDouble(this::distanceTo))
-              .orElse(null);
-
-      if (nearestNode == null && nearestCity == null) return;
-
-      if (nearestCity == null
-          || (nearestNode != null && distanceTo(nearestNode) <= distanceTo(nearestCity))) {
-        moveToHarvest(nearestNode);
-      } else {
-        moveToBuy(nearestCity);
-      }
-    }
-
-     */
 
     if (carriedAmount > 0) {
       // if i have stuff in my bag, deliver to best city (that's not the last place i bought from)
@@ -666,9 +645,7 @@ public class Guy extends WorldEntity implements Selectable {
               .filter(c -> c != lastInteractionCity)
               .max(
                   Comparator.comparingDouble(
-                      c ->
-                          c.getBuyPrice(carriedType)
-                              - ((distanceTo(c) / moveSpeed) * C.distancePenalty)))
+                      c -> c.getBuyPrice(carriedType) / (distanceTo(c) / moveSpeed)))
               .orElse(null);
 
       // if nearest is null, that means there's no cities on the map (that we didnt recently buy
@@ -680,10 +657,6 @@ public class Guy extends WorldEntity implements Selectable {
     }
 
     // default is to do nothing
-  }
-
-  private float travelPenalty(float distance) {
-    return (distance / moveSpeed) * C.distancePenalty;
   }
 
   public List<PlanOption> evaluateHarvestOptions() {
