@@ -1,0 +1,12 @@
+[
+  {
+    "id": "spice_recipe",
+    "craftRate": 2.0,
+    "inputs": {
+      "HERB": 1
+    },
+    "outputs": {
+      "SPICE": 1
+    }
+  }
+]

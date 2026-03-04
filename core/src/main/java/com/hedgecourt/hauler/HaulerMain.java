@@ -34,6 +34,7 @@ import com.hedgecourt.hauler.debug.WorldSnapshot;
 import com.hedgecourt.hauler.debug.WorldSnapshotBuilder;
 import com.hedgecourt.hauler.economy.CityResource.CityResourceInitConfig;
 import com.hedgecourt.hauler.economy.NodeResource.NodeResourceInitConfig;
+import com.hedgecourt.hauler.economy.Recipe;
 import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.ui.UiElement;
 import com.hedgecourt.hauler.ui.UiRenderer;
@@ -104,6 +105,8 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
   private List<Guy> guys;
   private List<Node> nodes;
   private List<City> cities;
+
+  private List<Recipe> recipes;
 
   private WorldEntity selectedEntity;
   private WorldEntity hoveredEntity;
@@ -309,6 +312,19 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     characterTextures = new HashMap<>();
     baseTilesTexture = new Texture(C.MAP_TILESET_PNG_FILE);
 
+    /* ****
+     * Load full list of crafting recipes
+     */
+    try {
+      recipes =
+          mapper.readValue(
+              Gdx.files.internal(C.RECIPE_DEFINITION_FILE).read(),
+              new TypeReference<List<Recipe>>() {});
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "Failed to load recipe definition file [" + C.RECIPE_DEFINITION_FILE + "]", e);
+    }
+
     // Load objects from the Tiled map Object layer: Entities
     Map<String, Function<MapObjectReader, WorldEntity>> mapObjectLoaders =
         Map.of(
@@ -355,6 +371,9 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
             .alliance(r.s("alliance", "Neutral").trim().toLowerCase())
             .build();
 
+    /* ***
+     * City resources
+     */
     try {
       String resourcesJson = r.s("resourcesJson", null);
       Map<ResourceType, CityResourceInitConfig> initMap = new EnumMap<>(ResourceType.class);
@@ -380,6 +399,33 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
       e.printStackTrace();
     }
 
+    /* ***
+     * City recipes
+     */
+    try {
+      String recipesJson = r.s("recipesJson", null);
+
+      if (recipesJson != null && !recipesJson.isBlank()) {
+
+        List<String> recipeIds =
+            mapper.readValue(recipesJson, new TypeReference<List<String>>() {});
+
+        for (String id : recipeIds) {
+          Recipe recipe =
+              recipes.stream()
+                  .filter(rp -> rp.getId().equals(id))
+                  .findFirst()
+                  .orElseThrow(() -> new RuntimeException("Unknown recipe id: " + id));
+
+          city.addRecipe(recipe);
+        }
+      }
+
+    } catch (Exception e) {
+      System.err.println(
+          "Error loading recipes for city " + city.getName() + ": " + e.getMessage());
+      e.printStackTrace();
+    }
     city.buildSprites(baseTilesTexture);
     return city;
   }

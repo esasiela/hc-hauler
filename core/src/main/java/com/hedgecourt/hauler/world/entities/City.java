@@ -7,6 +7,7 @@ import com.hedgecourt.hauler.C;
 import com.hedgecourt.hauler.Selectable;
 import com.hedgecourt.hauler.economy.CityResource;
 import com.hedgecourt.hauler.economy.CityResource.CityResourceInitConfig;
+import com.hedgecourt.hauler.economy.Recipe;
 import com.hedgecourt.hauler.economy.ResourceContainer;
 import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.world.WorldEntity;
@@ -27,6 +28,7 @@ public class City extends WorldEntity implements Selectable {
 
   String alliance;
 
+  private final List<Recipe> recipes = new ArrayList<>();
   private final ResourceContainer<CityResource> cityResources = new ResourceContainer<>();
 
   {
@@ -77,46 +79,33 @@ public class City extends WorldEntity implements Selectable {
   }
 
   private void craft(float delta) {
-    CityResource raw = getResource(ResourceType.ORE);
-    CityResource refined = getResource(ResourceType.BAR);
-    CityResource herb = getResource(ResourceType.HERB);
-    CityResource spice = getResource(ResourceType.SPICE);
 
-    if (refined.craftRate > 0) {
-      float amount = refined.craftRate * delta;
-      // TODO use requestWithdraw()
-      float available = Math.min(amount, raw.inventory);
-      // TODO implement an adjustInventory method on ResourceState
-      raw.inventory -= available;
-      refined.inventory += available;
+    for (Recipe recipe : recipes) {
+
+      float executions = recipe.getCraftRate() * delta;
+
+      float maxExecutions = Float.MAX_VALUE;
+
+      for (var entry : recipe.getInputs().entrySet()) {
+        ResourceType type = entry.getKey();
+        float required = entry.getValue();
+
+        float availableExecutions = getInventory(type) / required;
+        maxExecutions = Math.min(maxExecutions, availableExecutions);
+      }
+
+      float actualExecutions = Math.min(executions, maxExecutions);
+
+      if (actualExecutions <= 0f) continue;
+
+      for (var entry : recipe.getInputs().entrySet()) {
+        adjustInventory(entry.getKey(), -entry.getValue() * actualExecutions);
+      }
+
+      for (var entry : recipe.getOutputs().entrySet()) {
+        adjustInventory(entry.getKey(), entry.getValue() * actualExecutions);
+      }
     }
-
-    if (spice.craftRate > 0) {
-      float amount = spice.craftRate * delta;
-      float available = Math.min(amount, herb.inventory);
-      herb.inventory -= available;
-      spice.inventory += available;
-    }
-
-    /* to generalize beyond 1:1...
-    executions = craftRate * delta
-    maxExecutionsFromHerb = herb.inventory / 2f
-    actualExecutions = min(executions, maxExecutionsFromHerb)
-    herb.inventory -= actualExecutions * 2f
-    spice.inventory += actualExecutions * 1f
-
-    2 HERB + 1 GRINDER → 1 SPICE
-    herb.inventory / 2
-    grinder.inventory / 1
-    maxExecutions = min(
-      herb.inventory / 2f,
-      grinder.inventory / 1f
-    )
-    actualExecutions = min(executions, maxExecutions)
-    herb.inventory -= actualExecutions * 2f
-    grinder.inventory -= actualExecutions * 1f
-    spice.inventory += actualExecutions * 1f
-     */
   }
 
   @Override
@@ -289,5 +278,9 @@ public class City extends WorldEntity implements Selectable {
 
   public Map<ResourceType, CityResource> getResourcesView() {
     return cityResources.view();
+  }
+
+  public void addRecipe(Recipe recipe) {
+    recipes.add(recipe);
   }
 }

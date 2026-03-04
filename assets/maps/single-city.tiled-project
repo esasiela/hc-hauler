@@ -21,19 +21,9 @@
                     "value": ""
                 },
                 {
-                    "name": "consumesRefined",
-                    "type": "bool",
-                    "value": false
-                },
-                {
-                    "name": "craftRate",
-                    "type": "float",
-                    "value": 0
-                },
-                {
-                    "name": "craftsRefined",
-                    "type": "bool",
-                    "value": false
+                    "name": "recipesJson",
+                    "type": "string",
+                    "value": ""
                 },
                 {
                     "name": "resourcesJson",

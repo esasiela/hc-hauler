@@ -43,6 +43,8 @@ public class C {
   // set to null for no initial selection
   public static final String DEFAULT_SELECTED_GUY_NAME = "fast1";
 
+  public static final String RECIPE_DEFINITION_FILE = "crafting-recipes.json";
+
   public static final float FRAME_DURATION = 0.15f;
 
   public static final int MAP_COLS = 30;

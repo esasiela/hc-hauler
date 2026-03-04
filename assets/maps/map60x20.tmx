@@ -52,22 +52,21 @@
  <objectgroup id="2" name="Entities">
   <object id="1" name="ny" type="City" gid="665" x="1536" y="224" width="32" height="32">
    <properties>
+    <property name="recipesJson" value="[&quot;spice_recipe&quot;]"/>
     <property name="resourcesJson">{
   &quot;HERB&quot;: {
     &quot;inventoryTarget&quot;: 100,
     &quot;inventory&quot;: 100,
     &quot;buy&quot;: 10,
     &quot;sell&quot;: 13,
-    &quot;consumeRate&quot;: 0,
-    &quot;craftRate&quot;: 0
+    &quot;consumeRate&quot;: 0
   },
   &quot;SPICE&quot;: {
     &quot;inventoryTarget&quot;: 100,
     &quot;inventory&quot;: 100,
     &quot;buy&quot;: 8,
     &quot;sell&quot;: 11,
-    &quot;consumeRate&quot;: 3.0,
-    &quot;craftRate&quot;: 7.0
+    &quot;consumeRate&quot;: 0.0
   }
 }</property>
    </properties>
