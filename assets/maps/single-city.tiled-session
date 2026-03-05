@@ -19,8 +19,19 @@
             "scale": 1.1902,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 411.275415896488,
-                "y": 333.55738531339273
+                "x": 388.59015291547644,
+                "y": 336.07797008906067
+            }
+        },
+        "map60x40.tmx": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 0.9532,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 1001.3638271086863,
+                "y": 499.3705413344523
             }
         },
         "single-city.tmx": {
@@ -68,6 +79,7 @@
             }
         }
     },
+    "map.height": 40,
     "map.lastUsedFormat": "tmx",
     "map.width": 60,
     "openFiles": [
@@ -77,7 +89,7 @@
         "map60x20.tmx"
     ],
     "project": "single-city.tiled-project",
-    "property.type": "string",
+    "property.type": "bool",
     "recentFiles": [
         "single-city.tmx",
         "test-tutorial.tmx",

@@ -62,27 +62,32 @@
                 {
                     "name": "idleDelay",
                     "type": "float",
-                    "value": 0.4
+                    "value": 1
                 },
                 {
                     "name": "idleDelayJitter",
                     "type": "float",
-                    "value": 0
+                    "value": 0.1
                 },
                 {
                     "name": "moveSpeed",
                     "type": "float",
-                    "value": 48
+                    "value": 64
+                },
+                {
+                    "name": "roleFromSpeed",
+                    "type": "bool",
+                    "value": true
                 },
                 {
                     "name": "spriteDir",
                     "type": "string",
-                    "value": "characters/pipoya/Female/"
+                    "value": "characters/pipoya/"
                 },
                 {
                     "name": "spriteFilename",
                     "type": "string",
-                    "value": "Female 01-1.png"
+                    "value": "Female/Female 01-1.png"
                 }
             ],
             "name": "Guy",

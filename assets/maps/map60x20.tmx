@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="26">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="27">
  <tileset firstgid="1" source="[Base]BaseChip_pipo.tsx"/>
  <layer id="1" name="Ground" width="60" height="20">
   <data encoding="csv">
@@ -261,6 +261,11 @@
    <properties>
     <property name="autonomyEnabled" type="bool" value="true"/>
     <property name="spriteFilename" value="Enemy/Enemy 15-1.png"/>
+   </properties>
+  </object>
+  <object id="26" name="bub" type="Guy" gid="1028" x="416" y="352" width="32" height="32">
+   <properties>
+    <property name="moveSpeed" type="float" value="72"/>
    </properties>
   </object>
  </objectgroup>

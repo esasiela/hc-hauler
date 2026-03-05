@@ -506,8 +506,17 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     return node;
   }
 
+  private static final Map<Float, GuyRole> GUY_SPEED_ROLES =
+      Map.of(
+          32f, new GuyRole("vslow", "characters/pipoya/", "Animal/Cat-01-2r.png"),
+          48f, new GuyRole("slow", "characters/pipoya/", "Enemy/Enemy 15-1.png"),
+          64f, new GuyRole("mid", "characters/pipoya/", "Female/Female 10-1.png"),
+          96f, new GuyRole("fast", "characters/hcr/", "pinkeye-02.png"));
+  private final Map<String, Integer> guyRoleCounters = new HashMap<>();
+
+  private record GuyRole(String namePrefix, String spriteDir, String spriteFilename) {}
+
   private Guy loadGuy(MapObjectReader r) {
-    // TODO blow up if guy is invalid in the map object
     // TODO load guy width & height from map object
     Guy guy = null;
     try {
@@ -520,15 +529,30 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
               .worldY(r.f("y", 0f))
               .targetX(r.f("targetX", r.f("x", 0f)))
               .targetY(r.f("targetY", r.f("y", 0f)))
+              .autonomyEnabled(r.b("autonomyEnabled", true))
+              .behaviorModel(r.e("behaviorModel", BehaviorModel.NORMAL, BehaviorModel.class))
               .carryCapacity(r.f("carryCapacity", 20f))
-              .moveSpeed(r.f("moveSpeed", 64.0f))
               .idleDelay(r.f("idleDelay", 1.0f))
               .idleDelayJitter(r.f("idleDelayJitter", 0.1f))
-              .autonomyEnabled(r.b("autonomyEnabled", false))
-              .spriteFilename(r.s("spriteFilename", "Male/Male 01-1.png"))
+              .moveSpeed(r.f("moveSpeed", 64.0f))
               .spriteDir(r.s("spriteDir", C.GUY_SPRITE_DEFAULT_DIRECTORY))
-              .behaviorModel(r.e("behaviorModel", BehaviorModel.NORMAL, BehaviorModel.class))
+              .spriteFilename(r.s("spriteFilename", "Male/Male 01-1.png"))
               .build();
+
+      if (r.b("roleFromSpeed", true)) {
+        float speed = guy.getMoveSpeed();
+        GuyRole role =
+            GUY_SPEED_ROLES.getOrDefault(
+                speed, new GuyRole("guy", "characters/pipoya/", "Other/pien.png"));
+        /*
+        if (!GUY_SPEED_ROLES.containsKey(speed)) {
+          InitErrors.add("No role defined for moveSpeed " + speed + " on " + r.getMapObjectId());
+        }
+
+         */
+        int n = guyRoleCounters.merge(role.namePrefix(), 1, Integer::sum);
+        guy.initFromRole(role.namePrefix() + n, role.spriteDir(), role.spriteFilename());
+      }
 
       String spriteFullName = guy.getSpriteDir() + guy.getSpriteFilename();
       if (!characterTextures.containsKey(spriteFullName)) {

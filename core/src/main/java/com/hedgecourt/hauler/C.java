@@ -41,6 +41,7 @@ public class C {
   // public static final String MAP_FILE = "maps/single-city.tmx";
   // public static final String MAP_FILE = "maps/test-map-003.tmx";
   public static final String MAP_FILE = "maps/map60x20.tmx";
+  // public static final String MAP_FILE = "maps/map60x40.tmx";
 
   // set to null for no initial selection
   public static final String DEFAULT_SELECTED_GUY_NAME = "fast1";
