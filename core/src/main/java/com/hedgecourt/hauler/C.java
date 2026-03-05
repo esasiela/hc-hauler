@@ -9,7 +9,7 @@ public class C {
   /* ****
    * Live-editable (non-final) values at the top
    * ****/
-  @WorldSnapshotConst public static float harvestDeliveryRadiusMultiplier = 14.0f;
+  @WorldSnapshotConst public static float harvestDeliveryRadiusMultiplier = 6.0f;
   @WorldSnapshotConst public static float inventoryVelocitySmoothing = 0.9f;
   @WorldSnapshotConst public static float buyPriceInventoryVelocitySensitivity = 0.5f;
   @WorldSnapshotConst public static float buyPriceInventoryScarcityExponent = 4f;
@@ -50,7 +50,7 @@ public class C {
   public static final int MAP_TILE_WIDTH_PX = 32;
   public static final int MAP_TILE_HEIGHT_PX = 32;
 
-  public static final float DELIVER_RANGE = 50f;
+  public static final float DELIVER_RANGE = 20f;
   public static final float HARVEST_RANGE = 20f;
 
   public static final float GUY_TARGET_DISTANCE_THRESHOLD = 1f;

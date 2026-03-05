@@ -172,10 +172,20 @@ public class Guy extends WorldEntity implements Selectable {
         String.format("Carried Type: %s", carriedType),
         String.format(
             "Carried Amt : %d / %d", Math.round(carriedAmount), Math.round(carryCapacity)),
-        String.format("Harv Trgt: %s", harvestTarget == null ? "null" : harvestTarget.getId()),
-        String.format("Depo Trgt: %s", deliverTarget == null ? "null" : deliverTarget.getId()),
-        String.format("Loop City: %s", loopDeliverCity == null ? "null" : loopDeliverCity.getId()),
-        String.format("Buy  City: %s", buyTarget == null ? "null" : buyTarget.getId()));
+        String.format(
+            "Harv Trgt: %s",
+            harvestTarget == null ? "null" : harvestTarget.getId() + " " + harvestTarget.getName()),
+        String.format(
+            "Depo Trgt: %s",
+            deliverTarget == null ? "null" : deliverTarget.getId() + " " + deliverTarget.getName()),
+        String.format(
+            "Loop City: %s",
+            loopDeliverCity == null
+                ? "null"
+                : loopDeliverCity.getId() + " " + loopDeliverCity.getName()),
+        String.format(
+            "Buy  City: %s",
+            buyTarget == null ? "null" : buyTarget.getId() + " " + buyTarget.getName()));
 
     // TODO if stuffNode is not null, display some stats
     // TODO if city is not null, display some stats
@@ -344,27 +354,33 @@ public class Guy extends WorldEntity implements Selectable {
   }
 
   private void updateMoving(float delta) {
-    // waaaah. i want to reuse distanceTo, but I need dx & dy for movement later down
     float dx = targetX - worldX;
     float dy = targetY - worldY;
     float dist = (float) Math.sqrt(dx * dx + dy * dy);
 
-    if (dist <= C.GUY_TARGET_DISTANCE_THRESHOLD) {
-      // we're there, dude
+    boolean arrived = dist <= C.GUY_TARGET_DISTANCE_THRESHOLD;
+
+    // early exit: stop as soon as we're in action range of our intended target
+    if (!arrived && harvestTarget != null && distanceTo(harvestTarget) <= C.HARVEST_RANGE) {
+      arrived = true;
+    } else if (!arrived && deliverTarget != null && distanceTo(deliverTarget) <= C.DELIVER_RANGE) {
+      arrived = true;
+    } else if (!arrived && buyTarget != null && distanceTo(buyTarget) <= C.DELIVER_RANGE) {
+      arrived = true;
+    }
+
+    if (arrived) {
       onArrival();
       animationTime = 0f;
     } else {
-      // move towards the target, facing the right way
       if (Math.abs(dx) > Math.abs(dy)) {
         facing = dx > 0 ? Direction.EAST : Direction.WEST;
       } else {
         facing = dy > 0 ? Direction.NORTH : Direction.SOUTH;
       }
       float step = Math.min(moveSpeed * delta, dist);
-
       worldX += dx / dist * step;
       worldY += dy / dist * step;
-
       animationTime += delta;
     }
   }
@@ -427,7 +443,7 @@ public class Guy extends WorldEntity implements Selectable {
     if (capacityRemaining() <= 0 || buyTarget.getInventory(currentPlan.resourceType) <= 0) {
       // TODO change the buying exit strategy to see if request to buy received zero
       lastInteractionCity = buyTarget;
-      // finishCurrentPlan();
+      buyTarget = null;
 
       // now we have a full bag of stuff, move to the next city on the plan
       moveToDeliver(currentPlan.destCity);

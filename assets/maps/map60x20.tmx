@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="23">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="60" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="5" nextobjectid="26">
  <tileset firstgid="1" source="[Base]BaseChip_pipo.tsx"/>
  <layer id="1" name="Ground" width="60" height="20">
   <data encoding="csv">
@@ -91,13 +91,26 @@
 }</property>
    </properties>
   </object>
-  <object id="5" name="wn3" type="Node" gid="944" x="256" y="288" width="32" height="32">
+  <object id="5" name="wn4" type="Node" gid="944" x="256" y="288" width="32" height="32">
    <properties>
     <property name="resourcesJson">{
   &quot;HERB&quot;: {
     &quot;amountMax&quot;: 40,
-    &quot;amount&quot;: 40,
-    &quot;regenRate&quot;: 1.5
+    &quot;amount&quot;: 10,
+    &quot;regenRate&quot;: 0.75
+  }
+}</property>
+    <property name="spriteIdEmpty" type="int" value="951"/>
+    <property name="spriteIdFull" type="int" value="943"/>
+   </properties>
+  </object>
+  <object id="24" name="wn5" type="Node" gid="944" x="224" y="352" width="32" height="32">
+   <properties>
+    <property name="resourcesJson">{
+  &quot;HERB&quot;: {
+    &quot;amountMax&quot;: 40,
+    &quot;amount&quot;: 10,
+    &quot;regenRate&quot;: 0.75
   }
 }</property>
     <property name="spriteIdEmpty" type="int" value="951"/>
@@ -109,8 +122,21 @@
     <property name="resourcesJson">{
   &quot;HERB&quot;: {
     &quot;amountMax&quot;: 40,
-    &quot;amount&quot;: 40,
-    &quot;regenRate&quot;: 1.5
+    &quot;amount&quot;: 10,
+    &quot;regenRate&quot;: 0.75
+  }
+}</property>
+    <property name="spriteIdEmpty" type="int" value="951"/>
+    <property name="spriteIdFull" type="int" value="943"/>
+   </properties>
+  </object>
+  <object id="25" name="wn6" type="Node" gid="944" x="192" y="128" width="32" height="32">
+   <properties>
+    <property name="resourcesJson">{
+  &quot;HERB&quot;: {
+    &quot;amountMax&quot;: 40,
+    &quot;amount&quot;: 10,
+    &quot;regenRate&quot;: 0.75
   }
 }</property>
     <property name="spriteIdEmpty" type="int" value="951"/>
@@ -122,8 +148,21 @@
     <property name="resourcesJson">{
   &quot;HERB&quot;: {
     &quot;amountMax&quot;: 40,
-    &quot;amount&quot;: 40,
-    &quot;regenRate&quot;: 1.5
+    &quot;amount&quot;: 10,
+    &quot;regenRate&quot;: 0.75
+  }
+}</property>
+    <property name="spriteIdEmpty" type="int" value="951"/>
+    <property name="spriteIdFull" type="int" value="943"/>
+   </properties>
+  </object>
+  <object id="23" name="wn3" type="Node" gid="944" x="96" y="256" width="32" height="32">
+   <properties>
+    <property name="resourcesJson">{
+  &quot;HERB&quot;: {
+    &quot;amountMax&quot;: 40,
+    &quot;amount&quot;: 10,
+    &quot;regenRate&quot;: 0.75
   }
 }</property>
     <property name="spriteIdEmpty" type="int" value="951"/>
@@ -135,7 +174,7 @@
     <property name="resourcesJson">{
   &quot;HERB&quot;: {
     &quot;inventoryTarget&quot;: 100,
-    &quot;inventory&quot;: 30,
+    &quot;inventory&quot;: 70,
     &quot;buy&quot;: 10,
     &quot;sell&quot;: 13,
     &quot;consumeRate&quot;: 0
