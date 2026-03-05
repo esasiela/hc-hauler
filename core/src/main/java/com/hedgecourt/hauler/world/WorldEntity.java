@@ -59,13 +59,13 @@ public abstract class WorldEntity implements Selectable {
   }
 
   public float distanceTo(float x, float y) {
-    float dx = x - worldX;
-    float dy = y - worldY;
+    float dx = x - getCenterX();
+    float dy = y - getCenterY();
     return (float) Math.sqrt(dx * dx + dy * dy);
   }
 
   public float distanceTo(WorldEntity entity) {
-    return distanceTo(entity.worldX, entity.worldY);
+    return distanceTo(entity.getCenterX(), entity.getCenterY());
   }
 
   public float distanceTo(Vector3 coords) {
