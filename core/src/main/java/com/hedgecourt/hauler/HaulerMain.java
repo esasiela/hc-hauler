@@ -215,7 +215,16 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         new HoverTooltipUiElement(
             hoverTooltipFont, glyphLayout, () -> hoveredEntity, this::getMouseUiPosition));
     uiElements.add(new PauseButtonUiElement(pauseButtonFont, () -> paused, () -> paused = !paused));
-    uiElements.add(new ElapsedTimeUiElement(pauseButtonFont, () -> simulationTime));
+
+    uiElements.add(
+        new ElapsedTimeUiElement(
+            pauseButtonFont,
+            metricsUiFont,
+            glyphLayout,
+            () -> simulationTime,
+            () -> simulationTick,
+            this::getMouseUiPosition));
+
     uiElements.add(new PauseIndicatorUiElement(pauseIndicatorFont, glyphLayout, () -> paused));
     uiElements.add(
         new InspectorPanelUiElement(
