@@ -1,4 +1,4 @@
-package com.hedgecourt.hauler.debug;
+package com.hedgecourt.hauler.debug.snapshot;
 
 import com.hedgecourt.hauler.economy.NodeResource;
 import com.hedgecourt.hauler.economy.ResourceType;

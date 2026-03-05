@@ -30,8 +30,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.hedgecourt.hauler.C.InspectorTab;
 import com.hedgecourt.hauler.camera.CameraController;
 import com.hedgecourt.hauler.camera.GameCamera;
-import com.hedgecourt.hauler.debug.WorldSnapshot;
-import com.hedgecourt.hauler.debug.WorldSnapshotBuilder;
+import com.hedgecourt.hauler.debug.GlobalFlowCalculator;
+import com.hedgecourt.hauler.debug.snapshot.WorldSnapshot;
+import com.hedgecourt.hauler.debug.snapshot.WorldSnapshotBuilder;
 import com.hedgecourt.hauler.economy.CityResource.CityResourceInitConfig;
 import com.hedgecourt.hauler.economy.NodeResource.NodeResourceInitConfig;
 import com.hedgecourt.hauler.economy.Recipe;
@@ -39,6 +40,7 @@ import com.hedgecourt.hauler.economy.ResourceType;
 import com.hedgecourt.hauler.ui.UiElement;
 import com.hedgecourt.hauler.ui.UiRenderer;
 import com.hedgecourt.hauler.ui.elements.ElapsedTimeUiElement;
+import com.hedgecourt.hauler.ui.elements.GlobalFlowUiElement;
 import com.hedgecourt.hauler.ui.elements.HeaderStatsUiElement;
 import com.hedgecourt.hauler.ui.elements.HoverTooltipUiElement;
 import com.hedgecourt.hauler.ui.elements.InspectorPanelUiElement;
@@ -60,6 +62,7 @@ import com.hedgecourt.hauler.world.layers.CityInventoryTextLayer;
 import com.hedgecourt.hauler.world.layers.GuyCargoTextLayer;
 import com.hedgecourt.hauler.world.layers.GuyStateTextLayer;
 import com.hedgecourt.hauler.world.layers.GuyTargetLinesLayer;
+import com.hedgecourt.hauler.world.layers.MouseWorldTooltipLayer;
 import com.hedgecourt.hauler.world.layers.NodeAmountTextLayer;
 import com.hedgecourt.hauler.world.layers.ProgressBarsLayer;
 import com.hedgecourt.hauler.world.layers.SelectionUnderLayer;
@@ -159,6 +162,11 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     BitmapFont inspectorFont = freeTypeFontGenerator.generateFont(inspectorFontParameter);
     inspectorFont.setColor(Color.BLACK);
 
+    FreeTypeFontParameter metricsUiFontParameter = new FreeTypeFontParameter();
+    metricsUiFontParameter.size = C.UI_METRICS_PANEL_FONT_SIZE;
+    BitmapFont metricsUiFont = freeTypeFontGenerator.generateFont(metricsUiFontParameter);
+    metricsUiFont.setColor(C.UI_PANEL_FG_COLOR);
+
     FreeTypeFontParameter hoverTooltipFontParameter = new FreeTypeFontParameter();
     hoverTooltipFontParameter.size = C.UI_HOVER_TOOLTIP_FONT_SIZE;
     BitmapFont hoverTooltipFont = freeTypeFontGenerator.generateFont(hoverTooltipFontParameter);
@@ -245,6 +253,8 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
             () -> gameCamera.getCamera(),
             this::getMouseUiPosition));
 
+    uiElements.add(new GlobalFlowUiElement(metricsUiFont, this));
+
     float marketBoardOffset = 376f;
     float marketBoardX1 = 6f;
     float marketBoardX2 = marketBoardX1 + marketBoardOffset;
@@ -305,6 +315,9 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     worldOverLayers.add(new GuyCargoTextLayer(() -> guys, worldLabelFont));
     worldOverLayers.add(new CityInventoryTextLayer(() -> cities, worldLabelFont));
     worldOverLayers.add(new NodeAmountTextLayer(() -> nodes, worldLabelFont));
+    worldOverLayers.add(
+        new MouseWorldTooltipLayer(
+            inspectorFont, glyphLayout, () -> selectedEntity, this::getMouseWorldPosition));
 
     /* ****
      * Setup texture files
@@ -795,6 +808,21 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     if (Gdx.input.isKeyJustPressed(Keys.C) && Gdx.input.isKeyPressed(Keys.SYM)) {
       dumpWorld();
       snapshotCopiedUiElement.trigger();
+    }
+
+    /* ****
+     * Dump global metrics
+     */
+    if (Gdx.input.isKeyJustPressed(Keys.N)) {
+      var flow = GlobalFlowCalculator.calculate(this);
+
+      List<Map.Entry<ResourceType, Float>> entries = new ArrayList<>(flow.entrySet());
+
+      // sort by abs to show the biggest imbalances, regardless of deficit/surplus
+      entries.sort((a, b) -> Float.compare(Math.abs(b.getValue()), Math.abs(a.getValue())));
+
+      System.out.println("Global Flow Calculator:");
+      entries.forEach(e -> System.out.printf("%s %+5.2f\n", e.getKey(), e.getValue()));
     }
   }
 

@@ -1,4 +1,4 @@
-package com.hedgecourt.hauler.debug;
+package com.hedgecourt.hauler.debug.snapshot;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

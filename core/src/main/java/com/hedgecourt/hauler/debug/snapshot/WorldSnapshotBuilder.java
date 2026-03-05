@@ -1,9 +1,9 @@
-package com.hedgecourt.hauler.debug;
+package com.hedgecourt.hauler.debug.snapshot;
 
 import com.hedgecourt.hauler.C;
 import com.hedgecourt.hauler.HaulerMain;
-import com.hedgecourt.hauler.debug.WorldSnapshot.MapInfoSnapshot;
-import com.hedgecourt.hauler.debug.WorldSnapshot.SimulationSnapshot;
+import com.hedgecourt.hauler.debug.snapshot.WorldSnapshot.MapInfoSnapshot;
+import com.hedgecourt.hauler.debug.snapshot.WorldSnapshot.SimulationSnapshot;
 import com.hedgecourt.hauler.economy.Recipe;
 import com.hedgecourt.hauler.world.entities.City;
 import com.hedgecourt.hauler.world.entities.Guy;

@@ -1,6 +1,7 @@
 package com.hedgecourt.hauler.economy;
 
 import com.hedgecourt.hauler.C;
+import com.hedgecourt.hauler.util.RollingMetric;
 
 public class CityResource {
 
@@ -12,6 +13,8 @@ public class CityResource {
 
   public float inventory;
   public float inventoryVelocity;
+  public final RollingMetric inventoryAvg = new RollingMetric();
+  public final RollingMetric inventoryVelocityAvg = new RollingMetric();
 
   public float buyPrice;
   public float buyPriceVelocity;
@@ -112,6 +115,14 @@ public class CityResource {
     dynamicSpread = Math.min(maxAllowedSpread, dynamicSpread);
 
     return buyPrice + dynamicSpread;
+  }
+
+  public void updateInventoryAvg(float delta) {
+    inventoryAvg.sample(inventory, delta);
+  }
+
+  public void updateInventoryVelocityAvg(float delta) {
+    inventoryVelocityAvg.sample(inventoryVelocity, delta);
   }
 
   public void updateInventoryVelocity(float delta) {

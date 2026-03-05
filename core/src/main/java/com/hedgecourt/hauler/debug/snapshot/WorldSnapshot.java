@@ -1,4 +1,4 @@
-package com.hedgecourt.hauler.debug;
+package com.hedgecourt.hauler.debug.snapshot;
 
 import java.util.List;
 import java.util.Map;

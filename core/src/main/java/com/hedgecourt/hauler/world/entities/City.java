@@ -66,6 +66,8 @@ public class City extends WorldEntity implements Selectable {
 
       if (timeToUpdatePrices) {
         resource.updateInventoryVelocity(priceUpdateTimer);
+        resource.updateInventoryAvg(priceUpdateTimer);
+        resource.updateInventoryVelocityAvg(priceUpdateTimer);
 
         resource.updateBuyPrice(priceUpdateTimer);
         resource.updateSellPrice(priceUpdateTimer);

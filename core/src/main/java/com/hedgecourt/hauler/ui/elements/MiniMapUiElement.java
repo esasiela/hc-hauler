@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 
 public class MiniMapUiElement extends BaseUiElement {
 
-  private static final float SIZE = 130f;
+  private static final float SIZE = 160f;
   private static final float MARGIN = 2f;
 
   private final Supplier<Float> worldWidthSupplier;

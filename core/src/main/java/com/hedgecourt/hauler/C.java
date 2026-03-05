@@ -1,7 +1,7 @@
 package com.hedgecourt.hauler;
 
 import com.badlogic.gdx.graphics.Color;
-import com.hedgecourt.hauler.debug.WorldSnapshotConst;
+import com.hedgecourt.hauler.debug.snapshot.WorldSnapshotConst;
 import com.hedgecourt.hauler.world.entities.Guy.State;
 import java.util.Map;
 
@@ -9,7 +9,7 @@ public class C {
   /* ****
    * Live-editable (non-final) values at the top
    * ****/
-  @WorldSnapshotConst public static float harvestDeliveryRadiusMultiplier = 15.5f;
+  @WorldSnapshotConst public static float harvestDeliveryRadiusMultiplier = 14.0f;
   @WorldSnapshotConst public static float inventoryVelocitySmoothing = 0.9f;
   @WorldSnapshotConst public static float buyPriceInventoryVelocitySensitivity = 0.5f;
   @WorldSnapshotConst public static float buyPriceInventoryScarcityExponent = 4f;
@@ -47,14 +47,8 @@ public class C {
 
   public static final float FRAME_DURATION = 0.15f;
 
-  public static final int MAP_COLS = 30;
-  public static final int MAP_ROWS = 20;
-
   public static final int MAP_TILE_WIDTH_PX = 32;
   public static final int MAP_TILE_HEIGHT_PX = 32;
-
-  public static final int WINDOW_WIDTH = MAP_COLS * MAP_TILE_WIDTH_PX;
-  public static final int WINDOW_HEIGHT = MAP_ROWS * MAP_TILE_HEIGHT_PX;
 
   public static final float DELIVER_RANGE = 50f;
   public static final float HARVEST_RANGE = 20f;
@@ -95,6 +89,11 @@ public class C {
       new Color(1.0f, 1.0f, 1.0f, SELECTION_COLOR_ALPHA);
 
   public static final float UI_SCREEN_PADDING = 2f;
+
+  public static final Color UI_PANEL_BG_COLOR = new Color(0.5f, 0.5f, 0.5f, 1f);
+  public static final Color UI_PANEL_FG_COLOR = Color.BLACK;
+
+  public static final int UI_METRICS_PANEL_FONT_SIZE = 14;
 
   public static final Color UI_PAUSE_BUTTON_BG_COLOR = new Color(1f, 1f, 1f, 0.5f);
   public static final Color UI_PAUSE_BUTTON_FG_COLOR = new Color(0.5f, 0.5f, 0.5f, 0.9f);

@@ -12,7 +12,7 @@ public class ElapsedTimeUiElement extends BaseUiElement implements UiElement {
   private final BitmapFont font;
   private final Supplier<Float> elapsedSupplier;
 
-  private final Rectangle bounds = new Rectangle(2f, 0f, 130f, 48f);
+  private final Rectangle bounds = new Rectangle(2f, 0f, 160f, 48f);
 
   public ElapsedTimeUiElement(BitmapFont font, Supplier<Float> elapsedSupplier) {
     this.font = font;
@@ -20,7 +20,7 @@ public class ElapsedTimeUiElement extends BaseUiElement implements UiElement {
   }
 
   private Rectangle getBounds() {
-    //bounds.y = Gdx.graphics.getHeight() - 100f; // 50px below pause button
+    // bounds.y = Gdx.graphics.getHeight() - 100f; // 50px below pause button
     bounds.y = uiHeight - 4f - 48f - bounds.height;
     return bounds;
   }
