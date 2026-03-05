@@ -65,7 +65,7 @@ public class InspectorPanelUiElement extends BaseUiElement implements UiElement 
             C.inspectorTab == InspectorTab.SUMMARY ? "[SUMMARY]" : " SUMMARY ",
             C.inspectorTab == InspectorTab.TRADE ? "[TRADE]" : " TRADE ",
             C.inspectorTab == InspectorTab.DEBUG ? "[DEBUG]" : " DEBUG ",
-            C.harvestDeliveryRadiusMultiplier));
+            C.harvestDeliveryCityRadiusMultiplier));
     lines.add("");
     if (selected == null) {
       lines.add("No Selection");

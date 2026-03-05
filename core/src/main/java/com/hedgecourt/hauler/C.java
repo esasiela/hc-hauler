@@ -9,7 +9,9 @@ public class C {
   /* ****
    * Live-editable (non-final) values at the top
    * ****/
-  @WorldSnapshotConst public static float harvestDeliveryRadiusMultiplier = 6.0f;
+  @WorldSnapshotConst public static float harvestDeliveryCityRadiusMultiplier = 6.0f;
+  @WorldSnapshotConst public static float harvestCompetitionAwarenessRadius = 200f;
+  @WorldSnapshotConst public static float harvestCompetitionPenaltyMultiplier = 0.2f;
   @WorldSnapshotConst public static float inventoryVelocitySmoothing = 0.9f;
   @WorldSnapshotConst public static float buyPriceInventoryVelocitySensitivity = 0.5f;
   @WorldSnapshotConst public static float buyPriceInventoryScarcityExponent = 4f;
@@ -108,7 +110,7 @@ public class C {
   public static final Color UI_INSPECTOR_PANEL_BG_COLOR = new Color(1f, 1f, 1f, 0.5f);
   public static final float UI_INSPECTOR_PANEL_ALPHA_SOLID = 0.9f;
   public static final float UI_INSPECTOR_PANEL_ALPHA_TRANSPARENT = 0.4f;
-  public static final int UI_INSPECTOR_PANEL_FONT_SIZE = 18;
+  public static final int UI_INSPECTOR_PANEL_FONT_SIZE = 14;
   public static final float UI_INSPECTOR_PANEL_LINE_PADDING = 2f;
   public static final float UI_INSPECTOR_PANEL_WIDTH = 500f;
   public static final float UI_INSPECTOR_PANEL_OFFSET_X =

@@ -120,7 +120,7 @@ public class MiniMapUiElement extends BaseUiElement {
     sr.rect(worldRect.x, worldRect.y, worldRect.width, worldRect.height);
 
     // Camera rectangle
-    sr.setColor(0.9f, 0.9f, 0.2f, 1f);
+    sr.setColor(0.48f, 0.13f, 0.55f, 1f);
     sr.rect(cameraRect.x, cameraRect.y, cameraRect.width, cameraRect.height);
   }
 

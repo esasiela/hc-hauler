@@ -112,6 +112,9 @@ public class GuySnapshot {
     public double profit;
     public double totalTime;
     public double workIncentive;
+    public double rawScore;
+    public double competitionPenalty;
+    public String competitorId;
     public double score;
 
     protected void copyFrom(PlanOption opt) {
@@ -135,6 +138,11 @@ public class GuySnapshot {
       profit = opt.profit;
       totalTime = opt.totalTime;
       workIncentive = opt.workIncentive;
+
+      rawScore = opt.rawScore;
+      competitionPenalty = opt.competitionPenalty;
+      competitorId = opt.competitorId;
+
       score = opt.score;
     }
   }

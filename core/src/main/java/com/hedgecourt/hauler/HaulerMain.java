@@ -43,6 +43,7 @@ import com.hedgecourt.hauler.ui.elements.ElapsedTimeUiElement;
 import com.hedgecourt.hauler.ui.elements.GlobalFlowUiElement;
 import com.hedgecourt.hauler.ui.elements.HeaderStatsUiElement;
 import com.hedgecourt.hauler.ui.elements.HoverTooltipUiElement;
+import com.hedgecourt.hauler.ui.elements.InitErrorsUiElement;
 import com.hedgecourt.hauler.ui.elements.InspectorPanelUiElement;
 import com.hedgecourt.hauler.ui.elements.MarketBoardUiElement;
 import com.hedgecourt.hauler.ui.elements.MiniMapUiElement;
@@ -154,48 +155,33 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     worldRenderer = new WorldRenderer(shapeRenderer, batch);
     uiRenderer = new UiRenderer(shapeRenderer, batch);
 
-    freeTypeFontGenerator =
-        new FreeTypeFontGenerator(Gdx.files.internal("fonts/JetBrainsMono-Regular.ttf"));
+    try {
+      freeTypeFontGenerator =
+          new FreeTypeFontGenerator(Gdx.files.internal("fonts/JetBrainsMono-Regular.ttf"));
+    } catch (Exception e) {
+      InitErrors.add("error loading freeTypeFontGenerator", e);
+    }
 
-    FreeTypeFontParameter inspectorFontParameter = new FreeTypeFontParameter();
-    inspectorFontParameter.size = C.UI_INSPECTOR_PANEL_FONT_SIZE;
-    BitmapFont inspectorFont = freeTypeFontGenerator.generateFont(inspectorFontParameter);
-    inspectorFont.setColor(Color.BLACK);
+    BitmapFont inspectorFont = loadMonoFont(C.UI_INSPECTOR_PANEL_FONT_SIZE, Color.BLACK);
+    BitmapFont marketBoardFont = loadMonoFont(18, Color.BLACK);
+    BitmapFont metricsUiFont = loadMonoFont(C.UI_METRICS_PANEL_FONT_SIZE, Color.BLACK);
+    BitmapFont hoverTooltipFont = loadMonoFont(C.UI_HOVER_TOOLTIP_FONT_SIZE, Color.WHITE);
+    BitmapFont worldLabelFont = loadMonoFont(C.UI_WORLD_LABEL_FONT_SIZE, null);
+    BitmapFont pauseIndicatorFont = loadMonoFont(48, C.UI_PAUSE_INDICATOR_FG_COLOR);
+    BitmapFont mouseWorldTooltipFont = loadMonoFont(18, Color.PURPLE);
+    BitmapFont initErrorsFont = loadMonoFont(14, Color.WHITE);
 
-    FreeTypeFontParameter metricsUiFontParameter = new FreeTypeFontParameter();
-    metricsUiFontParameter.size = C.UI_METRICS_PANEL_FONT_SIZE;
-    BitmapFont metricsUiFont = freeTypeFontGenerator.generateFont(metricsUiFontParameter);
-    metricsUiFont.setColor(C.UI_PANEL_FG_COLOR);
-
-    FreeTypeFontParameter hoverTooltipFontParameter = new FreeTypeFontParameter();
-    hoverTooltipFontParameter.size = C.UI_HOVER_TOOLTIP_FONT_SIZE;
-    BitmapFont hoverTooltipFont = freeTypeFontGenerator.generateFont(hoverTooltipFontParameter);
-    hoverTooltipFont.setColor(Color.WHITE);
-
-    FreeTypeFontParameter worldLabelFontParameter = new FreeTypeFontParameter();
-    worldLabelFontParameter.size = C.UI_WORLD_LABEL_FONT_SIZE;
-    BitmapFont worldLabelFont = freeTypeFontGenerator.generateFont(worldLabelFontParameter);
-
-    FreeTypeFontParameter pauseIndicatorFontParameter = new FreeTypeFontParameter();
-    pauseIndicatorFontParameter.size = 48;
-    BitmapFont pauseIndicatorFont = freeTypeFontGenerator.generateFont(pauseIndicatorFontParameter);
-    pauseIndicatorFont.setColor(C.UI_PAUSE_INDICATOR_FG_COLOR);
-
-    BitmapFont pauseButtonFont = new BitmapFont();
-    pauseButtonFont.setColor(C.UI_PAUSE_BUTTON_FG_COLOR);
-    pauseButtonFont.getData().setScale(2.0f);
-
-    BitmapFont snapshotCopiedFont = new BitmapFont();
-    snapshotCopiedFont.setColor(Color.WHITE);
-    snapshotCopiedFont.getData().setScale(2.0f);
-
-    statusBarFont = new BitmapFont();
-    statusBarFont.setColor(Color.BLACK);
-    statusBarFont.getData().setScale(2.0f);
+    BitmapFont pauseButtonFont = loadFont(2.0f, C.UI_PAUSE_BUTTON_FG_COLOR);
+    BitmapFont snapshotCopiedFont = loadFont(2.0f, Color.WHITE);
+    statusBarFont = loadFont(2.0f, Color.BLACK);
 
     // Load Tiled map
-    map = new TmxMapLoader().load(C.MAP_FILE);
-    mapRenderer = new OrthogonalTiledMapRenderer(map);
+    try {
+      map = new TmxMapLoader().load(C.MAP_FILE);
+      mapRenderer = new OrthogonalTiledMapRenderer(map);
+    } catch (Exception e) {
+      InitErrors.add("error loading map", e);
+    }
 
     /* ****
      * Load some map properties
@@ -264,7 +250,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     marketBoard =
         new MarketBoardUiElement(
             ResourceType.HERB,
-            inspectorFont,
+            marketBoardFont,
             glyphLayout,
             this,
             () -> marketBoardVisible,
@@ -274,7 +260,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     uiElements.add(
         new MarketBoardUiElement(
             ResourceType.SPICE,
-            inspectorFont,
+            marketBoardFont,
             glyphLayout,
             this,
             () -> marketBoardVisible,
@@ -284,7 +270,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     uiElements.add(
         new MarketBoardUiElement(
             ResourceType.ORE,
-            inspectorFont,
+            marketBoardFont,
             glyphLayout,
             this,
             () -> marketBoardVisible,
@@ -293,13 +279,16 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     uiElements.add(
         new MarketBoardUiElement(
             ResourceType.BAR,
-            inspectorFont,
+            marketBoardFont,
             glyphLayout,
             this,
             () -> marketBoardVisible,
             marketBoardX4));
 
      */
+
+    // put InitErrors last so it renders on top
+    uiElements.add(new InitErrorsUiElement(initErrorsFont, glyphLayout));
 
     /* ****
      * Setup world UNDER layers
@@ -317,13 +306,17 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     worldOverLayers.add(new NodeAmountTextLayer(() -> nodes, worldLabelFont));
     worldOverLayers.add(
         new MouseWorldTooltipLayer(
-            inspectorFont, glyphLayout, () -> selectedEntity, this::getMouseWorldPosition));
+            mouseWorldTooltipFont, glyphLayout, () -> selectedEntity, this::getMouseWorldPosition));
 
     /* ****
      * Setup texture files
      * ****/
-    characterTextures = new HashMap<>();
-    baseTilesTexture = new Texture(C.MAP_TILESET_PNG_FILE);
+    try {
+      characterTextures = new HashMap<>();
+      baseTilesTexture = new Texture(C.MAP_TILESET_PNG_FILE);
+    } catch (Exception e) {
+      InitErrors.add("error loading baseTilesTexture", e);
+    }
 
     /* ****
      * Load full list of crafting recipes
@@ -334,8 +327,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
               Gdx.files.internal(C.RECIPE_DEFINITION_FILE).read(),
               new TypeReference<List<Recipe>>() {});
     } catch (Exception e) {
-      throw new RuntimeException(
-          "Failed to load recipe definition file [" + C.RECIPE_DEFINITION_FILE + "]", e);
+      InitErrors.add("Failed to load recipe definition file [" + C.RECIPE_DEFINITION_FILE + "]", e);
     }
 
     // Load objects from the Tiled map Object layer: Entities
@@ -352,7 +344,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
       Function<MapObjectReader, WorldEntity> loader = mapObjectLoaders.get(r.getMapObjectType());
       if (loader != null) {
         WorldEntity entity = loader.apply(r);
-        addEntity(entity);
+        if (entity != null) addEntity(entity);
       } else {
         System.out.println("No map object loader found for type " + r.getMapObjectType());
       }
@@ -371,8 +363,22 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     }
   }
 
+  private BitmapFont loadFont(float scale, Color color) {
+    BitmapFont font = new BitmapFont();
+    font.getData().setScale(scale);
+    if (color != null) font.setColor(color);
+    return font;
+  }
+
+  private BitmapFont loadMonoFont(int size, Color color) {
+    FreeTypeFontParameter fontParameter = new FreeTypeFontParameter();
+    fontParameter.size = size;
+    BitmapFont font = freeTypeFontGenerator.generateFont(fontParameter);
+    if (color != null) font.setColor(color);
+    return font;
+  }
+
   private City loadCity(MapObjectReader r) {
-    // TODO blow up if city is invalid in the map object
     // TODO load city width & height from map object
     City city =
         City.builder()
@@ -407,9 +413,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         city.initializeResource(type, cfg);
       }
     } catch (Exception e) {
-      System.err.println(
-          "Error loading resource for city " + city.getName() + ": " + e.getMessage());
-      e.printStackTrace();
+      InitErrors.add("Error loading resource for city " + city.getName(), e);
     }
 
     /* ***
@@ -435,17 +439,14 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
       }
 
     } catch (Exception e) {
-      System.err.println(
-          "Error loading recipes for city " + city.getName() + ": " + e.getMessage());
-      e.printStackTrace();
+      InitErrors.add("Error loading recipes for city: " + city.getName(), e);
     }
     city.buildSprites(baseTilesTexture);
     return city;
   }
 
   private Node loadNode(MapObjectReader r) {
-    // TODO blow up if stuffNode is invalid in the map object
-    // TODO load stuffNode width & height from map object
+    // TODO load node width & height from map object
     Node node =
         Node.builder()
             .world(this)
@@ -477,19 +478,20 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         node.initializeResource(type, cfg);
       }
     } catch (Exception e) {
-      System.err.println(
-          "Error loading resource for node " + node.getName() + ": " + e.getMessage());
-      e.printStackTrace();
+      InitErrors.add("Error loading node for node " + node.getId() + "/" + node.getName(), e);
     }
 
     long count =
         node.getNodeResources().values().stream()
             .filter(nodeResource -> nodeResource.amountMax > 0f)
             .count();
-    if (count == 0)
-      throw new IllegalStateException("Node " + node.getId() + " has no resource defined.");
-    if (count > 1)
-      throw new IllegalStateException("Node " + node.getId() + " has multiple resources defined.");
+    if (count == 0) {
+      InitErrors.add("Node " + node.getId() + "/" + node.getName() + " has no resources defined.");
+    }
+    if (count > 1) {
+      InitErrors.add(
+          "Node " + node.getId() + "/" + node.getName() + " has multiple resources defined.");
+    }
 
     node.buildSprites(baseTilesTexture);
     return node;
@@ -498,38 +500,46 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
   private Guy loadGuy(MapObjectReader r) {
     // TODO blow up if guy is invalid in the map object
     // TODO load guy width & height from map object
-    Guy guy =
-        Guy.builder()
-            .world(this)
-            .id(r.getMapObjectId())
-            .name(r.getMapObjectName())
-            .worldX(r.f("x", 0f))
-            .worldY(r.f("y", 0f))
-            .targetX(r.f("targetX", r.f("x", 0f)))
-            .targetY(r.f("targetY", r.f("y", 0f)))
-            .carryCapacity(r.f("carryCapacity", 20f))
-            .moveSpeed(r.f("moveSpeed", 64.0f))
-            .idleDelay(r.f("idleDelay", 1.0f))
-            .idleDelayJitter(r.f("idleDelayJitter", 0.1f))
-            .autonomyEnabled(r.b("autonomyEnabled", false))
-            .spriteFilename(r.s("spriteFilename", "Male/Male 01-1.png"))
-            .spriteDir(r.s("spriteDir", C.GUY_SPRITE_DEFAULT_DIRECTORY))
-            .behaviorModel(r.e("behaviorModel", BehaviorModel.NORMAL, BehaviorModel.class))
-            .build();
+    Guy guy = null;
+    try {
+      guy =
+          Guy.builder()
+              .world(this)
+              .id(r.getMapObjectId())
+              .name(r.getMapObjectName())
+              .worldX(r.f("x", 0f))
+              .worldY(r.f("y", 0f))
+              .targetX(r.f("targetX", r.f("x", 0f)))
+              .targetY(r.f("targetY", r.f("y", 0f)))
+              .carryCapacity(r.f("carryCapacity", 20f))
+              .moveSpeed(r.f("moveSpeed", 64.0f))
+              .idleDelay(r.f("idleDelay", 1.0f))
+              .idleDelayJitter(r.f("idleDelayJitter", 0.1f))
+              .autonomyEnabled(r.b("autonomyEnabled", false))
+              .spriteFilename(r.s("spriteFilename", "Male/Male 01-1.png"))
+              .spriteDir(r.s("spriteDir", C.GUY_SPRITE_DEFAULT_DIRECTORY))
+              .behaviorModel(r.e("behaviorModel", BehaviorModel.NORMAL, BehaviorModel.class))
+              .build();
 
-    String spriteFullName = guy.getSpriteDir() + guy.getSpriteFilename();
-    if (!characterTextures.containsKey(spriteFullName)) {
-      characterTextures.put(spriteFullName, new Texture(spriteFullName));
-    }
-
-    if (guy.getSpriteDir().endsWith("hcr/experimental/")) {
-      if (guy.getSpriteFilename().contains("pink")) {
-        guy.buildSpritesDirectionalSingleFrame(characterTextures.get(spriteFullName));
-      } else {
-        guy.buildSpritesSingleFrame(characterTextures.get(spriteFullName));
+      String spriteFullName = guy.getSpriteDir() + guy.getSpriteFilename();
+      if (!characterTextures.containsKey(spriteFullName)) {
+        Gdx.app.log("GUY_LOAD", "Loading sprite: " + guy.getSpriteDir() + guy.getSpriteFilename());
+        characterTextures.put(spriteFullName, new Texture(spriteFullName));
+        Gdx.app.log("GUY_LOAD", "Loaded OK");
       }
-    } else {
-      guy.buildSprites(characterTextures.get(spriteFullName));
+
+      if (guy.getSpriteDir().endsWith("hcr/experimental/")) {
+        if (guy.getSpriteFilename().contains("pink")) {
+          guy.buildSpritesDirectionalSingleFrame(characterTextures.get(spriteFullName));
+        } else {
+          guy.buildSpritesSingleFrame(characterTextures.get(spriteFullName));
+        }
+      } else {
+        guy.buildSprites(characterTextures.get(spriteFullName));
+      }
+    } catch (Exception e) {
+      InitErrors.add("Error loading guy: " + r.getMapObjectId(), e);
+      return null;
     }
     return guy;
   }
@@ -540,7 +550,9 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     if (entity instanceof City city) cities.add(city);
     else if (entity instanceof Node node) nodes.add(node);
     else if (entity instanceof Guy guy) guys.add(guy);
-    else System.out.println("Attempting to add unknown entity type " + entity.getId());
+    else {
+      InitErrors.add("Attempting to init an unknown entity type: " + entity.getClass().getName());
+    }
   }
 
   private WorldEntity findTopEntityAt(Vector3 worldPos) {
@@ -770,9 +782,9 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
      */
     float constDelta = Gdx.input.isKeyPressed(Keys.SHIFT_LEFT) ? 1.0f : 0.1f;
     if (Gdx.input.isKeyJustPressed(Keys.MINUS)) {
-      C.harvestDeliveryRadiusMultiplier -= constDelta;
+      C.harvestDeliveryCityRadiusMultiplier -= constDelta;
     } else if (Gdx.input.isKeyJustPressed(Keys.EQUALS)) {
-      C.harvestDeliveryRadiusMultiplier += constDelta;
+      C.harvestDeliveryCityRadiusMultiplier += constDelta;
     }
 
     /* ****

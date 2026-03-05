@@ -97,7 +97,7 @@ public class Guy extends WorldEntity implements Selectable {
     batch.draw(frame, worldX, worldY, C.GUY_WIDTH_PX, C.GUY_HEIGHT_PX);
   }
 
-  public void buildSprites(Texture texture) {
+  public void buildSprites(Texture texture) throws RuntimeException {
     if (walkSouth != null) return;
 
     TextureRegion[][] grid =
@@ -109,7 +109,7 @@ public class Guy extends WorldEntity implements Selectable {
     walkNorth = new Animation<>(C.FRAME_DURATION, grid[3]);
   }
 
-  public void buildSpritesSingleFrame(Texture texture) {
+  public void buildSpritesSingleFrame(Texture texture) throws RuntimeException {
     if (walkSouth != null) return;
 
     // one full 32x32 region
@@ -125,7 +125,7 @@ public class Guy extends WorldEntity implements Selectable {
     walkNorth = new Animation<>(C.FRAME_DURATION, single);
   }
 
-  public void buildSpritesDirectionalSingleFrame(Texture texture) {
+  public void buildSpritesDirectionalSingleFrame(Texture texture) throws RuntimeException {
     if (walkSouth != null) return;
 
     TextureRegion[][] grid =
@@ -143,6 +143,12 @@ public class Guy extends WorldEntity implements Selectable {
     walkNorth = new Animation<>(C.FRAME_DURATION, north);
   }
 
+  private String formatElapsed(float seconds) {
+    int m = (int) (seconds / 60f);
+    int s = (int) (seconds % 60f);
+    return String.format("%d:%02d", m, s);
+  }
+
   @Override
   public List<String> getInspectorLines(WorldEntity hoveredEntity) {
     return switch (C.inspectorTab) {
@@ -153,42 +159,89 @@ public class Guy extends WorldEntity implements Selectable {
   }
 
   private List<String> buildInspectorLinesSummary(WorldEntity hoveredEntity) {
-    return List.of(
-        "State:  " + state,
-        "Facing:" + facing,
-        String.format("World : %d, %d", (int) worldX, (int) worldY),
-        String.format("Target: %d, %d", (int) targetX, (int) targetY),
+    List<String> lines = new ArrayList<>();
+
+    lines.add(String.format("State:  %s", state));
+    lines.add(String.format("Sprite: %s / %s", spriteDir, spriteFilename));
+    lines.add(String.format("Behavior: %s  Autonomy: %b", behaviorModel, autonomyEnabled));
+
+    lines.add("");
+    if (currentPlan != null) {
+      lines.add(
+          String.format(
+              "== Current Plan (t=%.1f, %s ago) ==",
+              currentPlan.evaluationTime,
+              formatElapsed(world.getSimulationTime() - currentPlan.evaluationTime)));
+      lines.add(String.format("  %s %s", currentPlan.optionType, currentPlan.resourceType));
+      if (currentPlan.optionType == PlanOption.OptionType.HARVEST) {
+        lines.add(
+            String.format(
+                "  Node: %s -> %s",
+                currentPlan.node != null ? currentPlan.node.getName() : "?",
+                currentPlan.destCity != null ? currentPlan.destCity.getName() : "?"));
+      } else {
+        lines.add(
+            String.format(
+                "  %s -> %s",
+                currentPlan.sourceCity != null ? currentPlan.sourceCity.getName() : "?",
+                currentPlan.destCity != null ? currentPlan.destCity.getName() : "?"));
+      }
+      lines.add(
+          String.format(
+              "  profit=%.1f  time=%.1f  score=%.2f",
+              currentPlan.profit, currentPlan.totalTime, currentPlan.score));
+    } else {
+      lines.add("== No Current Plan ==");
+    }
+    lines.add("");
+
+    lines.add(
         String.format(
-            "Map row/col: %d, %d",
-            (int) (worldX / C.MAP_TILE_WIDTH_PX), (int) (worldY / C.MAP_TILE_HEIGHT_PX)),
-        String.format("Tgt Dist: %.2f", distanceTo(targetX, targetY)),
-        String.format("Move Speed: %.2f", moveSpeed),
-        String.format("Move ETA: %s", getEtaString()),
-        String.format("Autonomy enabled: %b", autonomyEnabled),
-        String.format("Behavior Model: %s", behaviorModel.toString()),
-        String.format("Idle Sec  : %.2f", idleSeconds),
-        String.format("Idle delay: %.2f (%.2f)", idleDelay, idleDelayTimer),
-        String.format("Idle delay jitter: %.2f", idleDelayJitter),
-        String.format("Carried Type: %s", carriedType),
+            "Harv : %s",
+            harvestTarget == null
+                ? "null"
+                : harvestTarget.getId() + " " + harvestTarget.getName()));
+    lines.add(
         String.format(
-            "Carried Amt : %d / %d", Math.round(carriedAmount), Math.round(carryCapacity)),
+            "Deliv: %s",
+            deliverTarget == null
+                ? "null"
+                : deliverTarget.getId() + " " + deliverTarget.getName()));
+    lines.add(
         String.format(
-            "Harv Trgt: %s",
-            harvestTarget == null ? "null" : harvestTarget.getId() + " " + harvestTarget.getName()),
+            "Buy  : %s",
+            buyTarget == null ? "null" : buyTarget.getId() + " " + buyTarget.getName()));
+    lines.add(
         String.format(
-            "Depo Trgt: %s",
-            deliverTarget == null ? "null" : deliverTarget.getId() + " " + deliverTarget.getName()),
-        String.format(
-            "Loop City: %s",
+            "Loop : %s",
             loopDeliverCity == null
                 ? "null"
-                : loopDeliverCity.getId() + " " + loopDeliverCity.getName()),
+                : loopDeliverCity.getId() + " " + loopDeliverCity.getName()));
+    lines.add(
         String.format(
-            "Buy  City: %s",
-            buyTarget == null ? "null" : buyTarget.getId() + " " + buyTarget.getName()));
+            "Last : %s",
+            lastInteractionCity == null
+                ? "null"
+                : lastInteractionCity.getId() + " " + lastInteractionCity.getName()));
 
-    // TODO if stuffNode is not null, display some stats
-    // TODO if city is not null, display some stats
+    lines.add("");
+    lines.add(String.format("World : %d, %d", (int) worldX, (int) worldY));
+    lines.add(String.format("Target: %d, %d", (int) targetX, (int) targetY));
+    lines.add(String.format("Tgt Dist: %.2f", distanceTo(targetX, targetY)));
+    lines.add(String.format("Move Speed: %.2f", moveSpeed));
+    lines.add(String.format("Move ETA: %s", getEtaString()));
+    lines.add(String.format("Facing: %s", facing));
+
+    lines.add("");
+    lines.add(
+        String.format(
+            "Carried: %s  %d / %d",
+            carriedType, Math.round(carriedAmount), Math.round(carryCapacity)));
+    lines.add(String.format("Idle Sec  : %.2f", idleSeconds));
+    lines.add(String.format("Idle delay: %.2f (%.2f)", idleDelay, idleDelayTimer));
+    lines.add(String.format("Idle jitter: %.2f", idleDelayJitter));
+
+    return lines;
   }
 
   private List<String> buildInspectorLinesTrade(WorldEntity hoveredEntity) {
@@ -205,7 +258,6 @@ public class Guy extends WorldEntity implements Selectable {
 
     PlanOption bestHarvest =
         harvestOptions.stream().max(Comparator.comparingDouble(opt -> opt.score)).orElse(null);
-
     PlanOption bestTrade =
         tradeOptions.stream().max(Comparator.comparingDouble(opt -> opt.score)).orElse(null);
 
@@ -236,43 +288,47 @@ public class Guy extends WorldEntity implements Selectable {
     } else if (bestHarvest != null) {
       lines.add(
           String.format(
-              "%sHarvest is only option : %+.2f",
+              "%sHarvest only : %+.2f",
               (hoveredEntity == bestHarvest.node) ? " >" : "  ", bestHarvest.score));
     } else if (bestTrade != null) {
       lines.add(
           String.format(
-              "%sTrade is only option : %+.2f",
+              "%sTrade only   : %+.2f",
               (hoveredEntity == bestTrade.sourceCity) ? " >" : "  ", bestTrade.score));
     }
 
     lines.add("");
     lines.add("== Harvest Options ==");
     for (PlanOption opt : harvestOptions) {
+      String competition = opt.competitorId != null ? String.format(" !%s", opt.competitorId) : "";
       lines.add(
           String.format(
-              "%s%-" + NODE_W + "s->%-" + CITY_W + "s %+4.1f -%4.1f +%2.1f= %+4.1f",
+              "%s%-" + NODE_W + "s->%-" + CITY_W + "s %+6.1f -%5.1f +%4.2f [%+6.1f x%.1f]=%+5.1f%s",
               opt.node == hoveredEntity ? " >" : "  ",
               C.clip(opt.node.getName(), NODE_W),
               C.clip(opt.destCity.getName(), CITY_W),
               opt.profit,
               opt.totalTime,
               opt.workIncentive,
-              opt.score));
+              opt.rawScore,
+              opt.competitionPenalty,
+              opt.score,
+              competition));
     }
 
     lines.add("");
     lines.add("== Trade Options ==");
-
     for (PlanOption opt : tradeOptions) {
       lines.add(
           String.format(
-              "%s%-" + NODE_W + "s->%-" + CITY_W + "s %+4.1f -%4.1f +%2.1f= %+4.1f %s",
+              "%s%-" + NODE_W + "s->%-" + CITY_W + "s %+6.1f -%5.1f +%4.2f [%+6.1f     ]=%+5.1f %s",
               opt.sourceCity == hoveredEntity ? " >" : "  ",
               C.clip(opt.sourceCity.getName(), NODE_W),
               C.clip(opt.destCity.getName(), CITY_W),
               opt.profit,
               opt.totalTime,
               opt.workIncentive,
+              opt.rawScore,
               opt.score,
               opt.resourceType));
     }
@@ -688,12 +744,11 @@ public class Guy extends WorldEntity implements Selectable {
         // Only consider nodes that have stuff available
         if (res.amount <= 0f) continue;
 
-        // TODO remove the restriction on harvest deliveries to closest city
         City closestCity = node.getClosest(world.getCities());
         if (closestCity == null) continue;
 
         float closestDistance = node.distanceTo(closestCity);
-        float maxDistance = closestDistance * C.harvestDeliveryRadiusMultiplier;
+        float maxDistance = closestDistance * C.harvestDeliveryCityRadiusMultiplier;
 
         for (City city : world.getCities()) {
 
@@ -726,12 +781,35 @@ public class Guy extends WorldEntity implements Selectable {
           option.workIncentive = idleSeconds * C.guyWorkIncentiveWeight;
           option.score = profitPerSecond + option.workIncentive;
 
+          applyCompetitionPenalty(option);
+
           options.add(option);
         }
       }
     }
 
     return options;
+  }
+
+  private void applyCompetitionPenalty(PlanOption option) {
+    option.rawScore = option.score;
+    option.competitionPenalty = 1.0f;
+    option.competitorId = null;
+
+    for (Guy other : world.getGuys()) {
+      if (other == this) continue;
+      if (other.getCurrentPlan() == null) continue;
+      if (other.getCurrentPlan().optionType != OptionType.HARVEST) continue;
+      if (other.getCurrentPlan().node != option.node) continue;
+      if (distanceTo(other) > C.harvestCompetitionAwarenessRadius) continue;
+      if (other.distanceTo(option.node) >= this.distanceTo(option.node)) continue;
+
+      option.competitionPenalty = C.harvestCompetitionPenaltyMultiplier;
+      option.competitorId = other.getId();
+      break;
+    }
+
+    option.score = option.rawScore * option.competitionPenalty;
   }
 
   public List<PlanOption> evaluateTradeOptions() {
@@ -912,6 +990,11 @@ public class Guy extends WorldEntity implements Selectable {
     public float profit;
     public float totalTime;
     public float workIncentive;
+
+    public float rawScore;
+    public float competitionPenalty;
+    public String competitorId;
+
     public float score;
   }
 }
