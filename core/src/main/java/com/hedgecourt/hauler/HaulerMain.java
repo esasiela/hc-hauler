@@ -165,6 +165,9 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     BitmapFont inspectorFont = loadMonoFont(C.UI_INSPECTOR_PANEL_FONT_SIZE, Color.BLACK);
     BitmapFont marketBoardFont = loadMonoFont(18, Color.BLACK);
     BitmapFont metricsUiFont = loadMonoFont(C.UI_METRICS_PANEL_FONT_SIZE, Color.BLACK);
+    forceFixedWidth(metricsUiFont);
+    BitmapFont metricsUiFont2 = loadMonoFont(C.UI_METRICS_PANEL_FONT_SIZE, Color.BLACK);
+
     BitmapFont hoverTooltipFont = loadMonoFont(C.UI_HOVER_TOOLTIP_FONT_SIZE, Color.WHITE);
     BitmapFont worldLabelFont = loadMonoFont(C.UI_WORLD_LABEL_FONT_SIZE, null);
     BitmapFont pauseIndicatorFont = loadMonoFont(48, C.UI_PAUSE_INDICATOR_FG_COLOR);
@@ -248,7 +251,10 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
             () -> gameCamera.getCamera(),
             this::getMouseUiPosition));
 
-    uiElements.add(new GlobalFlowUiElement(metricsUiFont, this));
+    uiElements.add(new GlobalFlowUiElement(metricsUiFont, this, 1f));
+    // uiElements.add(new GlobalFlowUiElement(metricsUiFont2, this, 2f));
+    //uiElements.add(new FontAlignmentTestUiElement(marketBoardFont));
+
 
     float marketBoardOffset = 376f;
     float marketBoardX1 = 6f;
@@ -517,21 +523,17 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     return node;
   }
 
-  private static final Map<Float, GuyRole> GUY_SPEED_ROLES =
+  private static final Map<String, GuyRole> GUY_ROLES =
       Map.of(
-          0f,
-          new GuyRole("guy", "characters/pipoya/", "Other/pien.png"),
-          32f,
-          new GuyRole("vslow", "characters/pipoya/", "Animal/Cat-01-2r.png"),
-          48f,
-          new GuyRole("slow", "characters/pipoya/", "Enemy/Enemy 15-1.png"),
-          64f,
-          new GuyRole("mid", "characters/pipoya/", "Female/Female 10-1.png"),
-          96f,
-          new GuyRole("fast", "characters/hcr/", "pinkeye-02.png"));
+          "guy", new GuyRole(64f, "characters/pipoya/", "Other/pien.png"),
+          "vslow", new GuyRole(32f, "characters/pipoya/", "Animal/Cat-01-2r.png"),
+          "slow", new GuyRole(48f, "characters/pipoya/", "Enemy/Enemy 15-1.png"),
+          "mid", new GuyRole(64f, "characters/pipoya/", "Female/Female 10-1.png"),
+          "fast", new GuyRole(76f, "characters/pipoya/", "Male/Male 03-1.png"),
+          "vfast", new GuyRole(96f, "characters/hcr/", "pinkeye-02.png"));
   private final Map<String, Integer> guyRoleCounters = new HashMap<>();
 
-  private record GuyRole(String namePrefix, String spriteDir, String spriteFilename) {}
+  private record GuyRole(float moveSpeed, String spriteDir, String spriteFilename) {}
 
   private Guy loadGuy(MapObjectReader r) {
     // TODO load guy width & height from map object
@@ -556,14 +558,20 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
               .spriteFilename(r.s("spriteFilename", "Male/Male 01-1.png"))
               .build();
 
-      if (r.b("roleFromSpeed", true)) {
-        float speed = guy.getMoveSpeed();
-        GuyRole role = GUY_SPEED_ROLES.getOrDefault(speed, GUY_SPEED_ROLES.get(0f));
+      /* ***
+       * Apply a role based on the guys name
+       */
+      String roleName =
+          r.getMapObjectName() == null || r.getMapObjectName().isBlank()
+              ? "guy"
+              : r.getMapObjectName().toLowerCase();
+      GuyRole role = GUY_ROLES.getOrDefault(roleName, GUY_ROLES.get("guy"));
+      int n = guyRoleCounters.merge(roleName, 1, Integer::sum);
+      guy.initFromRole(roleName + n, role.moveSpeed(), role.spriteDir(), role.spriteFilename());
 
-        int n = guyRoleCounters.merge(role.namePrefix(), 1, Integer::sum);
-        guy.initFromRole(role.namePrefix() + n, role.spriteDir(), role.spriteFilename());
-      }
-
+      /* ***
+       * Initialize the guys sprite texture
+       */
       String spriteFullName = guy.getSpriteDir() + guy.getSpriteFilename();
       if (!characterTextures.containsKey(spriteFullName)) {
         characterTextures.put(spriteFullName, new Texture(spriteFullName));
@@ -1013,6 +1021,22 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     } catch (Exception e) {
       System.err.println("Error building JSON world snapshot: " + e.getMessage());
       e.printStackTrace();
+    }
+  }
+
+  public static void forceFixedWidth(BitmapFont font) {
+    float maxAdvance = 0f;
+    for (BitmapFont.Glyph[] page : font.getData().glyphs) {
+      if (page == null) continue;
+      for (BitmapFont.Glyph glyph : page) {
+        if (glyph != null) maxAdvance = Math.max(maxAdvance, glyph.xadvance);
+      }
+    }
+    for (BitmapFont.Glyph[] page : font.getData().glyphs) {
+      if (page == null) continue;
+      for (BitmapFont.Glyph glyph : page) {
+        if (glyph != null) glyph.xadvance = (int) maxAdvance;
+      }
     }
   }
 

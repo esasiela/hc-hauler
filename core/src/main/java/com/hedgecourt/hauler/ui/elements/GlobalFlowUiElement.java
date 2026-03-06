@@ -30,16 +30,20 @@ public class GlobalFlowUiElement extends BaseUiElement implements UiElement {
   private Map<ResourceType, Float> realFlow = Map.of();
 
   private float updateTimer = 0f;
+  private float heightMultiplier;
 
-  public GlobalFlowUiElement(BitmapFont font, WorldView world) {
+  public GlobalFlowUiElement(BitmapFont font, WorldView world, float heightMultiplier) {
     this.font = font;
     this.world = world;
+    this.heightMultiplier = heightMultiplier;
   }
 
   private Rectangle getBounds() {
 
     background.x = MARGIN;
-    background.y = uiHeight - (MARGIN + 48f + MARGIN + 48f + MARGIN + 160f + MARGIN + HEIGHT);
+    background.y =
+        uiHeight
+            - (MARGIN + 48f + MARGIN + 48f + MARGIN + 160f + MARGIN + (HEIGHT * heightMultiplier));
 
     background.width = WIDTH;
     background.height = HEIGHT;

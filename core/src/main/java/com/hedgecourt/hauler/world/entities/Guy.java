@@ -97,8 +97,9 @@ public class Guy extends WorldEntity implements Selectable {
     batch.draw(frame, worldX, worldY, C.GUY_WIDTH_PX, C.GUY_HEIGHT_PX);
   }
 
-  public void initFromRole(String name, String spriteDir, String spriteFilename) {
+  public void initFromRole(String name, float moveSpeed, String spriteDir, String spriteFilename) {
     this.name = name;
+    this.moveSpeed = moveSpeed;
     this.spriteDir = spriteDir;
     this.spriteFilename = spriteFilename;
   }
