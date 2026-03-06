@@ -163,14 +163,8 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     }
 
     BitmapFont inspectorFont = loadMonoFont(C.UI_INSPECTOR_PANEL_FONT_SIZE, Color.BLACK);
-
     BitmapFont marketBoardFont = loadMonoFont(18, Color.BLACK);
-    forceFixedWidth(marketBoardFont);
-
     BitmapFont metricsUiFont = loadMonoFont(C.UI_METRICS_PANEL_FONT_SIZE, Color.BLACK);
-    forceFixedWidth(metricsUiFont);
-    BitmapFont metricsUiFont2 = loadMonoFont(C.UI_METRICS_PANEL_FONT_SIZE, Color.BLACK);
-
     BitmapFont hoverTooltipFont = loadMonoFont(C.UI_HOVER_TOOLTIP_FONT_SIZE, Color.WHITE);
     BitmapFont worldLabelFont = loadMonoFont(C.UI_WORLD_LABEL_FONT_SIZE, null);
     BitmapFont pauseIndicatorFont = loadMonoFont(48, C.UI_PAUSE_INDICATOR_FG_COLOR);
@@ -254,61 +248,10 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
             () -> gameCamera.getCamera(),
             this::getMouseUiPosition));
 
-    uiElements.add(new GlobalFlowUiElement(metricsUiFont, this, 1f));
-    // uiElements.add(new GlobalFlowUiElement(metricsUiFont2, this, 2f));
-    // uiElements.add(new FontAlignmentTestUiElement(marketBoardFont));
+    uiElements.add(new GlobalFlowUiElement(metricsUiFont, this));
 
     uiElements.add(
         new MarketBoardUiElement(marketBoardFont, glyphLayout, this, () -> marketBoardVisible));
-
-    float marketBoardOffset = 376f;
-    float marketBoardX1 = 6f;
-    float marketBoardX2 = marketBoardX1 + marketBoardOffset;
-    float marketBoardX3 = marketBoardX2 + marketBoardOffset;
-    float marketBoardX4 = marketBoardX3 + marketBoardOffset;
-
-    /*
-    marketBoard =
-        new MarketBoardUiElement(
-            ResourceType.HERB,
-            marketBoardFont,
-            glyphLayout,
-            this,
-            () -> marketBoardVisible,
-            marketBoardX1);
-    uiElements.add(marketBoard);
-
-    uiElements.add(
-        new MarketBoardUiElement(
-            ResourceType.SPICE,
-            marketBoardFont,
-            glyphLayout,
-            this,
-            () -> marketBoardVisible,
-            marketBoardX2));
-
-     */
-
-    /*
-    uiElements.add(
-        new MarketBoardUiElement(
-            ResourceType.ORE,
-            marketBoardFont,
-            glyphLayout,
-            this,
-            () -> marketBoardVisible,
-            marketBoardX3));
-
-    uiElements.add(
-        new MarketBoardUiElement(
-            ResourceType.BAR,
-            marketBoardFont,
-            glyphLayout,
-            this,
-            () -> marketBoardVisible,
-            marketBoardX4));
-
-     */
 
     // put InitErrors last so it renders on top
     uiElements.add(new InitErrorsUiElement(initErrorsFont, glyphLayout));
@@ -397,7 +340,10 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     FreeTypeFontParameter fontParameter = new FreeTypeFontParameter();
     fontParameter.size = size;
     BitmapFont font = freeTypeFontGenerator.generateFont(fontParameter);
+    forceFixedWidth(font);
+
     if (color != null) font.setColor(color);
+
     return font;
   }
 
