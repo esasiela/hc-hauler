@@ -163,7 +163,10 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     }
 
     BitmapFont inspectorFont = loadMonoFont(C.UI_INSPECTOR_PANEL_FONT_SIZE, Color.BLACK);
+
     BitmapFont marketBoardFont = loadMonoFont(18, Color.BLACK);
+    forceFixedWidth(marketBoardFont);
+
     BitmapFont metricsUiFont = loadMonoFont(C.UI_METRICS_PANEL_FONT_SIZE, Color.BLACK);
     forceFixedWidth(metricsUiFont);
     BitmapFont metricsUiFont2 = loadMonoFont(C.UI_METRICS_PANEL_FONT_SIZE, Color.BLACK);
@@ -253,8 +256,10 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
 
     uiElements.add(new GlobalFlowUiElement(metricsUiFont, this, 1f));
     // uiElements.add(new GlobalFlowUiElement(metricsUiFont2, this, 2f));
-    //uiElements.add(new FontAlignmentTestUiElement(marketBoardFont));
+    // uiElements.add(new FontAlignmentTestUiElement(marketBoardFont));
 
+    uiElements.add(
+        new MarketBoardUiElement(marketBoardFont, glyphLayout, this, () -> marketBoardVisible));
 
     float marketBoardOffset = 376f;
     float marketBoardX1 = 6f;
@@ -262,6 +267,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     float marketBoardX3 = marketBoardX2 + marketBoardOffset;
     float marketBoardX4 = marketBoardX3 + marketBoardOffset;
 
+    /*
     marketBoard =
         new MarketBoardUiElement(
             ResourceType.HERB,
@@ -280,6 +286,8 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
             this,
             () -> marketBoardVisible,
             marketBoardX2));
+
+     */
 
     /*
     uiElements.add(

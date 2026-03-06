@@ -46,26 +46,14 @@
 </data>
  </layer>
  <objectgroup id="2" name="Entities">
-  <object id="2" type="Guy" gid="1029" x="994.954" y="381.143" width="32" height="32">
-   <properties>
-    <property name="moveSpeed" type="float" value="48"/>
-   </properties>
-  </object>
-  <object id="3" type="Guy" gid="1029" x="1216.76" y="383.867" width="32" height="32"/>
+  <object id="2" name="slow" type="Guy" gid="1029" x="994.954" y="381.143" width="32" height="32"/>
+  <object id="3" name="mid" type="Guy" gid="1029" x="1216.76" y="383.867" width="32" height="32"/>
   <object id="4" type="Guy" gid="1029" x="992.774" y="605.678" width="32" height="32"/>
-  <object id="5" type="Guy" gid="1029" x="1213.49" y="608.948" width="32" height="32"/>
-  <object id="6" type="Guy" gid="1029" x="672" y="384" width="32" height="32">
-   <properties>
-    <property name="moveSpeed" type="float" value="96"/>
-   </properties>
-  </object>
-  <object id="7" type="Guy" gid="1029" x="896" y="384" width="32" height="32">
-   <properties>
-    <property name="moveSpeed" type="float" value="32"/>
-   </properties>
-  </object>
-  <object id="8" type="Guy" gid="1029" x="672" y="608" width="32" height="32"/>
-  <object id="9" type="Guy" gid="1029" x="896" y="608" width="32" height="32"/>
+  <object id="5" name="moot" type="Guy" gid="1029" x="1213.49" y="608.948" width="32" height="32"/>
+  <object id="6" name="vfast" type="Guy" gid="1029" x="672" y="384" width="32" height="32"/>
+  <object id="7" name="vslow" type="Guy" gid="1029" x="896" y="384" width="32" height="32"/>
+  <object id="8" name="mid" type="Guy" gid="1029" x="672" y="608" width="32" height="32"/>
+  <object id="9" name="fast" type="Guy" gid="1029" x="896" y="608" width="32" height="32"/>
   <object id="10" name="ORE" type="Node" gid="944" x="800" y="480" width="32" height="32">
    <properties>
     <property name="amount" type="float" value="7"/>

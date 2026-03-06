@@ -16,438 +16,340 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class MarketBoardUiElement extends BaseUiElement implements UiElement {
-  private static final float PRICE_DECIMAL_PADDING = 2f;
-  private static final float PRICE_HIGHLIGHT_WIDTH = 60f; // tweak visually
-  private static final float PRICE_DECIMAL_WIDTH_ESTIMATE = 20f + 2 * PRICE_DECIMAL_PADDING;
 
-  private static final float NAME_WIDTH = 60f;
-  private static final float COL_NAME_X = 0f;
-  private static final float COL_QTY_X = COL_NAME_X + NAME_WIDTH;
-  private static final float COL_BUY_X = COL_QTY_X + 90f;
-  private static final float COL_BUY_X_VEL = COL_BUY_X + PRICE_DECIMAL_WIDTH_ESTIMATE + 2f;
-  private static final float COL_SELL_X = COL_BUY_X_VEL + 50f;
-  private static final float COL_SELL_X_VEL = COL_SELL_X + PRICE_DECIMAL_WIDTH_ESTIMATE + 2f;
+  private static final float PANEL_WIDTH = 420f;
+  private static final float TABLE_PADDING_X = 16f;
+  private static final float TABLE_PADDING_TOP = 40f;
+  private static final float ROW_SPACING = 6f;
+  private static final float MATRIX_GAP = 16f;
+  private static final float CITY_NAME_CHARS = 4;
+
+  private static final float COL_NAME_W = 48f;
+  private static final float COL_QTY_W = 48f;
+  private static final float COL_PRICE_W = 64f; // buy or sell column width
+  private static final float COL_SPREAD_W = 56f;
+  private static final float COL_ARROW_W = 14f;
 
   private static final float VEL_ARROW_W = 10f;
   private static final float VEL_ARROW_H = 7f;
+  private static final float VEL_ARROW_GAP = 2f;
+  private static final float VEL_ARROW_LIFT = 2f;
 
-  private static final float TABLE_PADDING_X = 20f;
-  private static final float TABLE_PADDING_TOP = 40f;
-  private static final float ROW_SPACING = 6f;
-
-  private static final float MATRIX_PADDING_TOP = 20f;
-  private static final float MATRIX_COL_WIDTH = 110f;
-
-  private final ResourceType resourceType;
+  private static final Color PANEL_BG = new Color(0.95f, 0.95f, 0.95f, 0.95f);
+  private static final Color TITLE_BG = new Color(0.85f, 0.85f, 0.85f, 0.95f);
+  private static final Color ARROW_UP = new Color(0.20f, 0.65f, 0.35f, 1f);
+  private static final Color ARROW_DOWN = Color.RED;
+  private static final Color TITLE_HOVER = new Color(0.75f, 0.90f, 1.00f, 0.95f);
+  private static final Color FG = Color.BLACK;
 
   private final BitmapFont font;
   private final GlyphLayout glyphLayout;
   private final WorldView world;
   private final Supplier<Boolean> visibleSupplier;
 
-  private int highlightFieldIndex = 0;
-  private final List<RowRenderData> rows = new ArrayList<>();
-  private final List<MatrixRowRenderData> matrixRows = new ArrayList<>();
+  // active resources — computed once on first update
+  private final List<ResourceType> activeResources = new ArrayList<>();
+  private int resourceIndex = 0;
+
+  private ResourceType currentResource = null;
+
+  // layout
   private final Rectangle panelBounds = new Rectangle();
   private final Rectangle titleBounds = new Rectangle();
-  private final Rectangle priceTableBounds = new Rectangle();
-  private final Rectangle highlightBounds = new Rectangle();
-  private final Rectangle matrixBounds = new Rectangle();
+  private final Rectangle titleHitbox = new Rectangle();
+
+  // render data
+  private final List<RowData> rows = new ArrayList<>();
+  private final List<MatrixRowData> matrixRows = new ArrayList<>();
 
   public MarketBoardUiElement(
-      ResourceType resourceType,
       BitmapFont font,
       GlyphLayout glyphLayout,
       WorldView world,
-      Supplier<Boolean> visibleSupplier,
-      float panelX) {
-    this.resourceType = resourceType;
+      Supplier<Boolean> visibleSupplier) {
     this.font = font;
     this.glyphLayout = glyphLayout;
     this.world = world;
     this.visibleSupplier = visibleSupplier;
-    this.panelBounds.x = panelX;
+  }
+
+  // ── public API ────────────────────────────────────────────────────────────
+
+  public void cycleResource() {
+    if (activeResources.isEmpty()) return;
+    resourceIndex = (resourceIndex + 1) % activeResources.size();
+    currentResource = activeResources.get(resourceIndex);
+  }
+
+  // ── UiElement ─────────────────────────────────────────────────────────────
+
+  @Override
+  public boolean handleLeftClick(com.badlogic.gdx.math.Vector3 screenClick) {
+    if (!visibleSupplier.get()) return false;
+    if (titleHitbox.contains(screenClick.x, screenClick.y)) {
+      cycleResource();
+      return true;
+    }
+    return false;
   }
 
   @Override
   public void update(float delta) {
     if (!visibleSupplier.get()) return;
 
-    /* ****
-     * bounds for the whole panel
-     */
-    // float panelX = ((Gdx.graphics.getWidth() - C.UI_MARKET_WIDTH) / 2f) -
-    // C.UI_MARKET_X_LEFT_OFFSET;
-    float panelY = C.UI_MARKET_MARGIN_BOTTOM;
-    panelBounds.set(panelBounds.x, panelY, C.UI_MARKET_WIDTH, C.UI_MARKET_HEIGHT);
+    // build active resource list once (or if somehow empty)
+    if (activeResources.isEmpty()) {
+      for (ResourceType type : ResourceType.values()) {
+        boolean active = world.getCities().stream().anyMatch(c -> c.getInventoryTarget(type) > 0f);
+        if (active) activeResources.add(type);
+      }
+      if (!activeResources.isEmpty()) {
+        currentResource = activeResources.get(resourceIndex);
+      }
+    }
 
-    /* ****
-     * bounds for the resource name title
-     */
+    if (currentResource == null) return;
+
+    // ── panel bounds (centered) ──────────────────────────────────────────
+    float panelX = (uiWidth - PANEL_WIDTH) / 2f;
+    float rowHeight = font.getLineHeight() + ROW_SPACING;
+    int cityCount = world.getCities().size();
+
+    float tableHeight = (cityCount + 1) * rowHeight; // +1 header
+    float matrixHeight = (cityCount + 2) * rowHeight; // +2 header rows
+    float panelHeight =
+        TABLE_PADDING_TOP + tableHeight + MATRIX_GAP + matrixHeight + TABLE_PADDING_X;
+
+    panelBounds.set(panelX, C.UI_MARKET_MARGIN_BOTTOM, PANEL_WIDTH, panelHeight);
+
+    // ── title ────────────────────────────────────────────────────────────
     titleBounds.set(
         panelBounds.x + TABLE_PADDING_X,
         panelBounds.y + panelBounds.height - TABLE_PADDING_TOP,
-        panelBounds.width - 2 * TABLE_PADDING_X,
-        30f);
+        panelBounds.width - TABLE_PADDING_X * 2f,
+        28f);
+    titleHitbox.set(titleBounds);
 
-    /* ****
-     * bounds for the price data table
-     */
-    float tableX = panelBounds.x + TABLE_PADDING_X;
-    float tableTopY = titleBounds.y - 10f;
-
-    int cityCount = world.getCities().size();
-    float rowHeight = font.getLineHeight() + ROW_SPACING;
-    float tableHeight = cityCount * rowHeight + rowHeight; // +1 for header
-
-    priceTableBounds.set(
-        tableX,
-        tableTopY - tableHeight,
-        320f, // width of table; adjust later visually
-        tableHeight);
-
-    /* ****
-     * Row data for price data table
-     */
+    // ── price table rows ─────────────────────────────────────────────────
     rows.clear();
-
-    float currentRowY = tableTopY - rowHeight; // first row below header
-    int fieldCounter = 0;
+    float rowY = titleBounds.y - rowHeight; // first data row (below header)
 
     for (City city : world.getCities()) {
-      float halfRowHeight = rowHeight / 2f;
-
-      RowRenderData row = new RowRenderData();
-      row.cityName = city.getName();
-      row.qty = String.valueOf(Math.round(city.getInventory(resourceType)));
-      row.buy = String.format("%.2f", city.getBuyPrice(resourceType));
-      row.sell = String.format("%.2f", city.getSellPrice(resourceType));
+      RowData row = new RowData();
+      row.cityName = clip(city.getName(), (int) CITY_NAME_CHARS);
+      row.qty = String.valueOf(Math.round(city.getInventory(currentResource)));
+      row.buy = String.format("%.2f", city.getBuyPrice(currentResource));
+      row.sell = String.format("%.2f", city.getSellPrice(currentResource));
       row.spread =
-          String.format("%.2f", (city.getSellPrice(resourceType) - city.getBuyPrice(resourceType)));
+          String.format(
+              "%.2f", city.getSellPrice(currentResource) - city.getBuyPrice(currentResource));
 
-      if (city.getBuyPriceVelocity(resourceType) > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
-        row.buyVelocityDirection = VelocityDirection.UP;
-        row.buyVelocityBounds =
-            new Rectangle(
-                priceTableBounds.x + COL_BUY_X_VEL,
-                currentRowY - (halfRowHeight / 2f),
-                VEL_ARROW_W,
-                VEL_ARROW_H);
-      } else if (city.getBuyPriceVelocity(resourceType) < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
-        row.buyVelocityDirection = VelocityDirection.DOWN;
-        row.buyVelocityBounds =
-            new Rectangle(
-                priceTableBounds.x + COL_BUY_X_VEL,
-                currentRowY - halfRowHeight,
-                VEL_ARROW_W,
-                VEL_ARROW_H);
-      }
-
-      if (city.getSellPriceVelocity(resourceType) > C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
-        row.sellVelocityDirection = VelocityDirection.UP;
-        row.sellVelocityBounds =
-            new Rectangle(
-                priceTableBounds.x + COL_SELL_X_VEL,
-                currentRowY - (halfRowHeight / 2f),
-                VEL_ARROW_W,
-                VEL_ARROW_H);
-      } else if (city.getSellPriceVelocity(resourceType) < -C.UI_MARKET_PRICE_VELOCITY_EPSILON) {
-        row.sellVelocityDirection = VelocityDirection.DOWN;
-        row.sellVelocityBounds =
-            new Rectangle(
-                priceTableBounds.x + COL_SELL_X_VEL,
-                currentRowY - halfRowHeight,
-                VEL_ARROW_W,
-                VEL_ARROW_H);
-      }
-
+      float bv = city.getBuyPriceVelocity(currentResource);
+      float sv = city.getSellPriceVelocity(currentResource);
+      row.buyVel =
+          bv > C.UI_MARKET_PRICE_VELOCITY_EPSILON
+              ? 1
+              : bv < -C.UI_MARKET_PRICE_VELOCITY_EPSILON ? -1 : 0;
+      row.sellVel =
+          sv > C.UI_MARKET_PRICE_VELOCITY_EPSILON
+              ? 1
+              : sv < -C.UI_MARKET_PRICE_VELOCITY_EPSILON ? -1 : 0;
+      row.rowY = rowY;
       rows.add(row);
-
-      if (highlightFieldIndex == fieldCounter) {
-        highlightBounds.set(
-            priceTableBounds.x + COL_BUY_X - PRICE_HIGHLIGHT_WIDTH + PRICE_DECIMAL_WIDTH_ESTIMATE,
-            currentRowY - font.getLineHeight() + 7f,
-            PRICE_HIGHLIGHT_WIDTH,
-            font.getLineHeight() - 3f);
-      }
-      fieldCounter++;
-
-      if (highlightFieldIndex == fieldCounter) {
-        highlightBounds.set(
-            priceTableBounds.x + COL_SELL_X - PRICE_HIGHLIGHT_WIDTH + PRICE_DECIMAL_WIDTH_ESTIMATE,
-            currentRowY - font.getLineHeight() + 7f,
-            PRICE_HIGHLIGHT_WIDTH,
-            font.getLineHeight() - 3f);
-      }
-      fieldCounter++;
-
-      currentRowY -= rowHeight;
+      rowY -= rowHeight;
     }
 
-    /* ****
-     * bounds for arbitrage matrix
-     */
-    float matrixTopY = priceTableBounds.y - MATRIX_PADDING_TOP;
-    // 2 header rows + N data rows
-    float matrixHeight = (2 + cityCount) * rowHeight;
-    matrixBounds.set(
-        priceTableBounds.x, matrixTopY - matrixHeight, priceTableBounds.width, matrixHeight);
-
-    /* ****
-     * Row data for arbitrage matrix
-     */
+    // ── arbitrage matrix ─────────────────────────────────────────────────
     matrixRows.clear();
-
     List<City> cities = world.getCities();
-
     for (City src : cities) {
-
-      MatrixRowRenderData row = new MatrixRowRenderData();
-      row.sourceCityName = src.getName();
-
-      for (City dest : cities) {
-        if (src == dest) {
-          row.values.add("---");
+      MatrixRowData mrow = new MatrixRowData();
+      mrow.srcName = clip(src.getName(), (int) CITY_NAME_CHARS);
+      for (City dst : cities) {
+        if (src == dst) {
+          mrow.values.add("---");
+          mrow.colors.add(FG);
         } else {
-          float arb = dest.getBuyPrice(resourceType) - src.getSellPrice(resourceType);
-          row.values.add(String.format("%+.2f", arb));
+          float arb = dst.getBuyPrice(currentResource) - src.getSellPrice(currentResource);
+          mrow.values.add(String.format("%+.2f", arb));
+          mrow.colors.add(arb > 0 ? ARROW_UP : FG);
         }
       }
-
-      matrixRows.add(row);
+      matrixRows.add(mrow);
     }
   }
+
+  // ── draw ──────────────────────────────────────────────────────────────────
 
   @Override
   public void drawFilled(ShapeRenderer sr) {
     if (!visibleSupplier.get()) return;
 
-    sr.setColor(0.95f, 0.95f, 0.95f, 0.95f);
+    sr.setColor(PANEL_BG);
     sr.rect(panelBounds.x, panelBounds.y, panelBounds.width, panelBounds.height);
 
-    sr.setColor(0.85f, 0.85f, 0.85f, 0.85f);
+    sr.setColor(TITLE_BG);
     sr.rect(titleBounds.x, titleBounds.y, titleBounds.width, titleBounds.height);
 
-    sr.setColor(0.2f, 0.6f, 1f, 0.35f);
-    sr.rect(highlightBounds.x, highlightBounds.y, highlightBounds.width, highlightBounds.height);
+    // velocity arrows
+    float rowHeight = font.getLineHeight() + ROW_SPACING;
+    float tableX = panelBounds.x + TABLE_PADDING_X;
+    float arrowX = tableX + colBuyArrowX();
 
-    for (RowRenderData row : rows) {
-      if (row.buyVelocityDirection == VelocityDirection.UP) {
-        Rectangle b = row.buyVelocityBounds;
-        sr.setColor(0.20f, 0.65f, 0.35f, 1f);
-        sr.triangle(b.x, b.y, b.x + b.width, b.y, b.x + b.width / 2f, b.y + b.height);
-      } else if (row.buyVelocityDirection == VelocityDirection.DOWN) {
-        Rectangle b = row.buyVelocityBounds;
-        sr.setColor(Color.RED);
-        sr.triangle(b.x, b.y + b.height, b.x + b.width, b.y + b.height, b.x + b.width / 2f, b.y);
-      }
-
-      if (row.sellVelocityDirection == VelocityDirection.UP) {
-        Rectangle b = row.sellVelocityBounds;
-        sr.setColor(0.20f, 0.65f, 0.35f, 1f);
-        sr.triangle(b.x, b.y, b.x + b.width, b.y, b.x + b.width / 2f, b.y + b.height);
-      } else if (row.sellVelocityDirection == VelocityDirection.DOWN) {
-        Rectangle b = row.sellVelocityBounds;
-        sr.setColor(Color.RED);
-        sr.triangle(b.x, b.y + b.height, b.x + b.width, b.y + b.height, b.x + b.width / 2f, b.y);
-      }
+    for (RowData row : rows) {
+      drawArrow(sr, arrowX, row.rowY, row.buyVel);
+      drawArrow(sr, arrowX + COL_PRICE_W + COL_ARROW_W, row.rowY, row.sellVel);
     }
   }
 
   @Override
-  public void drawText(SpriteBatch batch) {
+  public void drawLine(ShapeRenderer sr) {
     if (!visibleSupplier.get()) return;
+    sr.setColor(0.6f, 0.6f, 0.6f, 1f);
+    sr.rect(panelBounds.x, panelBounds.y, panelBounds.width, panelBounds.height);
+  }
 
-    /* ****
-     * Title
-     */
-    glyphLayout.setText(font, resourceType.name());
-    float titleX = titleBounds.x + titleBounds.width / 2 - glyphLayout.width / 2;
-    float titleY = titleBounds.y + titleBounds.height / 2 + glyphLayout.height / 2;
-    font.draw(batch, resourceType.name(), titleX, titleY);
+  @Override
+  public void drawText(SpriteBatch batch) {
+    if (!visibleSupplier.get() || currentResource == null) return;
 
-    /* ****
-     * Price Data table
-     */
-    float headerY = priceTableBounds.y + priceTableBounds.height;
+    float tableX = panelBounds.x + TABLE_PADDING_X;
+    float rowHeight = font.getLineHeight() + ROW_SPACING;
 
-    glyphLayout.setText(font, "Buy");
-    float buyAnchorX = priceTableBounds.x + COL_BUY_X;
-    float buyHeaderX = buyAnchorX - glyphLayout.width;
+    // ── title (centered, click hint) ─────────────────────────────────────
+    String titleText = currentResource.name() + "  [click to cycle]";
+    glyphLayout.setText(font, titleText);
+    font.setColor(FG);
+    font.draw(
+        batch,
+        titleText,
+        titleBounds.x + titleBounds.width / 2f - glyphLayout.width / 2f,
+        titleBounds.y + titleBounds.height / 2f + glyphLayout.height / 2f);
 
-    glyphLayout.setText(font, "Sell");
-    float sellAnchorX = priceTableBounds.x + COL_SELL_X;
-    float sellHeaderX = sellAnchorX - glyphLayout.width;
+    // ── header row ───────────────────────────────────────────────────────
+    float headerY = titleBounds.y - ROW_SPACING;
+    font.setColor(FG);
+    font.draw(batch, "City", tableX + colNameX(), headerY);
+    font.draw(batch, "Qty", tableX + colQtyX(), headerY);
+    drawCentered(batch, "Buy", tableX + colBuyX(), tableX + colBuyX() + COL_PRICE_W, headerY);
+    drawCentered(batch, "Sell", tableX + colSellX(), tableX + colSellX() + COL_PRICE_W, headerY);
+    font.draw(batch, "Spread", tableX + colSpreadX(), headerY);
 
-    glyphLayout.setText(font, "Spread");
-    // TODO move market board spread col position to constants
-    float spreadAnchorX = sellHeaderX + 80f;
-
-    font.draw(batch, "City", priceTableBounds.x + COL_NAME_X, headerY);
-    font.draw(batch, "Qty", priceTableBounds.x + COL_QTY_X, headerY);
-    font.draw(batch, "Buy", buyHeaderX, headerY);
-    font.draw(batch, "Sell", sellHeaderX, headerY);
-    font.draw(batch, "Spread", spreadAnchorX, headerY);
-
-    float currentRowY = headerY - (font.getLineHeight() + ROW_SPACING);
-
-    for (RowRenderData row : rows) {
-      glyphLayout.setText(font, row.buy);
-      float buyDecimalAnchorX = priceTableBounds.x + COL_BUY_X;
-      // float buyDrawX = buyRightAnchor - glyphLayout.width;
-
-      glyphLayout.setText(font, row.sell);
-      float sellDecimalAnchorX = priceTableBounds.x + COL_SELL_X;
-      // float sellDrawX = sellRightAnchor - glyphLayout.width;
-
-      font.draw(batch, row.cityName, priceTableBounds.x + COL_NAME_X, currentRowY);
-      font.draw(batch, row.qty, priceTableBounds.x + COL_QTY_X, currentRowY);
-
-      // font.draw(batch, row.buy, buyDrawX, currentRowY);
-      // font.draw(batch, row.sell, sellDrawX, currentRowY);
-      drawPriceAnchored(batch, row.buy, buyDecimalAnchorX, currentRowY);
-      drawPriceAnchored(batch, row.sell, sellDecimalAnchorX, currentRowY);
-
-      drawPriceAnchored(batch, row.spread, sellDecimalAnchorX + 80f, currentRowY);
-
-      currentRowY -= font.getLineHeight() + ROW_SPACING;
+    // ── data rows ────────────────────────────────────────────────────────
+    for (RowData row : rows) {
+      font.setColor(FG);
+      font.draw(batch, row.cityName, tableX + colNameX(), row.rowY);
+      font.draw(batch, row.qty, tableX + colQtyX(), row.rowY);
+      drawRight(batch, row.buy, tableX + colBuyX() + COL_PRICE_W, row.rowY);
+      drawRight(batch, row.sell, tableX + colSellX() + COL_PRICE_W, row.rowY);
+      drawRight(batch, row.spread, tableX + colSpreadX() + COL_SPREAD_W, row.rowY);
     }
 
-    /* ****
-     * Arbitrage Matrix
-     */
-    float matrixHeaderY =
-        matrixBounds.y + matrixBounds.height + (font.getLineHeight() + ROW_SPACING) - 10f;
+    // ── arbitrage matrix ─────────────────────────────────────────────────
+    float matrixTopY =
+        rows.isEmpty()
+            ? titleBounds.y - rowHeight * 2
+            : rows.get(rows.size() - 1).rowY - MATRIX_GAP;
 
-    // Title row
-    font.draw(batch, "=== Arbitrage Matrix ===", matrixBounds.x, matrixHeaderY);
+    font.setColor(FG);
 
-    float currentY = matrixHeaderY - (font.getLineHeight() + ROW_SPACING);
+    float colW =
+        (PANEL_WIDTH - TABLE_PADDING_X * 2f - COL_NAME_W) / Math.max(world.getCities().size(), 1);
+    float mHeaderY = matrixTopY - rowHeight / 4f;
 
-    // Column header row
-    font.draw(batch, "Fr\\To", matrixBounds.x, currentY);
-
-    // float colX = matrixBounds.x + COL_NAME_X + MATRIX_COL_WIDTH;
-    float colX = matrixBounds.x + COL_NAME_X + NAME_WIDTH;
-
+    // column headers
+    float cx = tableX + COL_NAME_W;
     for (City dest : world.getCities()) {
-      font.draw(batch, dest.getName(), colX, currentY);
-      colX += MATRIX_COL_WIDTH;
+      drawRight(batch, clip(dest.getName(), (int) CITY_NAME_CHARS), cx + colW, mHeaderY);
+      cx += colW;
     }
 
-    currentY -= font.getLineHeight() + ROW_SPACING;
-
-    // Data rows
-    for (MatrixRowRenderData row : matrixRows) {
-
-      font.draw(batch, row.sourceCityName, matrixBounds.x, currentY);
-
-      colX = matrixBounds.x + COL_NAME_X + NAME_WIDTH;
-
-      for (String value : row.values) {
-        font.draw(batch, value, colX, currentY);
-        colX += MATRIX_COL_WIDTH;
+    float mRowY = mHeaderY - rowHeight;
+    for (MatrixRowData mrow : matrixRows) {
+      font.draw(batch, mrow.srcName, tableX, mRowY);
+      cx = tableX + COL_NAME_W;
+      for (int i = 0; i < mrow.values.size(); i++) {
+        font.setColor(mrow.colors.get(i));
+        drawRight(batch, mrow.values.get(i), cx + colW, mRowY);
+        cx += colW;
       }
-
-      currentY -= font.getLineHeight() + ROW_SPACING;
+      font.setColor(FG);
+      mRowY -= rowHeight;
     }
   }
 
-  private void drawPriceAnchored(
-      SpriteBatch batch, String price, float decimalAnchorX, float baselineY) {
-    int dotIndex = price.indexOf('.');
-    if (dotIndex < 0) {
-      font.draw(batch, price, decimalAnchorX, baselineY);
-      return;
+  // ── helpers ───────────────────────────────────────────────────────────────
+
+  private float colNameX() {
+    return 0f;
+  }
+
+  private float colQtyX() {
+    return COL_NAME_W;
+  }
+
+  private float colBuyX() {
+    return colQtyX() + COL_QTY_W;
+  }
+
+  private float colBuyArrowX() {
+    return colBuyX() + COL_PRICE_W;
+  }
+
+  private float colSellX() {
+    return colBuyArrowX() + COL_ARROW_W;
+  }
+
+  private float colSpreadX() {
+    return colSellX() + COL_PRICE_W + COL_ARROW_W;
+  }
+
+  /** Right-align text so its right edge is at anchorX. */
+  private void drawRight(SpriteBatch batch, String text, float anchorX, float y) {
+    glyphLayout.setText(font, text);
+    font.draw(batch, text, anchorX - glyphLayout.width, y);
+  }
+
+  private void drawCentered(SpriteBatch batch, String text, float left, float right, float y) {
+    glyphLayout.setText(font, text);
+    font.draw(batch, text, left + (right - left - glyphLayout.width) / 2f, y);
+  }
+
+  private void drawArrow(ShapeRenderer sr, float x, float y, int dir) {
+    float rowHeight = font.getLineHeight() + ROW_SPACING;
+    float midY = y - rowHeight / 2f + VEL_ARROW_H / 2f + VEL_ARROW_LIFT;
+    float ax = x + VEL_ARROW_GAP;
+    if (dir > 0) {
+      sr.setColor(ARROW_UP);
+      sr.triangle(ax, midY, ax + VEL_ARROW_W, midY, ax + VEL_ARROW_W / 2f, midY + VEL_ARROW_H);
+    } else if (dir < 0) {
+      sr.setColor(ARROW_DOWN);
+      sr.triangle(
+          ax,
+          midY + VEL_ARROW_H,
+          ax + VEL_ARROW_W,
+          midY + VEL_ARROW_H,
+          ax + VEL_ARROW_W / 2f,
+          midY);
     }
-
-    String intPart = price.substring(0, dotIndex);
-    String fracPart = price.substring(dotIndex + 1);
-
-    // measure pieces
-    glyphLayout.setText(font, intPart);
-    float intWidth = glyphLayout.width;
-
-    glyphLayout.setText(font, ".");
-    float dotWidth = glyphLayout.width;
-
-    glyphLayout.setText(font, fracPart);
-    float fracWidth = glyphLayout.width;
-
-    // positions
-    float dotX = decimalAnchorX - dotWidth;
-    float fracX = decimalAnchorX + PRICE_DECIMAL_PADDING;
-    float intX = dotX - PRICE_DECIMAL_PADDING - intWidth;
-
-    font.draw(batch, intPart, intX, baselineY);
-    font.draw(batch, ".", dotX, baselineY);
-    font.draw(batch, fracPart, fracX, baselineY);
   }
 
-  public void selectNextField() {
-    int total = getTotalFieldCount();
-    if (total == 0) return;
-
-    highlightFieldIndex = (highlightFieldIndex + 1) % total;
+  private String clip(String s, int maxLen) {
+    if (s == null) return "";
+    return s.length() <= maxLen ? s : s.substring(0, maxLen);
   }
 
-  public void selectPreviousField() {
-    int total = getTotalFieldCount();
-    if (total == 0) return;
+  // ── render data ───────────────────────────────────────────────────────────
 
-    highlightFieldIndex--;
-    if (highlightFieldIndex < 0) {
-      highlightFieldIndex = total - 1;
-    }
+  private static class RowData {
+    String cityName, qty, buy, sell, spread;
+    int buyVel, sellVel; // -1, 0, +1
+    float rowY;
   }
 
-  public City getHighlightCity() {
-    int cityIndex = getCityIndexForField(highlightFieldIndex);
-    List<City> cities = world.getCities();
-    if (cities.isEmpty()) return null;
-    return cities.get(cityIndex);
-  }
-
-  private int getCityIndexForField(int fieldIndex) {
-    return fieldIndex / 2;
-  }
-
-  public boolean isHighlightFieldBuy() {
-    return isBuyField(highlightFieldIndex);
-  }
-
-  private int getCityCount() {
-    return world.getCities().size();
-  }
-
-  private int getTotalFieldCount() {
-    return getCityCount() * 2;
-  }
-
-  private boolean isBuyField(int fieldIndex) {
-    return fieldIndex % 2 == 0;
-  }
-
-  private static class RowRenderData {
-    String cityName;
-    String qty;
-    String buy;
-    Rectangle buyVelocityBounds = null;
-    VelocityDirection buyVelocityDirection = VelocityDirection.STABLE;
-    String sell;
-    Rectangle sellVelocityBounds = null;
-    VelocityDirection sellVelocityDirection = VelocityDirection.STABLE;
-    String spread;
-  }
-
-  private enum VelocityDirection {
-    STABLE,
-    UP,
-    DOWN
-  }
-
-  private static class MatrixRowRenderData {
-    String sourceCityName;
-    final List<String> values = new ArrayList<>();
+  private static class MatrixRowData {
+    String srcName;
+    List<String> values = new ArrayList<>();
+    List<Color> colors = new ArrayList<>();
   }
 }
