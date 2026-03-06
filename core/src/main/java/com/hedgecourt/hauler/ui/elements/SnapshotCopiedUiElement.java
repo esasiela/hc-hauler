@@ -16,7 +16,7 @@ public class SnapshotCopiedUiElement extends BaseUiElement implements UiElement 
   private static final float FADE_TIME = 0.20f;
   private static final float TOTAL_TIME = GROW_TIME + HOLD_TIME + FADE_TIME;
 
-  private static final String TEXT = "Copied World Snapshot";
+  private static final String TEXT = "Saved World Snapshot";
 
   private final BitmapFont font;
   private final GlyphLayout glyphLayout;

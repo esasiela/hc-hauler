@@ -32,7 +32,8 @@ public class C {
   public enum InspectorTab {
     SUMMARY,
     TRADE,
-    DEBUG
+    DEBUG,
+    BALANCE
   }
 
   /* ****

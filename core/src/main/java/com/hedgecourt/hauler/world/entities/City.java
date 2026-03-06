@@ -121,6 +121,7 @@ public class City extends WorldEntity implements Selectable {
       case SUMMARY -> buildInspectorLinesSummary(hoveredEntity);
       case TRADE -> buildInspectorLinesTrade(hoveredEntity);
       case DEBUG -> buildInspectorLinesDebug(hoveredEntity);
+      default -> List.of();
     };
   }
 

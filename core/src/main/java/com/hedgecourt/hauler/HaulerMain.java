@@ -125,6 +125,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
   private float inspectorAlpha = C.UI_INSPECTOR_PANEL_ALPHA_TRANSPARENT;
   private boolean inspectorVisible = false;
   private float inspectorAlphaLerp = inspectorAlpha;
+  private InspectorPanelUiElement inspectorPanel;
 
   private boolean marketBoardVisible = true;
   private MarketBoardUiElement marketBoard;
@@ -226,13 +227,18 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
             this::getMouseUiPosition));
 
     uiElements.add(new PauseIndicatorUiElement(pauseIndicatorFont, glyphLayout, () -> paused));
-    uiElements.add(
+
+    inspectorPanel =
         new InspectorPanelUiElement(
             inspectorFont,
+            glyphLayout,
+            this,
             () -> selectedEntity,
             () -> hoveredEntity,
             () -> inspectorVisible,
-            () -> inspectorAlpha));
+            () -> inspectorAlpha);
+    uiElements.add(inspectorPanel);
+
     uiElements.add(
         new HeaderStatsUiElement(
             statusBarFont, glyphLayout, () -> cities, () -> nodes, () -> guys));
@@ -796,7 +802,21 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     if (Gdx.input.isKeyJustPressed(Keys.NUM_1)) C.inspectorTab = InspectorTab.SUMMARY;
     if (Gdx.input.isKeyJustPressed(Keys.NUM_2)) C.inspectorTab = InspectorTab.TRADE;
     if (Gdx.input.isKeyJustPressed(Keys.NUM_3)) C.inspectorTab = InspectorTab.DEBUG;
+    if (Gdx.input.isKeyJustPressed(Keys.NUM_4)) {
+      if (C.inspectorTab == InspectorTab.BALANCE) inspectorPanel.cycleBalanceResource();
+      else C.inspectorTab = InspectorTab.BALANCE;
+    }
+    /*
+       case Input.Keys.NUM_4 -> {
+         if (C.inspectorTab == InspectorTab.BALANCE) {
+           balanceTab.cycleResource(); // cycle only when already on tab
+         } else {
+           C.inspectorTab = InspectorTab.BALANCE;
+         }
+       }
 
+
+    */
     /* ****
      * Inspector alpha toggle Key_A
      * ****/

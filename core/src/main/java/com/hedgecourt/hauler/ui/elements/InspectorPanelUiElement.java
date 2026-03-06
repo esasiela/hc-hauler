@@ -3,12 +3,14 @@ package com.hedgecourt.hauler.ui.elements;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.hedgecourt.hauler.C;
 import com.hedgecourt.hauler.C.InspectorTab;
 import com.hedgecourt.hauler.ui.UiElement;
 import com.hedgecourt.hauler.world.WorldEntity;
+import com.hedgecourt.hauler.world.WorldView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -21,8 +23,12 @@ public class InspectorPanelUiElement extends BaseUiElement implements UiElement 
   private final Supplier<Boolean> visibleSupplier;
   private final Supplier<Float> alphaSupplier;
 
+  private final MapBalanceTabRenderer balanceTab;
+
   public InspectorPanelUiElement(
       BitmapFont font,
+      GlyphLayout glyphLayout,
+      WorldView world,
       Supplier<WorldEntity> selectedSupplier,
       Supplier<WorldEntity> hoveredSupplier,
       Supplier<Boolean> visibleSupplier,
@@ -32,6 +38,8 @@ public class InspectorPanelUiElement extends BaseUiElement implements UiElement 
     this.hoveredSupplier = hoveredSupplier;
     this.visibleSupplier = visibleSupplier;
     this.alphaSupplier = alphaSupplier;
+
+    this.balanceTab = new MapBalanceTabRenderer(font, glyphLayout, world);
   }
 
   @Override
@@ -61,10 +69,11 @@ public class InspectorPanelUiElement extends BaseUiElement implements UiElement 
     List<String> lines = new ArrayList<>();
     lines.add(
         String.format(
-            " %s%s%s const=%2.2f",
+            " %s%s%s%s const=%2.2f",
             C.inspectorTab == InspectorTab.SUMMARY ? "[SUMMARY]" : " SUMMARY ",
             C.inspectorTab == InspectorTab.TRADE ? "[TRADE]" : " TRADE ",
             C.inspectorTab == InspectorTab.DEBUG ? "[DEBUG]" : " DEBUG ",
+            C.inspectorTab == InspectorTab.BALANCE ? "[BALANCE]" : " BALANCE ",
             C.harvestDeliveryCityRadiusMultiplier));
     lines.add("");
     if (selected == null) {
@@ -78,5 +87,14 @@ public class InspectorPanelUiElement extends BaseUiElement implements UiElement 
       font.draw(batch, line, lineX, lineY);
       lineY -= font.getLineHeight() + C.UI_INSPECTOR_PANEL_LINE_PADDING;
     }
+
+    if (C.inspectorTab == InspectorTab.BALANCE) {
+      balanceTab.update(hoveredSupplier.get());
+      balanceTab.drawText(batch, lineX, lineY, hoveredSupplier.get());
+    }
+  }
+
+  public void cycleBalanceResource() {
+    balanceTab.cycleResource();
   }
 }

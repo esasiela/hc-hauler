@@ -75,6 +75,7 @@ public class Node extends WorldEntity implements Selectable {
       case SUMMARY -> buildInspectorLinesSummary(hoveredEntity);
       case TRADE -> buildInspectorLinesTrade(hoveredEntity);
       case DEBUG -> buildInspectorLinesDebug(hoveredEntity);
+      default -> List.of();
     };
   }
 
@@ -195,6 +196,10 @@ public class Node extends WorldEntity implements Selectable {
 
   public float getAmountMax(ResourceType type) {
     return getResource(type).amountMax;
+  }
+
+  public float getRegenRate(ResourceType type) {
+    return getResource(type).regenRate;
   }
 
   public float getRegenCooldownTimer(ResourceType type) {
