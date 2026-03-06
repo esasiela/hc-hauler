@@ -89,7 +89,7 @@
         "map60x20.tmx"
     ],
     "project": "single-city.tiled-project",
-    "property.type": "bool",
+    "property.type": "float",
     "recentFiles": [
         "single-city.tmx",
         "test-tutorial.tmx",

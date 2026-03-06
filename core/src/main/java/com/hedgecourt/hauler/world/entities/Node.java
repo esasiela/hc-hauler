@@ -79,28 +79,44 @@ public class Node extends WorldEntity implements Selectable {
   }
 
   private List<String> buildInspectorLinesSummary(WorldEntity hoveredEntity) {
+    List<String> lines = new ArrayList<>();
 
-    NodeResource res =
-        nodeResources.values().stream().filter(r -> r.amountMax > 0f).findFirst().orElse(null);
+    lines.add(String.format("World : %d, %d", (int) worldX, (int) worldY));
+    lines.add(
+        String.format(
+            "Tile  : %d, %d",
+            (int) (worldX / C.MAP_TILE_WIDTH_PX), (int) (worldY / C.MAP_TILE_HEIGHT_PX)));
 
-    if (res == null) {
-      return List.of(
-          String.format("World : %d, %d", (int) worldX, (int) worldY),
-          String.format(
-              "Map row/col: %d, %d",
-              (int) (worldX / C.MAP_TILE_WIDTH_PX), (int) (worldY / C.MAP_TILE_HEIGHT_PX)),
-          "No resource");
+    lines.add("");
+
+    ResourceType type;
+    try {
+      type = getPrimaryResourceType();
+    } catch (IllegalStateException e) {
+      lines.add("No resource configured.");
+      return lines;
     }
 
-    return List.of(
-        String.format("World : %d, %d", (int) worldX, (int) worldY),
+    NodeResource res = getResource(type);
+
+    lines.add(String.format("Type  : %s", type));
+    lines.add(
         String.format(
-            "Map row/col: %d, %d",
-            (int) (worldX / C.MAP_TILE_WIDTH_PX), (int) (worldY / C.MAP_TILE_HEIGHT_PX)),
-        "Res Amt: " + Math.round(res.amount) + " / " + Math.round(res.amountMax),
-        "Regen Rate: " + Math.round(res.regenRate),
-        String.format("Regen Delay: %.2f (%.2f)", res.regenDelay, res.regenCooldownTimer),
-        "Harvest Rate: " + res.harvestRate);
+            "Amount: %.1f / %.1f  (%.0f%%)",
+            res.amount,
+            res.amountMax,
+            res.amountMax > 0f ? (res.amount / res.amountMax) * 100f : 0f));
+
+    if (res.regenCooldownTimer > 0f) {
+      lines.add(String.format("Regen : COOLING DOWN %.1fs", res.regenCooldownTimer));
+    } else {
+      lines.add(String.format("Regen : %.2f/s", res.regenRate));
+    }
+
+    lines.add(String.format("Delay : %.1fs", res.regenDelay));
+    lines.add(String.format("Harv  : %.1f/s", res.harvestRate));
+
+    return lines;
   }
 
   private List<String> buildInspectorLinesTrade(WorldEntity hoveredEntity) {

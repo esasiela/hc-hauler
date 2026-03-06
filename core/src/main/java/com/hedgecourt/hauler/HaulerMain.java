@@ -456,6 +456,7 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
 
   private Node loadNode(MapObjectReader r) {
     // TODO load node width & height from map object
+
     Node node =
         Node.builder()
             .world(this)
@@ -472,35 +473,45 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
       Map<ResourceType, NodeResourceInitConfig> initMap = new EnumMap<>(ResourceType.class);
 
       if (resourcesJson != null && !resourcesJson.isBlank()) {
+        // legacy json path
         Map<String, NodeResourceInitConfig> rawMap =
             mapper.readValue(
                 resourcesJson, new TypeReference<Map<String, NodeResourceInitConfig>>() {});
-
         for (Map.Entry<String, NodeResourceInitConfig> entry : rawMap.entrySet()) {
           ResourceType type = ResourceType.valueOf(entry.getKey().toUpperCase());
           initMap.put(type, entry.getValue());
         }
+      } else {
+        // simple property path — name must match a ResourceType
+        String typeName = r.getMapObjectName();
+        try {
+          ResourceType type = ResourceType.valueOf(typeName.toUpperCase());
+          NodeResourceInitConfig cfg = new NodeResourceInitConfig();
+          cfg.amount = r.f("amount", 10f);
+          cfg.amountMax = r.f("amountMax", 40f);
+          cfg.regenRate = r.f("regenRate", 0.75f);
+          cfg.regenDelay = r.f("regenDelay", 5f);
+          cfg.harvestRate = r.f("harvestRate", 20f);
+          initMap.put(type, cfg);
+        } catch (IllegalArgumentException e) {
+          InitErrors.add("Node " + r.getMapObjectId() + " has unrecognized name/type: " + typeName);
+        }
       }
 
       for (ResourceType type : ResourceType.values()) {
-        NodeResourceInitConfig cfg = initMap.get(type);
-        node.initializeResource(type, cfg);
+        node.initializeResource(type, initMap.get(type));
       }
+
     } catch (Exception e) {
-      InitErrors.add("Error loading node for node " + node.getId() + "/" + node.getName(), e);
+      InitErrors.add("Error loading node " + node.getId() + "/" + node.getName(), e);
     }
 
-    long count =
-        node.getNodeResources().values().stream()
-            .filter(nodeResource -> nodeResource.amountMax > 0f)
-            .count();
-    if (count == 0) {
+    long count = node.getNodeResources().values().stream().filter(nr -> nr.amountMax > 0f).count();
+    if (count == 0)
       InitErrors.add("Node " + node.getId() + "/" + node.getName() + " has no resources defined.");
-    }
-    if (count > 1) {
+    if (count > 1)
       InitErrors.add(
           "Node " + node.getId() + "/" + node.getName() + " has multiple resources defined.");
-    }
 
     node.buildSprites(baseTilesTexture);
     return node;
@@ -508,10 +519,16 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
 
   private static final Map<Float, GuyRole> GUY_SPEED_ROLES =
       Map.of(
-          32f, new GuyRole("vslow", "characters/pipoya/", "Animal/Cat-01-2r.png"),
-          48f, new GuyRole("slow", "characters/pipoya/", "Enemy/Enemy 15-1.png"),
-          64f, new GuyRole("mid", "characters/pipoya/", "Female/Female 10-1.png"),
-          96f, new GuyRole("fast", "characters/hcr/", "pinkeye-02.png"));
+          0f,
+          new GuyRole("guy", "characters/pipoya/", "Other/pien.png"),
+          32f,
+          new GuyRole("vslow", "characters/pipoya/", "Animal/Cat-01-2r.png"),
+          48f,
+          new GuyRole("slow", "characters/pipoya/", "Enemy/Enemy 15-1.png"),
+          64f,
+          new GuyRole("mid", "characters/pipoya/", "Female/Female 10-1.png"),
+          96f,
+          new GuyRole("fast", "characters/hcr/", "pinkeye-02.png"));
   private final Map<String, Integer> guyRoleCounters = new HashMap<>();
 
   private record GuyRole(String namePrefix, String spriteDir, String spriteFilename) {}
@@ -541,24 +558,15 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
 
       if (r.b("roleFromSpeed", true)) {
         float speed = guy.getMoveSpeed();
-        GuyRole role =
-            GUY_SPEED_ROLES.getOrDefault(
-                speed, new GuyRole("guy", "characters/pipoya/", "Other/pien.png"));
-        /*
-        if (!GUY_SPEED_ROLES.containsKey(speed)) {
-          InitErrors.add("No role defined for moveSpeed " + speed + " on " + r.getMapObjectId());
-        }
+        GuyRole role = GUY_SPEED_ROLES.getOrDefault(speed, GUY_SPEED_ROLES.get(0f));
 
-         */
         int n = guyRoleCounters.merge(role.namePrefix(), 1, Integer::sum);
         guy.initFromRole(role.namePrefix() + n, role.spriteDir(), role.spriteFilename());
       }
 
       String spriteFullName = guy.getSpriteDir() + guy.getSpriteFilename();
       if (!characterTextures.containsKey(spriteFullName)) {
-        Gdx.app.log("GUY_LOAD", "Loading sprite: " + guy.getSpriteDir() + guy.getSpriteFilename());
         characterTextures.put(spriteFullName, new Texture(spriteFullName));
-        Gdx.app.log("GUY_LOAD", "Loaded OK");
       }
 
       if (guy.getSpriteDir().endsWith("hcr/experimental/")) {

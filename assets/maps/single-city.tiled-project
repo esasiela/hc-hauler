@@ -104,6 +104,31 @@
             "id": 2,
             "members": [
                 {
+                    "name": "amount",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "amountMax",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "harvestRate",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "regenDelay",
+                    "type": "float",
+                    "value": 0
+                },
+                {
+                    "name": "regenRate",
+                    "type": "float",
+                    "value": 0
+                },
+                {
                     "name": "resourcesJson",
                     "type": "string",
                     "value": ""
