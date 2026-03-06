@@ -189,80 +189,16 @@
 }</property>
    </properties>
   </object>
-  <object id="13" name="fast2" type="Guy" gid="1028" x="896" y="224" width="32" height="32">
-   <properties>
-    <property name="autonomyEnabled" type="bool" value="true"/>
-    <property name="moveSpeed" type="float" value="96"/>
-    <property name="spriteDir" value="characters/hcr/"/>
-    <property name="spriteFilename" value="pinkeye-02.png"/>
-   </properties>
-  </object>
-  <object id="14" name="fast1" type="Guy" gid="1028" x="1472" y="224" width="32" height="32">
-   <properties>
-    <property name="autonomyEnabled" type="bool" value="true"/>
-    <property name="moveSpeed" type="float" value="96"/>
-    <property name="spriteDir" value="characters/hcr/"/>
-    <property name="spriteFilename" value="pinkeye-02.png"/>
-   </properties>
-  </object>
-  <object id="15" name="vslow1" type="Guy" gid="1028" x="192" y="96" width="32" height="32">
-   <properties>
-    <property name="autonomyEnabled" type="bool" value="true"/>
-    <property name="carryCapacity" type="float" value="20"/>
-    <property name="idleDelay" type="float" value="0.4"/>
-    <property name="moveSpeed" type="float" value="32"/>
-    <property name="spriteFilename" value="Animal/Cat-01-2r.png"/>
-   </properties>
-  </object>
-  <object id="16" name="slow2" type="Guy" gid="1028" x="64" y="224" width="32" height="32">
-   <properties>
-    <property name="autonomyEnabled" type="bool" value="true"/>
-    <property name="spriteFilename" value="Enemy/Enemy 15-1.png"/>
-   </properties>
-  </object>
-  <object id="17" name="vslow2" type="Guy" gid="1028" x="192" y="352" width="32" height="32">
-   <properties>
-    <property name="autonomyEnabled" type="bool" value="true"/>
-    <property name="carryCapacity" type="float" value="20"/>
-    <property name="idleDelay" type="float" value="0.4"/>
-    <property name="moveSpeed" type="float" value="32"/>
-    <property name="spriteFilename" value="Animal/Cat-01-2r.png"/>
-   </properties>
-  </object>
-  <object id="18" name="mid3" type="Guy" gid="1028" x="512" y="288" width="32" height="32">
-   <properties>
-    <property name="autonomyEnabled" type="bool" value="true"/>
-    <property name="moveSpeed" type="float" value="64"/>
-    <property name="spriteFilename" value="Female/Female 10-1.png"/>
-   </properties>
-  </object>
-  <object id="19" name="mid1" type="Guy" gid="1028" x="512" y="160" width="32" height="32">
-   <properties>
-    <property name="autonomyEnabled" type="bool" value="true"/>
-    <property name="moveSpeed" type="float" value="64"/>
-    <property name="spriteFilename" value="Female/Female 10-1.png"/>
-   </properties>
-  </object>
-  <object id="20" name="mid2" type="Guy" gid="1028" x="512" y="224" width="32" height="32">
-   <properties>
-    <property name="autonomyEnabled" type="bool" value="true"/>
-    <property name="moveSpeed" type="float" value="64"/>
-    <property name="spriteFilename" value="Female/Female 10-1.png"/>
-   </properties>
-  </object>
-  <object id="21" name="slow1" type="Guy" gid="1028" x="96" y="160" width="32" height="32">
-   <properties>
-    <property name="autonomyEnabled" type="bool" value="true"/>
-    <property name="carryCapacity" type="float" value="20"/>
-    <property name="spriteFilename" value="Enemy/Enemy 15-1.png"/>
-   </properties>
-  </object>
-  <object id="22" name="slow3" type="Guy" gid="1028" x="96" y="288" width="32" height="32">
-   <properties>
-    <property name="autonomyEnabled" type="bool" value="true"/>
-    <property name="spriteFilename" value="Enemy/Enemy 15-1.png"/>
-   </properties>
-  </object>
+  <object id="13" name="fast" type="Guy" gid="1028" x="896" y="224" width="32" height="32"/>
+  <object id="14" name="vfast" type="Guy" gid="1028" x="1472" y="224" width="32" height="32"/>
+  <object id="15" name="vslow" type="Guy" gid="1028" x="192" y="96" width="32" height="32"/>
+  <object id="16" name="slow" type="Guy" gid="1028" x="64" y="224" width="32" height="32"/>
+  <object id="17" name="vslow" type="Guy" gid="1028" x="192" y="352" width="32" height="32"/>
+  <object id="18" name="mid" type="Guy" gid="1028" x="512" y="288" width="32" height="32"/>
+  <object id="19" name="mid" type="Guy" gid="1028" x="512" y="160" width="32" height="32"/>
+  <object id="20" name="mid" type="Guy" gid="1028" x="512" y="224" width="32" height="32"/>
+  <object id="21" name="slow" type="Guy" gid="1028" x="96" y="160" width="32" height="32"/>
+  <object id="22" name="slow" type="Guy" gid="1028" x="96" y="288" width="32" height="32"/>
   <object id="26" name="bub" type="Guy" gid="1028" x="416" y="352" width="32" height="32">
    <properties>
     <property name="moveSpeed" type="float" value="72"/>

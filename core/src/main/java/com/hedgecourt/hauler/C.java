@@ -9,7 +9,8 @@ public class C {
   /* ****
    * Live-editable (non-final) values at the top
    * ****/
-  @WorldSnapshotConst public static float harvestDeliveryCityRadiusMultiplier = 6.0f;
+  // @WorldSnapshotConst public static float harvestDeliveryCityRadiusMultiplier = 6.0f;
+  @WorldSnapshotConst public static float harvestDeliveryCityRadiusMultiplier = 2.5f; // five-city-v
   @WorldSnapshotConst public static float harvestCompetitionAwarenessRadius = 200f;
   @WorldSnapshotConst public static float harvestCompetitionPenaltyMultiplier = 0.2f;
   @WorldSnapshotConst public static float inventoryVelocitySmoothing = 0.9f;
@@ -40,8 +41,9 @@ public class C {
   // public static final String MAP_FILE = "maps/test-tutorial.tmx";
   // public static final String MAP_FILE = "maps/single-city.tmx";
   // public static final String MAP_FILE = "maps/test-map-003.tmx";
-  public static final String MAP_FILE = "maps/map60x20.tmx";
+  // public static final String MAP_FILE = "maps/map60x20.tmx";
   // public static final String MAP_FILE = "maps/map60x40.tmx";
+  public static final String MAP_FILE = "maps/five-city-v.tmx";
 
   // set to null for no initial selection
   public static final String DEFAULT_SELECTED_GUY_NAME = "fast1";

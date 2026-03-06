@@ -12,6 +12,17 @@
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
+        "five-city-v.tmx": {
+            "expandedObjectLayers": [
+                3
+            ],
+            "scale": 0.4668,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 1756.6409597257925,
+                "y": 1178.2347900599827
+            }
+        },
         "map60x20.tmx": {
             "expandedObjectLayers": [
                 2
@@ -19,19 +30,19 @@
             "scale": 1.1902,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 388.59015291547644,
-                "y": 336.07797008906067
+                "x": 199.12619727776845,
+                "y": 294.9084187531508
             }
         },
         "map60x40.tmx": {
             "expandedObjectLayers": [
                 2
             ],
-            "scale": 0.9532,
+            "scale": 0.6704,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 1001.3638271086863,
-                "y": 499.3705413344523
+                "x": 944.2124105011933,
+                "y": 547.434367541766
             }
         },
         "single-city.tmx": {
@@ -79,9 +90,9 @@
             }
         }
     },
-    "map.height": 40,
+    "map.height": 100,
     "map.lastUsedFormat": "tmx",
-    "map.width": 60,
+    "map.width": 100,
     "openFiles": [
         "single-city.tmx",
         "test-tutorial.tmx",

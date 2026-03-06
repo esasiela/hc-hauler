@@ -104,6 +104,10 @@ public class CityResource {
   }
 
   public float computeTargetSellPrice() {
+    if (inventoryTarget <= 0f) {
+      return buyPrice + C.cityMinSpread;
+    }
+
     float inventoryRatio = inventory / inventoryTarget;
     float deviation = inventoryRatio - 1f;
     float spreadScale = (float) Math.exp(-3f * deviation);

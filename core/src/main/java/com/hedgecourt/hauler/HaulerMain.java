@@ -956,15 +956,22 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
         mapRow);
   }
 
-  private void dumpWorld() {
+  private void dumpWorldClipboard() {
     try {
       System.out.println("Dumping world...");
       WorldSnapshot snapshot = WorldSnapshotBuilder.build(this);
 
+      System.err.println("HaulerMain.dumpWorld() - have snapshot, about to jackson...");
+      System.err.flush();
       String json = mapper.writeValueAsString(snapshot);
+      System.err.println("HaulerMain.dumpWorld() - jackson worked, about to copy to clipboard...");
+      System.err.flush();
 
       // Copy to clipboard
       Gdx.app.getClipboard().setContents(json);
+
+      System.err.println("HaulerMain.dumpWorld() - copy to clipboard worked.");
+      System.err.flush();
 
       // Timestamp message
       String timestamp =
@@ -975,6 +982,28 @@ public class HaulerMain extends ApplicationAdapter implements WorldView {
     } catch (Exception e) {
       System.err.println("Error building JSON world snapshot: " + e.getMessage());
       e.printStackTrace();
+    }
+  }
+
+  private void dumpWorld() {
+    try {
+      System.out.println("Dumping world...");
+      WorldSnapshot snapshot = WorldSnapshotBuilder.build(this);
+      String json = mapper.writeValueAsString(snapshot);
+
+      // Write to file
+      String path = "/Users/sasiela/hc-dev/hauler/worldsnapshot.json";
+      try (java.io.FileWriter fw = new java.io.FileWriter(path, false)) {
+        fw.write(json);
+      }
+
+      String timestamp =
+          java.time.LocalTime.now()
+              .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));
+      System.out.println(timestamp + " snapshot written to " + path);
+
+    } catch (Exception e) {
+      InitErrors.add("Error building & saving JSON world snapshot", e);
     }
   }
 

@@ -111,7 +111,8 @@ public class MarketBoardUiElement extends BaseUiElement implements UiElement {
     if (currentResource == null) return;
 
     // ── panel bounds (centered) ──────────────────────────────────────────
-    float panelX = (uiWidth - PANEL_WIDTH) / 2f;
+    // float panelX = (uiWidth - PANEL_WIDTH) / 2f;
+    float panelX = TABLE_PADDING_X;
     float rowHeight = font.getLineHeight() + ROW_SPACING;
     int cityCount = world.getCities().size();
 

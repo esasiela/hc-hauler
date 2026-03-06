@@ -8,5 +8,15 @@
     "outputs": {
       "SPICE": 1
     }
+  },
+  {
+    "id": "bar_recipe",
+    "craftRate": 2.0,
+    "inputs": {
+      "ORE": 1
+    },
+    "outputs": {
+      "BAR": 1
+    }
   }
 ]

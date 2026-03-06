@@ -1,5 +1,6 @@
 ## Custom:
 assets/characters/pipoya/
+worldsnapshot.json
 
 ## Gradle:
 .gradle/
